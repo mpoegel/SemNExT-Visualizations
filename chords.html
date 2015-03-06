@@ -3,7 +3,7 @@
 
 <head>
 <meta charset="utf-8">
-<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+<script src="lib/d3.min.js" charset="utf-8"></script>
 
 <style media="screen">
 text {
@@ -64,7 +64,7 @@ var svg = d3.select(".chart").append("svg")
 	.append("g")
 		.attr("transform", "translate(" + (width/2 + margin.left) + "," + (height/2 + margin.top) + ")");
 
-d3.csv("data/autism_chord_data.csv", function(error, data) {
+d3.csv("chord_data/autism_chord_data.csv", function(error, data) {
 	// extract the labels from the input data
 	var labels = [];
 	for (var gene in data['0']) labels.push(gene);
