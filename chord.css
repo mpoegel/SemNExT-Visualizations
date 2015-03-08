@@ -1,0 +1,41 @@
+/* SETTINGS BAR ------------------------------------------------------------- */
+.settings-bar {
+	height: 60px;
+	padding: 10px;
+	margin-bottom: 20px;
+}
+
+.horizontal-list {
+	list-style-type: none;
+}
+
+.horizontal-list li {
+	float: left;
+	padding-right: 20px;
+}
+
+/* CHART -------------------------------------------------------------------- */
+.chart {
+	text-align: center;
+}
+
+text {
+	font-size: 10px;
+}
+
+path.chord {
+	fill-opacity: .80;
+}
+
+.clusterLegend text {
+	font-size: 16px;
+}
+
+.chord-label {
+	fill: #000000;
+}
+
+.title {
+	font-size: 32px;
+	font-family: Arial, Helvetica, sans-serif;
+}
