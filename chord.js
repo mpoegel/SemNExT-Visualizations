@@ -73,9 +73,8 @@ $(document).ready(function(){
 function updateGraph() {
 	// reset settings
 	$("#set-hover-btn").addClass("active");
-	$("#set-click-btn").removeClass("active");
-	$("#set-no-highlight-btn").removeClass("active");
-	
+	$("#set-highlight-btns label").removeClass("active");
+
 	var data_index = $("#data-selector").val();
 	var data_file = data_files[data_index].file;
 	var title = data_files[data_index].name
@@ -328,4 +327,45 @@ function fadeCluster(opacity) {
 			.transition()
 				.style("opacity", opacity);
 	}
+}
+
+function fadeToggle() {
+	return function(g,i) {
+		var g = svg.selectAll("path.chord")
+					.filter(function(d) { return d.source.index == i || d.target.index == i; });
+		if (g.style("opacity") == 1) {
+			g.transition().style("opacity", 0.02);
+		}
+		else {
+			g.transition().style("opacity", 1.0);
+		}
+	};
+}
+
+function fadeToggle2() {
+	return function(g,i) {
+		var g = svg.selectAll("path.chord")
+					.filter(function(d) { return d.source.index == g.Index ||
+						d.target.index == g.Index; });
+		if (g.style("opacity") == 1) {
+			g.transition().style("opacity", 0.02)
+		}
+		else {
+			g.transition().style("opacity", 1.0);
+		}
+	};
+}
+
+function fadeToggleCluster() {
+	return function(g, i) {
+		var g = svg.selectAll("path.chord")
+				.filter(function(d) { return clusters[d.source.index] == g.cluster ||
+					clusters[d.target.index] == g.cluster; });
+		if (g.style("opacity") == 1) {
+			g.transition().style("opacity", 0.02);
+		}
+		else {
+			g.transition().style("opacity", 1.0);
+		}
+	};
 }

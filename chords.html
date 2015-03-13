@@ -27,32 +27,35 @@
 				</li>
 
 				<li>
-					<div class="btn-group" data-toggle="buttons" title="Highlight the\
-						dominant cluster for gene set, if defined.">
-						<label class="btn btn-primary">
-					    <input type="checkbox" autocomplete="off">Highlight Dominant Cluster
-					  </label>
+					<div class="btn btn-primary" id="highlight-dom-cluster-btn"
+						title="Highlight the dominant cluster for gene set, if defined.">
+						Highlight Dominant Cluster
 					</div>
 				</li>
 
 				<li>
-					<div class="btn-group" data-toggle="buttons">
-						<label class="btn btn-primary active" id="set-hover-btn" title="Highlight a gene on hover.">
+					<div class="btn-group" data-toggle="buttons" id="set-highlight-btns">
+						<label class="btn btn-primary active" id="set-hover-btn"
+							title="Highlight a gene on hover.">
 					    <input type="radio" autocomplete="off" checked>Hover
 					  </label>
-						<label class="btn btn-primary" id="set-click-btn" title="Hightlight a gene on click.">
+						<label class="btn btn-primary" id="set-click-btn"
+							title="Hightlight a gene on click.">
 					    <input type="radio" autocomplete="off">Click
 					  </label>
-						<label class="btn btn-primary" id="set-no-highlight-btn" title="Disable gene highlighting.">
+						<label class="btn btn-primary" id="set-no-highlight-btn"
+							title="Disable gene highlighting.">
 					    <input type="radio" autocomplete="off">None
 					  </label>
 					</div>
 				</li>
 
 				<li>
-					<div class="btn btn-primary" title="Display all gene connections.">
+					<div class="btn btn-primary" id="display-all-btn"
+					 	title="Display all gene connections.">
 						Display All</div>
-					<div class="btn btn-primary" title="Display no gene connections.">
+					<div class="btn btn-primary" id="display-none-btn"
+					 	title="Display no gene connections.">
 						Display None</div>
 				</li>
 			</ul>
