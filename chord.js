@@ -21,6 +21,8 @@ var fill = d3.scale.category10(),
 		colorScale = d3.scale.linear()
 			.range(["#232323", "green", "red"]);
 
+var clusters = [];
+
 function initializeSVG() {
 	return svg = d3.select(".chart").append("svg")
 			.attr("height", height + margin.top + margin.bottom)
@@ -31,27 +33,33 @@ function initializeSVG() {
 
 var data_files = [
 	{ name: "Alzheimer's",
-		file: 'alzheimer_chord_data.csv'
+		file: 'alzheimer_chord_data.csv',
+		domc: 6
 	},
 	{
 		name: 'Autism',
-		file: 'autism_chord_data.csv'
+		file: 'autism_chord_data.csv',
+		domc: 6
 	},
 	{
 		name: 'Holoprecencephaly',
-		file: 'holoprecencephaly_chord_data.csv'
+		file: 'holoprecencephaly_chord_data.csv',
+		domc: 3
 	},
 	{
 		name: 'Lissencephaly',
-		file: 'lissencephaly_chord_data.csv'
+		file: 'lissencephaly_chord_data.csv',
+		domc: 6
 	},
 	{
 		name: 'Microcephaly',
-		file: 'microcephaly_chord_data.csv'
+		file: 'microcephaly_chord_data.csv',
+		domc: 2
 	},
 	{
 		name: 'Tauopathy',
-		file: 'tauopathy_chord_data.csv'
+		file: 'tauopathy_chord_data.csv',
+		domc: 6
 	}
 ];
 
@@ -63,6 +71,11 @@ $(document).ready(function(){
 // this function is called whenever the user selects a new dataset from the
 // 	dropdown
 function updateGraph() {
+	// reset settings
+	$("#set-hover-btn").addClass("active");
+	$("#set-click-btn").removeClass("active");
+	$("#set-no-highlight-btn").removeClass("active");
+	
 	var data_index = $("#data-selector").val();
 	var data_file = data_files[data_index].file;
 	var title = data_files[data_index].name
@@ -82,11 +95,11 @@ function createGraph(data_file, svg, title) {
 		// construct a square matrix from the input
 		var matrix = [],
 				row = [],
-				clusters = [],
 				count = 0,
 				day_re = /[d]\d{1,2}/,
 				days = ['d0','d7','d12','d19','d26','d33','d49','d63','d77'],
 				heatmap = [];
+		clusters = [];
 		data.forEach(function(d) {
 			row = [];
 			// get the data for the cluster and the connection matrix
@@ -169,7 +182,7 @@ function createGraph(data_file, svg, title) {
 					.startAngle(function(d,i) { return chord.groups()[Math.floor(i/9)].startAngle - chord_padding/2; })
 					.endAngle(function(d,i) { return chord.groups()[Math.floor(i/9)].endAngle + chord_padding/2; })
 				)
-				.attr("class", ".heatmap_arc")
+				.attr("class", "heatmap_arc")
 				.attr("fill", function(d) { return colorScale(d.Value); })
 				.on("mouseover", fade2(.02))
 				.on("mouseout", fade2(1.0))
@@ -284,34 +297,35 @@ function createGraph(data_file, svg, title) {
 				.attr("text-anchor", "middle")
 				.text(title);
 
-		// Returns an event handler for fading a given chord group
-		function fade(opacity) {
-			return function(g, i) {
-				svg.selectAll("path.chord")
-						.filter(function(d) { return d.source.index != i && d.target.index != i; })
-					.transition()
-						.style("opacity", opacity);
-			};
-		}
-
-		function fade2(opacity) {
-			return function(g,i) {
-				svg.selectAll("path.chord")
-						.filter(function(d) { return d.source.index != g.Index && d.target.index != g.Index; })
-					.transition()
-						.style("opacity", opacity);
-			}
-		}
-
-		function fadeCluster(opacity) {
-			return function(g, i) {
-				svg.selectAll("path.chord")
-						.filter(function(d) { return clusters[d.source.index] != g.cluster &&
-							clusters[d.target.index] != g.cluster; })
-					.transition()
-						.style("opacity", opacity);
-			}
-		}
-
 	});
+}
+
+
+// Returns an event handler for fading a given chord group
+function fade(opacity) {
+	return function(g, i) {
+		svg.selectAll("path.chord")
+				.filter(function(d) { return d.source.index != i && d.target.index != i; })
+			.transition()
+				.style("opacity", opacity);
+	};
+}
+
+function fade2(opacity) {
+	return function(g,i) {
+		svg.selectAll("path.chord")
+				.filter(function(d) { return d.source.index != g.Index && d.target.index != g.Index; })
+			.transition()
+				.style("opacity", opacity);
+	}
+}
+
+function fadeCluster(opacity) {
+	return function(g, i) {
+		svg.selectAll("path.chord")
+				.filter(function(d) { return clusters[d.source.index] != g.cluster &&
+					clusters[d.target.index] != g.cluster; })
+			.transition()
+				.style("opacity", opacity);
+	}
 }
