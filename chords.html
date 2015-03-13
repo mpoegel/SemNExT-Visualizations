@@ -13,14 +13,6 @@
 	<div class="container">
 		<div class="row settings-bar">
 			<ul class="horizontal-list">
-				<!-- <li>
-					<div class="btn-group" data-toggle="buttons">
-						<label class="btn btn-primary active">
-					    <input type="checkbox" autocomplete="off">Highlight Dominant Cluster
-					  </label>
-					</div>
-				</li> -->
-
 				<li>
 					<div class="data-selector-div">
 						<select class="form-control" onChange="updateGraph()" id="data-selector">
@@ -32,6 +24,36 @@
 							<option value="5">Tauopathy</option>
 						</select>
 					</div>
+				</li>
+
+				<li>
+					<div class="btn-group" data-toggle="buttons" title="Highlight the\
+						dominant cluster for gene set, if defined.">
+						<label class="btn btn-primary">
+					    <input type="checkbox" autocomplete="off">Highlight Dominant Cluster
+					  </label>
+					</div>
+				</li>
+
+				<li>
+					<div class="btn-group" data-toggle="buttons">
+						<label class="btn btn-primary active" id="set-hover-btn" title="Highlight a gene on hover.">
+					    <input type="radio" autocomplete="off" checked>Hover
+					  </label>
+						<label class="btn btn-primary" id="set-click-btn" title="Hightlight a gene on click.">
+					    <input type="radio" autocomplete="off">Click
+					  </label>
+						<label class="btn btn-primary" id="set-no-highlight-btn" title="Disable gene highlighting.">
+					    <input type="radio" autocomplete="off">None
+					  </label>
+					</div>
+				</li>
+
+				<li>
+					<div class="btn btn-primary" title="Display all gene connections.">
+						Display All</div>
+					<div class="btn btn-primary" title="Display no gene connections.">
+						Display None</div>
 				</li>
 			</ul>
 
@@ -47,5 +69,6 @@
 <script src="lib/bootstrap.min.js" charset="utf-8"></script>
 
 <script src="chord.js" charset="utf-8"></script>
+<script src="events.js" charset="utf-8"></script>
 
 </html>
