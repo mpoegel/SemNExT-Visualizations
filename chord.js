@@ -5,7 +5,8 @@ var margin = {top: 180, right: 160, bottom: 160, left: 160},
 		outerRadius = innerRadius * 1.07,
 		cluster_band_width = 20,
 		chord_padding = 0.02,
-		heatmap_height = 100;
+		heatmap_height = 100,
+		large_flag = true;
 
 var chord = d3.layout.chord()
 		.padding(chord_padding)
@@ -23,12 +24,28 @@ var fill = d3.scale.category10(),
 
 var clusters = [];
 
-function initializeSVG() {
-	return svg = d3.select(".chart").append("svg")
+function initializeSVG(id) {
+	return svg = d3.select("#chart-"+id).append("svg")
 			.attr("height", height + margin.top + margin.bottom)
 			.attr("width", width + margin.left + margin.right)
 		.append("g")
 			.attr("transform", "translate(" + (width/2 + margin.left) + "," + (height/2 + margin.top) + ")");
+}
+
+function toggleSize() {
+	if (large_flag) {
+		width = 530 - margin.right - margin.left,
+		height = 530 - margin.top - margin.bottom,
+		innerRadius = Math.min(width, height) * .41,
+		outerRadius = innerRadius * 1.07;
+	}
+	else {
+		width = 960 - margin.right - margin.left,
+		height = 960 - margin.top - margin.bottom,
+		innerRadius = Math.min(width, height) * .41,
+		outerRadius = innerRadius * 1.07;
+	}
+	large_flag = !large_flag;
 }
 
 var data_files = [
@@ -65,21 +82,32 @@ var data_files = [
 
 // create a default chart on load
 $(document).ready(function(){
-	createGraph(data_files[0].file, initializeSVG(), data_files[0].name);
+	createGraph(data_files[0].file, initializeSVG(1), data_files[0].name);
 });
 
 // this function is called whenever the user selects a new dataset from the
 // 	dropdown
-function updateGraph() {
+function updateGraph(which) {
+	console.log(which);
 	// reset settings
 	$("#set-hover-btn").addClass("active");
 	$("#set-highlight-btns label").removeClass("active");
+	$("#chart-"+which).empty();
 
-	var data_index = $("#data-selector").val();
+	var data_index = $("#data-selector"+which).val();
+	if (which == '2') {
+		if (large_flag && data_index == '-1') {
+			toggleSize();
+			return;
+		}
+		// else {
+		// 	continue;
+		// }
+	}
+
 	var data_file = data_files[data_index].file;
 	var title = data_files[data_index].name
-	$(".chart").empty();
-	var svg = initializeSVG();
+	var svg = initializeSVG(which);
 	createGraph(data_file, svg, title);
 }
 

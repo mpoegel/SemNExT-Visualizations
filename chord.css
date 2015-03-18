@@ -14,6 +14,15 @@
 	padding-right: 20px;
 }
 
+.horizontal-list li:last-child {
+	float: right;
+}
+
+.expanded-settings-bar {
+	display: none;
+	padding: 10px;
+}
+
 /* CHART -------------------------------------------------------------------- */
 .chart {
 	text-align: center;
@@ -21,10 +30,6 @@
 
 text {
 	font-size: 10px;
-}
-
-path.chord {
-	fill-opacity: .80;
 }
 
 .clusterLegend text {
