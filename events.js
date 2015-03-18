@@ -15,7 +15,7 @@ function clearHighlighting() {
 
 function setHighlightOnHover() {
 	var svg = d3.select(".chart svg");
-	clearHighlighting(svg);
+	clearHighlighting();
 	$("#set-hover-btn").addClass("active");
 	svg.selectAll("g.group")
 		.on("mouseover", fade(0.02))
@@ -30,7 +30,7 @@ function setHighlightOnHover() {
 
 function setHighlightOnClick() {
 	var svg = d3.select(".chart svg");
-	clearHighlighting(svg);
+	clearHighlighting();
 	$("#set-click-btn").addClass("active");
 	svg.selectAll("g.group")
 		.on("click", fadeToggle());
@@ -56,7 +56,7 @@ $("#highlight-dom-cluster-btn").click(function() {
 	if(!highlight_dom_toggle) {
 		setHighlightOnClick();
 		displayNone();
-		var data_index = $("#data-selector").val();
+		var data_index = $("#data-selector1").val();
 		var c = data_files[data_index].domc;
 		var g = d3.select(".chart svg")
 			.selectAll("path.chord")
@@ -88,3 +88,45 @@ $("#display-all-btn").click(displayAll);
 $("#display-none-btn").click(displayNone);
 
 // =============================================================================
+// expanded settings
+var exp_set_toggle = false;
+$("#expand-settings-btn").click(function() {
+	if (exp_set_toggle) {
+		$(".expanded-settings-bar").slideUp();
+		$(this).text("Expand Settings");
+	}
+	else {
+		$(".expanded-settings-bar").slideDown();
+		$(this).text("Hide Settings");
+	}
+	exp_set_toggle = !exp_set_toggle;
+});
+
+// =============================================================================
+// download the SVG (from stack overflow holla)
+$("#download-btn").click(function(e) {
+	e.preventDefault();
+	//get svg element.
+	var svg = document.getElementById("chart-1");
+
+	//get svg source.
+	var serializer = new XMLSerializer();
+	var source = serializer.serializeToString(svg);
+
+	//add name spaces.
+	if(!source.match(/^<svg[^>]+xmlns="http\:\/\/www\.w3\.org\/2000\/svg"/)){
+	    source = source.replace(/^<svg/, '<svg xmlns="http://www.w3.org/2000/svg"');
+	}
+	if(!source.match(/^<svg[^>]+"http\:\/\/www\.w3\.org\/1999\/xlink"/)){
+	    source = source.replace(/^<svg/, '<svg xmlns:xlink="http://www.w3.org/1999/xlink"');
+	}
+
+	//add xml declaration
+	source = '<?xml version="1.0" standalone="no"?>\r\n' + source;
+
+	//convert svg source to URI data scheme.
+	var url = "data:image/svg+xml;charset=utf-8,"+encodeURIComponent(source);
+
+	//set url value to a element's href attribute.
+	window.location.href = url;
+});
