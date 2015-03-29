@@ -22,6 +22,7 @@ $(document).ready(function() {
 
 	mungeData("autism_chord_data.csv").then(function(data) {
 		updateWall(data.heatmap);
+		updateFloor(data.chord_matrix, data.clusters, data.gene_symbols);
 	});
 
 });
@@ -88,7 +89,7 @@ function mungeData(file_name) {
 }
 
 /* update the heatmap on the wall
-arguments: disease - name of the disease to be put on the wall
+arguments: heatmap_data - data to build the heatmap from
 
 returns: nothing
 */
@@ -152,27 +153,103 @@ function updateWall(heatmap_data) {
 }
 
 /* update the chord diagram on the wall
-arguments: disease - name of the disease to be put on the wall
+arguments: chord_data - data to build the chord diagram from
+					 clusters   - index-to-cluster-number data
+					 labels			- index-to-gene-symbol data
 
 returns: probably something
 */
-function updateFloor(disease) {
-
+function updateFloor(chord_matrix, clusters, labels) {
+	// start with a blank slate
+	$("#floor").empty();
+	// size configurations
+	// campfire floor dimensions are 1050x1050 (circle)
 	var	width = 1050 - margin.right - margin.left,
 			height = 1050 - margin.top - margin.bottom,
 			innerRadius = Math.min(width, height) * .41,
 			outerRadius = innerRadius * 1.07,
 			cluster_band_width = 20,
 			chord_padding = 0.02;
-
+	// create a color scale for the clusters
+	var fill = d3.scale.category10();
+	// initialize a chord object
 	var chord = d3.layout.chord()
 		.padding(chord_padding)
 		.sortSubgroups(d3.descending);
-
+	// initialize an arc object
 	var arc = d3.svg.arc()
 		.innerRadius(innerRadius)
 		.outerRadius(outerRadius);
-
-
-
+	// intialize another blank arc
+	var blank_arc = d3.svg.arc();
+	// create the chords from the data
+	chord.matrix(chord_matrix);
+	// initialize an svg object in the appropriate container, set the dimensions
+	// and create the margins
+	var chart = d3.select("#floor").append("svg")
+				.attr("width", width + margin.left + margin.right)
+				.attr("height", height + margin.top + margin.bottom)
+			.append("g")
+				.attr("transform", "translate(" + (width/2 + margin.left)
+					+ "," + (height/2 + margin.right) + ")");
+	// initialize the groups and attach additional data to use later
+	var g = chart.selectAll("g.group")
+			.data(chord.groups)
+		.enter().append("svg:g")
+			.attr("class", "group")
+			.each(function(d,i) {
+				d.angle = (d.startAngle + d.endAngle) / 2;
+				d.cluster = clusters[i];
+				d.gene = labels[i];
+			});
+	// create the arc corresponding to each gene
+	g.append("svg:path")
+			.style("stroke", function(d) { return fill(clusters[d.index]); })
+			.style("fill", function(d) { return fill(clusters[d.index]); })
+			.attr("d", arc);
+	// calculate the start and end angle for each cluster band
+	var cluster_bands = [],
+			band = {},
+			genes = [];
+	clusters.map(function(d,i) {
+		// new cluster is begining so add the old one
+		if (i != 0 && d != clusters[i-1]) {
+			genes.push(labels[i]);
+			band.genes = genes;
+			band.endAngle = (i == clusters.length-1 ? chord.groups()[i].endAngle : chord.groups()[i-1].endAngle);
+			if (!band.startAngle) { band.startAngle = 0; band.cluster = 1; }
+			cluster_bands.push(band);
+			band = {};
+			genes = [];
+			band.cluster = d;
+			band.startAngle = chord.groups()[i].startAngle;
+		}
+		// track the genes that are in this cluster band
+		genes.push(labels[i]);
+	});
+	// add the final cluster band
+	genes.push(labels[clusters.length-1]);
+	band.genes = genes;
+	band.endAngle = chord.groups()[clusters.length-1].endAngle;
+	cluster_bands.push(band);
+	// draw the cluster arcs using the data collected above
+	chart.selectAll(".cluster_arc")
+			.data(cluster_bands)
+		.enter().append("path")
+			.attr("d", blank_arc
+				.innerRadius(outerRadius)
+				.outerRadius(outerRadius + cluster_band_width)
+				.startAngle(function(d) { return d.startAngle - chord_padding/2; })
+				.endAngle(function(d) { return d.endAngle + chord_padding/2; })
+			)
+			.attr("class", "cluster_arc")
+			.attr("fill", function(d) { return fill(d.cluster); });
+	// draw the chords
+	chart.selectAll("path.chord")
+			.data(chord.chords)
+		.enter().append("svg:path")
+			.attr("class", "chord")
+			.style("stroke", function(d) { return d3.rgb(fill(clusters[d.source.index])).darker(); })
+			.style("fill", function(d) { return fill(clusters[d.source.index]); })
+			.attr("d", d3.svg.chord().radius(innerRadius));
 }
