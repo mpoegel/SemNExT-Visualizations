@@ -21,8 +21,9 @@ var margin = {top: 0, right: 0, bottom: 0, left: 0},
 $(document).ready(function() {
 
 	mungeData("autism_chord_data.csv").then(function(data) {
-		updateWall(data.heatmap);
-		updateFloor(data.chord_matrix, data.clusters, data.gene_symbols);
+		var group_lengths = updateFloor(data.chord_matrix, data.clusters,
+			data.gene_symbols);
+		updateWall(data.heatmap, group_lengths);
 	});
 
 });
@@ -90,27 +91,35 @@ function mungeData(file_name) {
 
 /* update the heatmap on the wall
 arguments: heatmap_data - data to build the heatmap from
+					 gene_widths - list of the widths to make each column
 
 returns: nothing
 */
-function updateWall(heatmap_data) {
+function updateWall(heatmap_data, gene_widths) {
 	// get a blank slate to work with
 	$("#wall").empty();
-
 	// define the width and height of the heatmap
 	// campfire wall dimensions are 6400x800
 	var	width = 6400 - margin.left - margin.right,
 			height = 800 - margin.top - margin.bottom;
-
-	// create x and y scales and a color scale to fill the individual boxes of
+	// scale the gene widths according the overall width
+	var sum = d3.sum(gene_widths);
+	var factor = width/sum,
+			run_sum = 0;
+	// create the x-direction scale (not using d3 scale)
+	var x = gene_widths.map(function(d) {
+			run_sum += d*factor;
+			return {
+				x: run_sum - d*factor, // pardon the inefficiencies
+				w: d*factor
+			}
+		});
+	// create a y scale and a color scale to fill the individual boxes of
 	// the heatmap
-	var x = d3.scale.ordinal()
-				.rangeRoundBands([0, width]),
-			y = d3.scale.ordinal()
+	var y = d3.scale.ordinal()
 				.rangeRoundBands([height, 0]),
-				colorScale = d3.scale.linear()
+			colorScale = d3.scale.linear()
 					.range(["#232323", "green", "red"]);
-
 	// initialize an svg object in the appropriate container, set the dimensions
 	// and create the margins
 	var chart = d3.select("#wall").append("svg")
@@ -118,16 +127,11 @@ function updateWall(heatmap_data) {
 				.attr("height", height + margin.top + margin.bottom)
 			.append("g")
 				.attr("transform", "translate(" + margin.left + "," + margin.right + ")");
-
 	// since there are 9 days for each datum point, the box heights are defined
 	// as follows
 	var box_height = height / 9;
-
-	// map the domain of the x scale to the gene_symbols
-	x.domain(heatmap_data.map(function(d) { return d.Gene_Symbol; }));
 	// map the domain of the y scale to the day numbers
 	y.domain(heatmap_data.map(function(d) { return d.Day; }));
-
 	// make the colorScale domain to be the mean +/- 2*sigma
 	// this does a good job of eliminating the outliers and preventing red or
 	// green to be over-dominant
@@ -139,15 +143,14 @@ function updateWall(heatmap_data) {
 			colorScale_max   = mu + 2 * sd,
 			colorScale_pivot = mu;
 	colorScale.domain([colorScale_min, colorScale_pivot, colorScale_max]);
-
 	// each datum points represents one tile
 	chart.selectAll(".tile")
 				.data(heatmap_data)
 			.enter().append("rect")
 				.attr("class", "tile")
-				.attr("x", function(d) { return x(d.Gene_Symbol); })
+				.attr("x", function(d,i) { return x[i/9 >> 0].x; })
 				.attr("y", function(d) { return y(d.Day); })
-				.attr("width", x.rangeBand())
+				.attr("width", function(d,i) { return x[i/9 >> 0].w; })
 				.attr("height", box_height)
 				.style("fill", function(d) { return colorScale(d.Value); });
 }
@@ -157,7 +160,7 @@ arguments: chord_data - data to build the chord diagram from
 					 clusters   - index-to-cluster-number data
 					 labels			- index-to-gene-symbol data
 
-returns: probably something
+returns: list of the chord group lengths
 */
 function updateFloor(chord_matrix, clusters, labels) {
 	// start with a blank slate
@@ -252,4 +255,11 @@ function updateFloor(chord_matrix, clusters, labels) {
 			.style("stroke", function(d) { return d3.rgb(fill(clusters[d.source.index])).darker(); })
 			.style("fill", function(d) { return fill(clusters[d.source.index]); })
 			.attr("d", d3.svg.chord().radius(innerRadius));
+
+	// make a list of each group's length and add the additional padding
+	var group_lengths = [];
+	for (var i in chord.groups()) {
+		group_lengths.push(chord.groups()[i].value + chord_padding);
+	}
+	return group_lengths;
 }
