@@ -32,6 +32,7 @@ $(document).ready(function() {
 	$.cookie("active_cluster", "");
 	// attach cookie listeners
 	listenForCookies("active_gene", fade);
+	listenForCookies("active_cluster", fadeCluster);
 
 });
 
@@ -164,7 +165,7 @@ function updateWall(heatmap_data, gene_widths) {
 				.attr("height", box_height)
 				.style("fill", function(d) { return colorScale(d.Value); })
 				.on("mouseover", function(d) { $.cookie("active_gene", d.Gene_Symbol); })
-				.on("mouseout", function(d) { $.cookie("active_gene", ""); });
+				// .on("mouseout", function(d) { $.cookie("active_gene", ""); });
 }
 
 /* update the chord diagram on the wall
@@ -221,7 +222,9 @@ function updateFloor(chord_matrix, clusters, labels) {
 	g.append("svg:path")
 			.style("stroke", function(d) { return fill(clusters[d.index]); })
 			.style("fill", function(d) { return fill(clusters[d.index]); })
-			.attr("d", arc);
+			.attr("d", arc)
+			.on("mouseover", function(d) { $.cookie("active_gene", d.gene); })
+			// .on("mouseout", function(d){ $.cookie("active_gene", ""); });
 	// calculate the start and end angle for each cluster band
 	var cluster_bands = [],
 			band = {},
@@ -258,7 +261,9 @@ function updateFloor(chord_matrix, clusters, labels) {
 				.endAngle(function(d) { return d.endAngle + chord_padding/2; })
 			)
 			.attr("class", "cluster_arc")
-			.attr("fill", function(d) { return fill(d.cluster); });
+			.attr("fill", function(d) { return fill(d.cluster); })
+			.on("mouseover", function(d) { $.cookie("active_cluster", d.cluster); })
+			// .on("mouseout", function(d) { $.cookie("active_cluster", ""); });
 	// draw the chords
 	chart.selectAll("path.chord")
 			.data(chord.chords)
@@ -305,5 +310,44 @@ arguments: gene	- name of a gene
 returns: nothing
 */
 function fade(gene) {
-	console.log("COOKIE: " + gene);
+	// reset everything to 100% opacity
+	d3.selectAll(".chart path.chord")
+		.transition()
+			.style("opacity", 1.0);
+	d3.selectAll(".chart .tile")
+		.transition()
+			.style("opacity", 1.0);
+	// hide everything not connected to the current selection
+	if (gene) {
+		d3.selectAll(".chart path.chord:not([gene='" + gene + "'])")
+			.transition()
+				.style("opacity", 0.02);
+		d3.selectAll(".chart .tile:not([gene='" + gene + "'])")
+			.transition()
+				.style("opacity", 0.50);
+	}
+}
+
+/* fade all elements not in a specific cluster
+arguments: cluster - cluster number to highlight
+
+returns: nothing
+*/
+function fadeCluster(cluster) {
+	// reset everything to 100% opacity
+	d3.selectAll(".chart path.chord")
+		.transition()
+			.style("opacity", 1.0);
+	d3.selectAll(".chart .tile")
+		.transition()
+			.style("opacity", 1.0);
+	// hide everything not in the selected cluster
+	if (cluster) {
+		d3.selectAll(".chart path.chord:not([cluster='" + cluster + "'])")
+			.transition()
+				.style("opacity", 0.02);
+		d3.selectAll(".chart .tile:not([cluster='" + cluster + "'])")
+			.transition()
+				.style("opacity", 0.50);
+	}
 }
