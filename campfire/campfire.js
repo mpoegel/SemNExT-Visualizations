@@ -15,6 +15,7 @@ var margin = {top: 0, right: 0, bottom: 0, left: 0},
 	// convert cluster number to cluster name
 		clusterToStage = ['Pluripotency', 'Ectoderm', 'Neural Differentiation',
 			'Cortical Specification', 'Early Layers', 'Upper Layers'];
+		var cookieRegistry = [];
 
 
 // initialize charts on page load
@@ -25,6 +26,12 @@ $(document).ready(function() {
 			data.gene_symbols);
 		updateWall(data.heatmap, group_lengths);
 	});
+
+	// initialize the cookies
+	$.cookie("active_gene", "");
+	$.cookie("active_cluster", "");
+	// attach cookie listeners
+	listenForCookies("active_gene", fade);
 
 });
 
@@ -67,6 +74,7 @@ function mungeData(file_name) {
 							Gene_Symbol: gene_symbols[count],
 							Day: gene,
 							Value: +d[gene],
+							Cluster: clusters[count],
 							Index: count
 						})
 					}
@@ -148,11 +156,15 @@ function updateWall(heatmap_data, gene_widths) {
 				.data(heatmap_data)
 			.enter().append("rect")
 				.attr("class", "tile")
+				.attr("gene", function(d) { return d.Gene_Symbol; })
+				.attr("cluster", function(d) { return d.Cluster; })
 				.attr("x", function(d,i) { return x[i/9 >> 0].x; })
 				.attr("y", function(d) { return y(d.Day); })
 				.attr("width", function(d,i) { return x[i/9 >> 0].w; })
 				.attr("height", box_height)
-				.style("fill", function(d) { return colorScale(d.Value); });
+				.style("fill", function(d) { return colorScale(d.Value); })
+				.on("mouseover", function(d) { $.cookie("active_gene", d.Gene_Symbol); })
+				.on("mouseout", function(d) { $.cookie("active_gene", ""); });
 }
 
 /* update the chord diagram on the wall
@@ -252,6 +264,8 @@ function updateFloor(chord_matrix, clusters, labels) {
 			.data(chord.chords)
 		.enter().append("svg:path")
 			.attr("class", "chord")
+			.attr("gene", function(d) { return labels[d.source.index]; })
+			.attr("cluster", function(d) { return clusters[d.source.index]; })
 			.style("stroke", function(d) { return d3.rgb(fill(clusters[d.source.index])).darker(); })
 			.style("fill", function(d) { return fill(clusters[d.source.index]); })
 			.attr("d", d3.svg.chord().radius(innerRadius));
@@ -262,4 +276,34 @@ function updateFloor(chord_matrix, clusters, labels) {
 		group_lengths.push(chord.groups()[i].value + chord_padding);
 	}
 	return group_lengths;
+}
+
+/* set an event listener on a particular cookie
+arguments: cookieName - name of the cookie to watch
+					 callback   - function to call on cookie change
+returns: value of the callback function evaluated at the new cookie value
+*/
+function listenForCookies(cookieName, callback) {
+	setInterval(function() {
+		if (cookieRegistry[cookieName]) {
+			if ($.cookie(cookieName) != cookieRegistry[cookieName]) {
+				// cookie changed, update the registry
+				cookieRegistry[cookieName] = $.cookie(cookieName);
+				return callback($.cookie(cookieName));
+			}
+		}
+		else {
+			// completely new cookie
+			cookieRegistry[cookieName] = $.cookie(cookieName);
+		}
+	}, 100); // check for changes every 100ms
+}
+
+/* fade all elements not related to a specific gene
+arguments: gene	- name of a gene
+
+returns: nothing
+*/
+function fade(gene) {
+	console.log("COOKIE: " + gene);
 }
