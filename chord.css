@@ -27,20 +27,3 @@
 .chart {
 	text-align: center;
 }
-
-text {
-	font-size: 10px;
-}
-
-.clusterLegend text {
-	font-size: 16px;
-}
-
-.chord-label {
-	fill: #000000;
-}
-
-.title {
-	font-size: 32px;
-	font-family: Arial, Helvetica, sans-serif;
-}
