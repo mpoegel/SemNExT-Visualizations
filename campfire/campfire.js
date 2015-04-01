@@ -14,27 +14,125 @@ global config
 var margin = {top: 0, right: 0, bottom: 0, left: 0},
 	// convert cluster number to cluster name
 		clusterToStage = ['Pluripotency', 'Ectoderm', 'Neural Differentiation',
-			'Cortical Specification', 'Early Layers', 'Upper Layers'];
-		var cookieRegistry = [];
+			'Cortical Specification', 'Early Layers', 'Upper Layers'],
+		cookieRegistry = [],
+		data_files = [
+			{ name: "Alzheimer's",
+				file: 'alzheimer_chord_data.csv',
+				domc: 6
+			},
+			{
+				name: 'Autism',
+				file: 'autism_chord_data.csv',
+				domc: 6
+			},
+			{
+				name: 'Holoprecencephaly',
+				file: 'holoprecencephaly_chord_data.csv',
+				domc: 3
+			},
+			{
+				name: 'Lissencephaly',
+				file: 'lissencephaly_chord_data.csv',
+				domc: 6
+			},
+			{
+				name: 'Microcephaly',
+				file: 'microcephaly_chord_data.csv',
+				domc: 2
+			},
+			{
+				name: 'Tauopathy',
+				file: 'tauopathy_chord_data.csv',
+				domc: 6
+			},
+			{
+				name: 'Symmetrical',
+				file: 'WBSsymmetrical_chord_data.csv',
+				domc: 1
+			},
+			{
+				name: 'Highly Linear',
+				file: 'WBShighlyLinear_chord_data.csv',
+				domc: 1
+			}
+		];
 
 
 // initialize charts on page load
 $(document).ready(function() {
 
-	mungeData("autism_chord_data.csv").then(function(data) {
-		var group_lengths = updateFloor(data.chord_matrix, data.clusters,
-			data.gene_symbols);
-		updateWall(data.heatmap, group_lengths);
-	});
+	// draw the default graph
+	updateGraph(0);
 
 	// initialize the cookies
 	$.cookie("active_gene", "");
 	$.cookie("active_cluster", "");
+	$.cookie("active_dataset", 0);
 	// attach cookie listeners
 	listenForCookies("active_gene", fade);
 	listenForCookies("active_cluster", fadeCluster);
+	listenForCookies("active_dataset", updateGraph);
 
+	// add the list of data sets to the data selection menu
+	for (var i = 0; i < data_files.length; i++) {
+		$("<li>")
+			.addClass("list-group-item")
+			.attr("data-number", i)
+			.append(
+				$("<h4>")
+					.addClass("list-group-item-heading")
+					.text(data_files[i].name)
+			).append(
+				$("<p>")
+					.addClass("list-group-item-text")
+					.text("Dominant Cluster: " + clusterToStage[data_files[i].domc-1])
+			).appendTo( $("#data-selector ul") );
+	}
 });
+
+// bind a custom popup menu to right click
+$(".chart").bind("contextmenu", function(e) {
+	e.preventDefault();
+	$(".menu").finish().show(100).css({
+		top: e.pageY + "px",
+		left: e.pageX + "px"
+	});
+}).bind("click", function(e) {
+	$(".menu").hide();
+	$(".data-menu").hide();
+});
+
+// bind event listener to the menu buttons
+$(".menu li").click(function() {
+	switch($(this).attr("data-action")) {
+		case "reset":
+			fadeReset();
+			break;
+		case "highlight-domc":
+			break;
+		case "show-legend":
+			break;
+		case "select-data":
+			selectData();
+			break;
+		default: break;
+	}
+	$(".menu").hide();
+});
+
+/* update the graph with the currently active dataset
+arguments: d - dataset number
+
+returns: nothing
+*/
+function updateGraph(d) {
+	mungeData(data_files[+d].file).then(function(data) {
+		var group_lengths = updateFloor(data.chord_matrix, data.clusters,
+			data.gene_symbols);
+		updateWall(data.heatmap, group_lengths);
+	});
+}
 
 /* munge the specified disease data for the heatmap and chord diagram
 arguments: file_name - name of the file to munge
@@ -311,12 +409,7 @@ returns: nothing
 */
 function fade(gene) {
 	// reset everything to 100% opacity
-	d3.selectAll(".chart path.chord")
-		.transition()
-			.style("opacity", 1.0);
-	d3.selectAll(".chart .tile")
-		.transition()
-			.style("opacity", 1.0);
+	fadeReset();
 	// hide everything not connected to the current selection
 	if (gene) {
 		d3.selectAll(".chart path.chord:not([gene='" + gene + "'])")
@@ -335,12 +428,7 @@ returns: nothing
 */
 function fadeCluster(cluster) {
 	// reset everything to 100% opacity
-	d3.selectAll(".chart path.chord")
-		.transition()
-			.style("opacity", 1.0);
-	d3.selectAll(".chart .tile")
-		.transition()
-			.style("opacity", 1.0);
+	fadeReset();
 	// hide everything not in the selected cluster
 	if (cluster) {
 		d3.selectAll(".chart path.chord:not([cluster='" + cluster + "'])")
@@ -350,4 +438,43 @@ function fadeCluster(cluster) {
 			.transition()
 				.style("opacity", 0.50);
 	}
+}
+
+/* reset all elements to 100% opacity
+arguments: none
+
+returns: nothing
+*/
+function fadeReset() {
+	// reset everything to 100% opacity
+	d3.selectAll(".chart path.chord")
+		.transition()
+			.style("opacity", 1.0);
+	d3.selectAll(".chart .tile")
+		.transition()
+			.style("opacity", 1.0);
+}
+
+/* data selection helper function
+arguments: none
+
+returns: nothing
+*/
+function selectData() {
+	// highlight the currently active dataset
+	$("#data-selector li")
+		.removeClass("active");
+	$("#data-selector li[data-number='" + $.cookie("active_dataset") + "']")
+		.addClass("active");
+
+	// event listeners
+	$("#data-selector li").bind("click", function(e){
+		e.preventDefault();
+		$("#data-selector").modal('hide');
+		// force the backdrop to disappear because sometimes it doesn't automatically
+		$('body').removeClass('modal-open');
+		$('.modal-backdrop').remove();
+
+		$.cookie("active_dataset", $(this).attr("data-number"));
+	});
 }
