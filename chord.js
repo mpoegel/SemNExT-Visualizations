@@ -28,6 +28,8 @@ function initializeSVG(id) {
 	return svg = d3.select("#chart-"+id).append("svg")
 			.attr("height", height + margin.top + margin.bottom)
 			.attr("width", width + margin.left + margin.right)
+			.style("font-size", "10px")
+			.style("font-family", "Arial, Helvetica, sans-serif")
 		.append("g")
 			.attr("transform", "translate(" + (width/2 + margin.left) + "," + (height/2 + margin.top) + ")");
 }
@@ -77,6 +79,16 @@ var data_files = [
 		name: 'Tauopathy',
 		file: 'tauopathy_chord_data.csv',
 		domc: 6
+	},
+	{
+		name: 'Symmetrical',
+		file: 'WBSsymmetrical_chord_data.csv',
+		domc: 1
+	},
+	{
+		name: 'Highly Linear',
+		file: 'WBShighlyLinear_chord_data.csv',
+		domc: 1
 	}
 ];
 
@@ -286,6 +298,7 @@ function createGraph(data_file, svg, title) {
 						.attr("width", 100)
 						.attr("fill", fill(d))
 						.attr("text-anchor", "end")
+						.style("font-size", "16px")
 						.text(clusterToStage[i]);
 				});
 
@@ -322,6 +335,8 @@ function createGraph(data_file, svg, title) {
 				.attr("class", "title")
 				.attr("transform", "translate(0," + (-height/2 - margin.top*.80) + ")")
 				.attr("text-anchor", "middle")
+				.style("font-size", "32px")
+				.style("font-family", "Arial, Helvetica, sans-serif")
 				.text(title);
 
 	});
