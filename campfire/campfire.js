@@ -63,16 +63,18 @@ var margin = {top: 0, right: 0, bottom: 0, left: 0},
 $(document).ready(function() {
 
 	// draw the default graph
-	updateGraph(0);
+	// updateGraph(1);
 
 	// initialize the cookies
-	$.cookie("active_gene", "");
-	$.cookie("active_cluster", "");
-	$.cookie("active_dataset", 0);
+	// $.cookie("active_gene", "");
+	// $.cookie("active_cluster", "");
+	// $.cookie("active_dataset", 0);
 	// attach cookie listeners
-	listenForCookies("active_gene", fade);
-	listenForCookies("active_cluster", fadeCluster);
-	listenForCookies("active_dataset", updateGraph);
+	// listenForCookies("active_gene", fade);
+	// listenForCookies("active_cluster", fadeCluster);
+	// listenForCookies("active_dataset", updateGraph);
+
+
 
 	// add the list of data sets to the data selection menu
 	for (var i = 0; i < data_files.length; i++) {
@@ -108,6 +110,7 @@ $(".menu li").click(function() {
 	switch($(this).attr("data-action")) {
 		case "reset":
 			fadeReset();
+			wallHandle.fadeReset();
 			break;
 		case "highlight-domc":
 			break;
@@ -130,7 +133,7 @@ function updateGraph(d) {
 	mungeData(data_files[+d].file).then(function(data) {
 		var group_lengths = updateFloor(data.chord_matrix, data.clusters,
 			data.gene_symbols);
-		updateWall(data.heatmap, group_lengths);
+		wallHandle.updateWall(data.heatmap, group_lengths);
 	});
 }
 
@@ -280,8 +283,9 @@ function updateFloor(chord_matrix, clusters, labels) {
 	// campfire floor dimensions are 1050x1050 (circle)
 	var	width = 1050 - margin.right - margin.left,
 			height = 1050 - margin.top - margin.bottom,
-			innerRadius = Math.min(width, height) * .41,
-			outerRadius = innerRadius * 1.07,
+			innerRadius = Math.min(width, height) * .45,
+			// outerRadius = innerRadius * 1.07,
+			outerRadius = Math.min(width, height) * .48;
 			cluster_band_width = 20,
 			chord_padding = 0.02;
 	// create a color scale for the clusters
@@ -321,7 +325,7 @@ function updateFloor(chord_matrix, clusters, labels) {
 			.style("stroke", function(d) { return fill(clusters[d.index]); })
 			.style("fill", function(d) { return fill(clusters[d.index]); })
 			.attr("d", arc)
-			.on("mouseover", function(d) { $.cookie("active_gene", d.gene); })
+			.on("mouseover", function(d) { propagateFade(d.gene); })
 			// .on("mouseout", function(d){ $.cookie("active_gene", ""); });
 	// calculate the start and end angle for each cluster band
 	var cluster_bands = [],
@@ -360,7 +364,7 @@ function updateFloor(chord_matrix, clusters, labels) {
 			)
 			.attr("class", "cluster_arc")
 			.attr("fill", function(d) { return fill(d.cluster); })
-			.on("mouseover", function(d) { $.cookie("active_cluster", d.cluster); })
+			// .on("mouseover", function(d) { faded.cluster); })
 			// .on("mouseout", function(d) { $.cookie("active_cluster", ""); });
 	// draw the chords
 	chart.selectAll("path.chord")
@@ -407,6 +411,11 @@ arguments: gene	- name of a gene
 
 returns: nothing
 */
+function propagateFade(gene) {
+	wallHandle.fade(gene);
+	fade(gene)
+}
+
 function fade(gene) {
 	// reset everything to 100% opacity
 	fadeReset();
@@ -415,9 +424,6 @@ function fade(gene) {
 		d3.selectAll(".chart path.chord:not([gene='" + gene + "'])")
 			.transition()
 				.style("opacity", 0.02);
-		d3.selectAll(".chart .tile:not([gene='" + gene + "'])")
-			.transition()
-				.style("opacity", 0.50);
 	}
 }
 
@@ -434,9 +440,10 @@ function fadeCluster(cluster) {
 		d3.selectAll(".chart path.chord:not([cluster='" + cluster + "'])")
 			.transition()
 				.style("opacity", 0.02);
-		d3.selectAll(".chart .tile:not([cluster='" + cluster + "'])")
-			.transition()
-				.style("opacity", 0.50);
+		// wallHandle.fadeReset(cluster);
+		// d3.selectAll(".chart .tile:not([cluster='" + cluster + "'])")
+		// 	.transition()
+		// 		.style("opacity", 0.50);
 	}
 }
 
@@ -450,9 +457,10 @@ function fadeReset() {
 	d3.selectAll(".chart path.chord")
 		.transition()
 			.style("opacity", 1.0);
-	d3.selectAll(".chart .tile")
-		.transition()
-			.style("opacity", 1.0);
+	// wallHandle.fadeReset();
+	// d3.selectAll(".chart .tile")
+	// 	.transition()
+	// 		.style("opacity", 1.0);
 }
 
 /* data selection helper function
@@ -475,6 +483,7 @@ function selectData() {
 		$('body').removeClass('modal-open');
 		$('.modal-backdrop').remove();
 
-		$.cookie("active_dataset", $(this).attr("data-number"));
+		// $.cookie("active_dataset", $(this).attr("data-number"));
+		updateGraph( $(this).attr("data-number") );
 	});
 }

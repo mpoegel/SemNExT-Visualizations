@@ -1,3 +1,14 @@
+body {
+	background: #000;
+}
+
+#floor {
+	text-align: center;
+  -ms-transform: rotate(180deg); /* IE 9 */
+  -webkit-transform: rotate(180deg); /* Chrome, Safari, Opera */
+  transform: rotate(180deg);
+}
+
 .menu {
 	list-style-type: none;
 	z-index: 9999;
