@@ -77,26 +77,39 @@ function updateWall(heatmap_data, gene_widths) {
 				.attr("width", function(d,i) { return x[i/9 >> 0].w; })
 				.attr("height", box_height)
 				.style("fill", function(d) { return colorScale(d.Value); })
-				.on("mouseover", function(d) { propagateFade(d.Gene_Symbol); })
-				// .on("mouseout", function(d) { $.cookie("active_gene", ""); });
+				.on("mouseover", function(d) {
+					fade(d.Gene_Symbol);
+					window.opener.fade(d.Gene_Symbol);
+				})
 }
 
-/* fade all elements not related to a specific gene
-arguments: gene	- name of a gene
+/* fade all elements not related to a specific gene on the wall
+arguments: gene	- name of a gene to highlight
 
 returns: nothing
 */
-function propagateFade(gene) {
-	window.opener.fade(gene);
-	fade(gene);
-}
-
 function fade(gene) {
 	// reset everything to 100% opacity
 	fadeReset();
 	// hide everything not connected to the current selection
 	if (gene) {
 		d3.selectAll(".chart .tile:not([gene='" + gene + "'])")
+			.transition()
+				.style("opacity", 0.50);
+	}
+}
+
+/* fade all elements not in a specific cluster
+arguments: cluster - cluster number to highlight
+
+returns: nothing
+*/
+function fadeCluster(cluster) {
+	// reset everything to 100% opacity
+	fadeReset();
+	// hide everything not in the selected cluster
+	if (cluster) {
+		d3.selectAll(".chart .tile:not([cluster='" + cluster + "'])")
 			.transition()
 				.style("opacity", 0.50);
 	}

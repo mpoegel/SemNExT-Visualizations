@@ -62,8 +62,12 @@ var margin = {top: 0, right: 0, bottom: 0, left: 0},
 // initialize charts on page load
 $(document).ready(function() {
 
-	// draw the default graph
-	// updateGraph(1);
+	// asynchronously wait for the wallHandle object to be created, then draw
+	// the default graph
+	setTimeout(function() {
+		while(!wallHandle);
+		updateGraphs(1);
+	}, 0);
 
 	// initialize the cookies
 	// $.cookie("active_gene", "");
@@ -72,7 +76,7 @@ $(document).ready(function() {
 	// attach cookie listeners
 	// listenForCookies("active_gene", fade);
 	// listenForCookies("active_cluster", fadeCluster);
-	// listenForCookies("active_dataset", updateGraph);
+	// listenForCookies("active_dataset", updateGraphs);
 
 
 
@@ -129,7 +133,7 @@ arguments: d - dataset number
 
 returns: nothing
 */
-function updateGraph(d) {
+function updateGraphs(d) {
 	mungeData(data_files[+d].file).then(function(data) {
 		var group_lengths = updateFloor(data.chord_matrix, data.clusters,
 			data.gene_symbols);
@@ -325,8 +329,10 @@ function updateFloor(chord_matrix, clusters, labels) {
 			.style("stroke", function(d) { return fill(clusters[d.index]); })
 			.style("fill", function(d) { return fill(clusters[d.index]); })
 			.attr("d", arc)
-			.on("mouseover", function(d) { propagateFade(d.gene); })
-			// .on("mouseout", function(d){ $.cookie("active_gene", ""); });
+			.on("mouseover", function(d) {
+				fade(d.gene);
+				wallHandle.fade(d.gene);
+			});
 	// calculate the start and end angle for each cluster band
 	var cluster_bands = [],
 			band = {},
@@ -364,8 +370,10 @@ function updateFloor(chord_matrix, clusters, labels) {
 			)
 			.attr("class", "cluster_arc")
 			.attr("fill", function(d) { return fill(d.cluster); })
-			// .on("mouseover", function(d) { faded.cluster); })
-			// .on("mouseout", function(d) { $.cookie("active_cluster", ""); });
+			.on("mouseover", function(d) {
+				fadeCluster(d.cluster);
+				wallHandle.fadeCluster(d.cluster);
+			})
 	// draw the chords
 	chart.selectAll("path.chord")
 			.data(chord.chords)
@@ -406,16 +414,11 @@ function listenForCookies(cookieName, callback) {
 	}, 100); // check for changes every 100ms
 }
 
-/* fade all elements not related to a specific gene
-arguments: gene	- name of a gene
+/* fade all elements not related to a specific gene on the floor
+arguments: gene	- name of a gene to highlight
 
 returns: nothing
 */
-function propagateFade(gene) {
-	wallHandle.fade(gene);
-	fade(gene)
-}
-
 function fade(gene) {
 	// reset everything to 100% opacity
 	fadeReset();
@@ -440,10 +443,6 @@ function fadeCluster(cluster) {
 		d3.selectAll(".chart path.chord:not([cluster='" + cluster + "'])")
 			.transition()
 				.style("opacity", 0.02);
-		// wallHandle.fadeReset(cluster);
-		// d3.selectAll(".chart .tile:not([cluster='" + cluster + "'])")
-		// 	.transition()
-		// 		.style("opacity", 0.50);
 	}
 }
 
@@ -457,10 +456,6 @@ function fadeReset() {
 	d3.selectAll(".chart path.chord")
 		.transition()
 			.style("opacity", 1.0);
-	// wallHandle.fadeReset();
-	// d3.selectAll(".chart .tile")
-	// 	.transition()
-	// 		.style("opacity", 1.0);
 }
 
 /* data selection helper function
@@ -484,6 +479,6 @@ function selectData() {
 		$('.modal-backdrop').remove();
 
 		// $.cookie("active_dataset", $(this).attr("data-number"));
-		updateGraph( $(this).attr("data-number") );
+		updateGraphs( $(this).attr("data-number") );
 	});
 }
