@@ -1,16 +1,7 @@
-var margin = {top: 0, right: 0, bottom: 0, left: 0},
-	// convert cluster number to cluster name
-		clusterToStage = ['Pluripotency', 'Ectoderm', 'Neural Differentiation',
-			'Cortical Specification', 'Early Layers', 'Upper Layers'];
-
-$(document).ready(function() {
-
-	// window.opener to parent
-
-});
-
-
-
+var margin = window.opener.margin,
+		clusterToStage = window.opener.clusterToStage,
+		data_files = window.opener.data_files;
+		
 /* update the heatmap on the wall
 arguments: heatmap_data - data to build the heatmap from
 					 gene_widths - list of the widths to make each column
@@ -47,6 +38,7 @@ function updateWall(heatmap_data, gene_widths) {
 	var chart = d3.select("#wall").append("svg")
 				.attr("width", width + margin.left + margin.right)
 				.attr("height", height + margin.top + margin.bottom)
+				.attr("background", "#000")
 			.append("g")
 				.attr("transform", "translate(" + margin.left + "," + margin.right + ")");
 	// since there are 9 days for each datum point, the box heights are defined

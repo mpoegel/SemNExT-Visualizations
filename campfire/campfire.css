@@ -1,5 +1,9 @@
-body {
-	background: #000;
+.chart {
+	background-color: #000;
+}
+
+html {
+	background-color: #000;
 }
 
 #floor {
