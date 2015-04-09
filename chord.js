@@ -89,6 +89,11 @@ var data_files = [
 		name: 'Highly Linear',
 		file: 'WBShighlyLinear_chord_data.csv',
 		domc: 1
+	},
+	{
+		name: 'Williams-Beuren Syndrome',
+		file: 'WilliamsBeurenSyndrome_chord_data.csv',
+		domc: 1
 	}
 ];
 
