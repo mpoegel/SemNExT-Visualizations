@@ -15,7 +15,7 @@ var margin = {top: 0, right: 0, bottom: 0, left: 0},
 	// convert cluster number to cluster name
 		clusterToStage = ['Pluripotency', 'Ectoderm', 'Neural Differentiation',
 			'Cortical Specification', 'Early Layers', 'Upper Layers'],
-		cookieRegistry = [],
+		active_dataset = 1,
 		data_files = [
 			{ name: "Alzheimer's",
 				file: 'alzheimer_chord_data.csv',
@@ -66,19 +66,8 @@ $(document).ready(function() {
 	// the default graph
 	setTimeout(function() {
 		while(!wallHandle);
-		updateGraphs(1);
+		updateGraphs(active_dataset);
 	}, 0);
-
-	// initialize the cookies
-	// $.cookie("active_gene", "");
-	// $.cookie("active_cluster", "");
-	// $.cookie("active_dataset", 0);
-	// attach cookie listeners
-	// listenForCookies("active_gene", fade);
-	// listenForCookies("active_cluster", fadeCluster);
-	// listenForCookies("active_dataset", updateGraphs);
-
-
 
 	// add the list of data sets to the data selection menu
 	for (var i = 0; i < data_files.length; i++) {
@@ -203,76 +192,6 @@ function mungeData(file_name) {
 	});
 }
 
-/* update the heatmap on the wall
-arguments: heatmap_data - data to build the heatmap from
-					 gene_widths - list of the widths to make each column
-
-returns: nothing
-*/
-function updateWall(heatmap_data, gene_widths) {
-	// get a blank slate to work with
-	$("#wall").empty();
-	// define the width and height of the heatmap
-	// campfire wall dimensions are 6400x800
-	var	width = 6400 - margin.left - margin.right,
-			height = 800 - margin.top - margin.bottom;
-	// scale the gene widths according the overall width
-	var sum = d3.sum(gene_widths);
-	var factor = width/sum,
-			run_sum = 0;
-	// create the x-direction scale (not using d3 scale)
-	var x = gene_widths.map(function(d) {
-			run_sum += d*factor;
-			return {
-				x: run_sum - d*factor, // pardon the inefficiencies
-				w: d*factor
-			}
-		});
-	// create a y scale and a color scale to fill the individual boxes of
-	// the heatmap
-	var y = d3.scale.ordinal()
-				.rangeRoundBands([height, 0]),
-			colorScale = d3.scale.linear()
-					.range(["#232323", "green", "red"]);
-	// initialize an svg object in the appropriate container, set the dimensions
-	// and create the margins
-	var chart = d3.select("#wall").append("svg")
-				.attr("width", width + margin.left + margin.right)
-				.attr("height", height + margin.top + margin.bottom)
-			.append("g")
-				.attr("transform", "translate(" + margin.left + "," + margin.right + ")");
-	// since there are 9 days for each datum point, the box heights are defined
-	// as follows
-	var box_height = height / 9;
-	// map the domain of the y scale to the day numbers
-	y.domain(heatmap_data.map(function(d) { return d.Day; }));
-	// make the colorScale domain to be the mean +/- 2*sigma
-	// this does a good job of eliminating the outliers and preventing red or
-	// green to be over-dominant
-	var mu = d3.mean(heatmap_data, function(d) { return d.Value; }),
-			sd = 0;
-	heatmap_data.forEach(function(d) { sd += Math.pow(d.Value - mu,2); });
-	sd = Math.sqrt(sd / heatmap_data.length);
-	var colorScale_min   = mu - 2 * sd,
-			colorScale_max   = mu + 2 * sd,
-			colorScale_pivot = mu;
-	colorScale.domain([colorScale_min, colorScale_pivot, colorScale_max]);
-	// each datum points represents one tile
-	chart.selectAll(".tile")
-				.data(heatmap_data)
-			.enter().append("rect")
-				.attr("class", "tile")
-				.attr("gene", function(d) { return d.Gene_Symbol; })
-				.attr("cluster", function(d) { return d.Cluster; })
-				.attr("x", function(d,i) { return x[i/9 >> 0].x; })
-				.attr("y", function(d) { return y(d.Day); })
-				.attr("width", function(d,i) { return x[i/9 >> 0].w; })
-				.attr("height", box_height)
-				.style("fill", function(d) { return colorScale(d.Value); })
-				.on("mouseover", function(d) { $.cookie("active_gene", d.Gene_Symbol); })
-				// .on("mouseout", function(d) { $.cookie("active_gene", ""); });
-}
-
 /* update the chord diagram on the wall
 arguments: chord_data - data to build the chord diagram from
 					 clusters   - index-to-cluster-number data
@@ -393,27 +312,6 @@ function updateFloor(chord_matrix, clusters, labels) {
 	return group_lengths;
 }
 
-/* set an event listener on a particular cookie
-arguments: cookieName - name of the cookie to watch
-					 callback   - function to call on cookie change
-returns: value of the callback function evaluated at the new cookie value
-*/
-function listenForCookies(cookieName, callback) {
-	setInterval(function() {
-		if (cookieRegistry[cookieName]) {
-			if ($.cookie(cookieName) != cookieRegistry[cookieName]) {
-				// cookie changed, update the registry
-				cookieRegistry[cookieName] = $.cookie(cookieName);
-				return callback($.cookie(cookieName));
-			}
-		}
-		else {
-			// completely new cookie
-			cookieRegistry[cookieName] = $.cookie(cookieName);
-		}
-	}, 100); // check for changes every 100ms
-}
-
 /* fade all elements not related to a specific gene on the floor
 arguments: gene	- name of a gene to highlight
 
@@ -467,7 +365,7 @@ function selectData() {
 	// highlight the currently active dataset
 	$("#data-selector li")
 		.removeClass("active");
-	$("#data-selector li[data-number='" + $.cookie("active_dataset") + "']")
+	$("#data-selector li[data-number='" + active_dataset + "']")
 		.addClass("active");
 
 	// event listeners
@@ -478,7 +376,7 @@ function selectData() {
 		$('body').removeClass('modal-open');
 		$('.modal-backdrop').remove();
 
-		// $.cookie("active_dataset", $(this).attr("data-number"));
+		active_dataset = $(this).attr("data-number");
 		updateGraphs( $(this).attr("data-number") );
 	});
 }
