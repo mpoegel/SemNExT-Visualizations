@@ -305,9 +305,13 @@ function updateFloor(chord_matrix, clusters, labels) {
 			.attr("d", d3.svg.chord().radius(innerRadius));
 
 	// make a list of each group's length and add the additional padding
-	var group_lengths = [];
+	var group_lengths = [],
+			s = 0;
 	for (var i in chord.groups()) {
-		group_lengths.push(chord.groups()[i].value + chord_padding);
+		s = outerRadius *
+			(chord.groups()[i].endAngle - chord.groups()[i].startAngle + chord_padding);
+		console.log(chord.groups()[i]);
+		group_lengths.push(s);
 	}
 	return group_lengths;
 }

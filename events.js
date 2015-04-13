@@ -56,7 +56,7 @@ $("#highlight-dom-cluster-btn").click(function() {
 	if(!highlight_dom_toggle) {
 		setHighlightOnClick();
 		displayNone();
-		var data_index = $("#data-selector1").val();
+		var data_index = $("#data-selector").val();
 		var c = data_files[data_index].domc;
 		var g = d3.select(".chart svg")
 			.selectAll("path.chord")
