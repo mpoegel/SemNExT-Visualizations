@@ -18,13 +18,13 @@ function setHighlightOnHover() {
 	clearHighlighting();
 	$("#set-hover-btn").addClass("active");
 	svg.selectAll("g.group")
-		.on("mouseover", fade(0.02))
+		.on("mouseover", fade(0.20))
 		.on("mouseout", fade(1.0));
 	svg.selectAll(".heatmap_arc")
-		.on("mouseover", fade2(0.02))
+		.on("mouseover", fade2(0.20))
 		.on("mouseout", fade2(1.0));
 	svg.selectAll(".cluster_arc")
-		.on("mouseover", fadeCluster(0.02))
+		.on("mouseover", fadeCluster(0.20))
 		.on("mouseout", fadeCluster(1.0));
 };
 
@@ -81,7 +81,7 @@ function displayNone() {
 	var svg = d3.select(".chart svg");
 	svg.selectAll("path.chord")
 		.transition()
-			.style("opacity", 0.02);
+			.style("opacity", 0.20);
 };
 
 $("#display-all-btn").click(displayAll);
