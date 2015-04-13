@@ -30,7 +30,7 @@
 			<ul class="horizontal-list">
 				<li>
 					<div class="data-selector-div">
-						<select class="form-control" onChange="updateGraph(1)" id="data-selector1">
+						<select class="form-control" onChange="updateGraph()" id="data-selector">
 							<option value="0">Alzheimer's</option>
 							<option value="1">Autism</option>
 							<option value="2">Holopressencephaly</option>
@@ -43,19 +43,6 @@
 						</select>
 					</div>
 				</li>
-				<!-- <li>
-					<div class="data-selector-div">
-						<select class="form-control" onChange="updateGraph(2)" id="data-selector2">
-							<option value="-1">None</option>
-							<option value="0">Alzheimer's</option>
-							<option value="1">Autism</option>
-							<option value="2">Holopressencephaly</option>
-							<option value="3">Lissencephaly</option>
-							<option value="4">Microcephaly</option>
-							<option value="5">Tauopathy</option>
-						</select>
-					</div>
-				</li> -->
 
 				<li>
 					<div class="btn btn-primary" id="highlight-dom-cluster-btn"
@@ -100,8 +87,7 @@
 
 		</div>
 
-		<div class="chart" id="chart-1"></div>
-		<!-- <div class="chart" id="chart-2"></div> -->
+		<div class="chart"></div>
 
 	</div>
 </body>
