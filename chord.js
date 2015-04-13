@@ -202,7 +202,7 @@ function createGraph(chord_matrix, clusters, labels, heatmap, title) {
 				d.cluster = clusters[i];
 				d.gene = labels[i];
 			})
-			.on("mouseover", fade(.02))
+			.on("mouseover", fade(.15))
 			.on("mouseout", fade(1.0));
 
 	g.append("svg:path")
@@ -235,7 +235,7 @@ function createGraph(chord_matrix, clusters, labels, heatmap, title) {
 			)
 			.attr("class", "heatmap_arc")
 			.attr("fill", function(d) { return colorScale(d.Value); })
-			.on("mouseover", fade2(.02))
+			.on("mouseover", fade2(.15))
 			.on("mouseout", fade2(1.0))
 
 	// draw the cluster bands
@@ -273,7 +273,7 @@ function createGraph(chord_matrix, clusters, labels, heatmap, title) {
 			)
 			.attr("class", "cluster_arc")
 			.attr("fill", function(d) { return fill(d.cluster); })
-			.on("mouseover", fadeCluster(.02))
+			.on("mouseover", fadeCluster(.15))
 			.on("mouseout", fadeCluster(1.0));
 
 	// draw chords
