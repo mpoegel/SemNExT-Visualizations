@@ -314,6 +314,7 @@ function createGraph(chord_matrix, clusters, labels, heatmap, title) {
 			.data(chord.chords)
 		.enter().append("svg:path")
 			.attr("class", "chord")
+			.attr("visible", true)
 			.each(function(d) {
 				d.source.name = labels[d.source.index];
 				d.target.name = labels[d.target.index];
@@ -395,7 +396,8 @@ function fade(opacity) {
 		d3.selectAll("path.chord")
 				.filter(function(d) { return d.source.index != i && d.target.index != i; })
 			.transition()
-				.style("opacity", opacity);
+				.style("opacity", opacity)
+				.attr("visible", opacity == 1);
 	};
 }
 
@@ -404,7 +406,8 @@ function fade2(opacity) {
 		d3.selectAll("path.chord")
 				.filter(function(d) { return d.source.index != g.Index && d.target.index != g.Index; })
 			.transition()
-				.style("opacity", opacity);
+				.style("opacity", opacity)
+				.attr("visible", opacity == 1);
 	}
 }
 
@@ -414,7 +417,8 @@ function fadeCluster(opacity) {
 				.filter(function(d) { return clusters[d.source.index] != g.cluster &&
 					clusters[d.target.index] != g.cluster; })
 			.transition()
-				.style("opacity", opacity);
+				.style("opacity", opacity)
+				.attr("visible", opacity == 1);
 	}
 }
 
@@ -423,10 +427,12 @@ function fadeToggle() {
 		var g = d3.selectAll("path.chord")
 					.filter(function(d) { return d.source.index == i || d.target.index == i; });
 		if (g.style("opacity") == 1) {
-			g.transition().style("opacity", 0.02);
+			g.transition().style("opacity", 0.02)
+				.attr("visible", false);
 		}
 		else {
-			g.transition().style("opacity", 1.0);
+			g.transition().style("opacity", 1.0)
+				.attr("visible", true);
 		}
 	};
 }
@@ -438,9 +444,11 @@ function fadeToggle2() {
 						d.target.index == g.Index; });
 		if (g.style("opacity") == 1) {
 			g.transition().style("opacity", 0.02)
+				.attr("visible", false);
 		}
 		else {
-			g.transition().style("opacity", 1.0);
+			g.transition().style("opacity", 1.0)
+				.attr("visible", true);
 		}
 	};
 }

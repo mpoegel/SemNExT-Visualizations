@@ -63,29 +63,52 @@ $("#highlight-dom-cluster-btn").click(function() {
 				.filter(function(d) { return clusters[d.source.index] == c ||
 				 	clusters[d.target.index] == c; })
 				.transition()
-					.style("opacity", 1.0);
+					.style("opacity", 1.0)
+					.attr("visible", true);
 	}
 	highlight_dom_toggle = !highlight_dom_toggle;
 });
 
 // =============================================================================
 // highlight all or none (reset)
+$(".display-btn").click(function() {
+	switch($(this).attr("data-action")) {
+		case "all":
+			displayAll();
+			break;
+		case "none":
+			displayNone();
+			break;
+		case "invert":
+			displayInvert();
+			break;
+	}
+});
+
 function displayAll() {
 	var svg = d3.select(".chart svg");
 	svg.selectAll("path.chord")
 		.transition()
-			.style("opacity", 1.0);
+			.style("opacity", 1.0)
+			.attr("visible", true);
 };
 
 function displayNone() {
 	var svg = d3.select(".chart svg");
 	svg.selectAll("path.chord")
 		.transition()
-			.style("opacity", 0.15);
+			.style("opacity", 0.15)
+			.attr("visible", false);
 };
 
-$("#display-all-btn").click(displayAll);
-$("#display-none-btn").click(displayNone);
+function displayInvert() {
+	var hidden  = d3.selectAll("path.chord[visible=false]"),
+			visible = d3.selectAll("path.chord[visible=true]");
+	hidden.transition()
+		.style("opacity", 1.0).attr("visible", true);
+	visible.transition()
+		.style("opacity", 0.15).attr("visible", false);
+};
 
 // =============================================================================
 // expanded settings
@@ -94,10 +117,12 @@ $("#expand-settings-btn").click(function() {
 	$(this).empty();
 	if (exp_set_toggle) {
 		$(".expanded-settings-bar").slideUp();
+		$(this).attr("title", "Show more settings.")
 		$(this).append('<i class="fa fa-plus-square-o fa-2x"></i>');
 	}
 	else {
 		$(".expanded-settings-bar").slideDown();
+		$(this).attr("title", "Show less settings.")
 		$(this).append('<i class="fa fa-minus-square-o fa-2x"></i>');
 	}
 	exp_set_toggle = !exp_set_toggle;
