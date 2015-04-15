@@ -18,13 +18,13 @@ function setHighlightOnHover() {
 	clearHighlighting();
 	$("#set-hover-btn").addClass("active");
 	svg.selectAll("g.group")
-		.on("mouseover", fade(0.20))
+		.on("mouseover", fade(0.15))
 		.on("mouseout", fade(1.0));
 	svg.selectAll(".heatmap_arc")
-		.on("mouseover", fade2(0.20))
+		.on("mouseover", fade2(0.15))
 		.on("mouseout", fade2(1.0));
 	svg.selectAll(".cluster_arc")
-		.on("mouseover", fadeCluster(0.20))
+		.on("mouseover", fadeCluster(0.15))
 		.on("mouseout", fadeCluster(1.0));
 };
 
@@ -81,7 +81,7 @@ function displayNone() {
 	var svg = d3.select(".chart svg");
 	svg.selectAll("path.chord")
 		.transition()
-			.style("opacity", 0.10);
+			.style("opacity", 0.15);
 };
 
 $("#display-all-btn").click(displayAll);
@@ -91,45 +91,65 @@ $("#display-none-btn").click(displayNone);
 // expanded settings
 var exp_set_toggle = false;
 $("#expand-settings-btn").click(function() {
+	$(this).empty();
 	if (exp_set_toggle) {
 		$(".expanded-settings-bar").slideUp();
-		$(this).text("Expand Settings");
+		$(this).append('<i class="fa fa-plus-square-o fa-2x"></i>');
 	}
 	else {
 		$(".expanded-settings-bar").slideDown();
-		$(this).text("Hide Settings");
+		$(this).append('<i class="fa fa-minus-square-o fa-2x"></i>');
 	}
 	exp_set_toggle = !exp_set_toggle;
 });
 
 // =============================================================================
-// download the SVG (from stack overflow holla)
-$("#download-btn").click(function(e) {
-	e.preventDefault();
-	//get svg element.
-	var svg = document.getElementById("chart-1");
-
-	//get svg source.
-	var serializer = new XMLSerializer();
-	var source = serializer.serializeToString(svg);
-
-	//add name spaces.
-	if(!source.match(/^<svg[^>]+xmlns="http\:\/\/www\.w3\.org\/2000\/svg"/)){
-	    source = source.replace(/^<svg/, '<svg xmlns="http://www.w3.org/2000/svg"');
+// download the diagram
+$(".download-btn").click(function() {
+	switch($(this).attr("data-target")) {
+		case "svg":
+			var a = document.createElement("a");
+			a.download = getName() + ".svg";
+			a.href = downloadSVG();
+			a.click();
+			break;
+		case "png":
+			downloadPNG();
+			break;
+		default: break;
 	}
-	if(!source.match(/^<svg[^>]+"http\:\/\/www\.w3\.org\/1999\/xlink"/)){
-	    source = source.replace(/^<svg/, '<svg xmlns:xlink="http://www.w3.org/1999/xlink"');
-	}
-
-	//add xml declaration
-	source = '<?xml version="1.0" standalone="no"?>\r\n' + source;
-
-	//convert svg source to URI data scheme.
-	var url = "data:image/svg+xml;charset=utf-8,"+encodeURIComponent(source);
-
-	//set url value to a element's href attribute.
-	window.location.href = url;
 });
+
+// grab the raw source of the SVG
+function downloadSVG() {
+	var html = d3.select("svg")
+        .attr("version", 1.1)
+        .attr("xmlns", "http://www.w3.org/2000/svg")
+        .node().parentNode.innerHTML;
+  return imgsrc = 'data:image/svg+xml;base64,'+ btoa(html);
+}
+
+// download as a PNG
+function downloadPNG() {
+	var canvas = document.createElement("canvas");
+	canvas.width = width + margin.right + margin.left;
+	canvas.height = height + margin.top + margin.bottom;
+	var	context = canvas.getContext("2d"),
+			image = new Image;
+	image.src = downloadSVG();
+	image.onload = function() {
+		context.drawImage(image, 0, 0);
+		var canvas_data = canvas.toDataURL("image/png");
+		var a = document.createElement("a");
+		a.download = getName() + ".png";
+		a.href = canvas_data;
+		a.click();
+	}
+}
+
+function getName() {
+	return data_files[$("#data-selector").val()].name;
+}
 
 // =============================================================================
 // disease cross-highlighting
@@ -152,6 +172,7 @@ $(".disease-filter-btn").click(function() {
 
 function updateDiseaseFilter() {
 	var selected = $(".disease-gene-filter-list").val();
+	if (!selected) return;
 	for (var d=0; d<selected.length; d++) {
 		$("#active-filters").append(selected[d] + ", ");
 		var i = $(".disease-gene-filter-list option[name='" + selected[d] + "']")

@@ -76,6 +76,12 @@ $(document).ready(function() {
 			.attr("value", i)
 			.text(data_files[i].name)
 			.appendTo( $("#data-selector") );
+		if (i == 1) {
+			$("<option selected>")
+				.attr("value", i)
+				.text(data_files[i].name)
+				.appendTo( $("#data-selector") );
+		}
 		mungeLabels(data_files[i].file, i);
 	}
 

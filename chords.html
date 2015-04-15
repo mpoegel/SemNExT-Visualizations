@@ -6,6 +6,7 @@
 <meta charset="utf-8">
 <link href="chord.css" rel="stylesheet">
 <link href="lib/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
 
 </head>
 
@@ -30,9 +31,13 @@
 					<div id="active-filters"></div>
 				</li>
 				<li>
-					<div class="btn btn-success" id="download-btn"
+					<div class="btn btn-success download-btn" data-target="svg"
 						title="Download the current state as an SVG">
-						Downloadable SVG
+						Download SVG
+					</div><br/>
+					<div class="btn btn-success download-btn" data-target="png"
+						title="Download the current state as an PNG">
+						Download PNG
 					</div>
 				</li>
 			</ul>
@@ -79,12 +84,17 @@
 					<div class="btn btn-primary" id="display-none-btn"
 					 	title="Display no gene connections.">
 						Display None</div>
+					<div class="btn btn-primary display-btn" data-action="invert"
+					 	title="Invert the highlighted gene connections.">
+						Invert Display
+					</div>
 				</li>
 
 				<li>
+
 					<div class="btn btn-link" id="expand-settings-btn"
 						title="Show more settings">
-						Expand Settings
+						<i class="fa fa-plus-square-o fa-2x"></i>
 					</div>
 				</li>
 			</ul>
