@@ -18,6 +18,10 @@
 	float: right;
 }
 
+.download-btn {
+	margin-top: 5px;
+}
+
 .expanded-settings-bar {
 	display: none;
 	padding: 10px;
