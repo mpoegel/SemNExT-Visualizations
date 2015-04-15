@@ -63,8 +63,24 @@ var data_files = [
 
 
 // create a default chart on load
-$(document).ready(function(){
+$(document).ready(function() {
+	// add the list of data sets to the data selection menu and the disease filter
+	// 	list; munge the labels for each data set
+	for (var i = 0; i < data_files.length; i++) {
+		$("<option>")
+			.attr("data-number", i)
+			.attr("name", data_files[i].name)
+			.text(data_files[i].name)
+			.appendTo( $(".disease-gene-filter-list") );
+		$("<option>")
+			.attr("value", i)
+			.text(data_files[i].name)
+			.appendTo( $("#data-selector") );
+		mungeLabels(data_files[i].file, i);
+	}
+
 	updateGraph();
+
 });
 
 /* this function is called whenever the user selects a new dataset from the
@@ -147,6 +163,17 @@ function mungeData(file_name) {
 				gene_symbols: gene_symbols
 			});
 		})
+	});
+}
+
+/*
+
+*/
+function mungeLabels(file_name, index) {
+	d3.csv("chord_data/" + file_name, function(error, data) {
+		gene_symbols = [];
+		for (var gene in data['0']) gene_symbols.push(gene);
+		data_files[index].labels = gene_symbols;
 	});
 }
 
@@ -281,6 +308,10 @@ function createGraph(chord_matrix, clusters, labels, heatmap, title) {
 			.data(chord.chords)
 		.enter().append("svg:path")
 			.attr("class", "chord")
+			.each(function(d) {
+				d.source.name = labels[d.source.index];
+				d.target.name = labels[d.target.index];
+			})
 			.style("stroke", function(d) { return d3.rgb(fill(clusters[d.source.index])).darker(); })
 			.style("fill", function(d) { return fill(clusters[d.source.index]); })
 			.attr("d", d3.svg.chord().radius(innerRadius));
