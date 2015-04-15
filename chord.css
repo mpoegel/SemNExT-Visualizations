@@ -23,6 +23,12 @@
 	padding: 10px;
 }
 
+.disease-gene-filter-list {
+	/*width: 200px;*/
+	font-size: 12px;
+	margin-bottom: 5px;
+}
+
 /* CHART -------------------------------------------------------------------- */
 .chart {
 	text-align: center;

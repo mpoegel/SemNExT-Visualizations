@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<html>
 
 <head>
 
@@ -9,14 +10,25 @@
 </head>
 
 <body>
+
 	<div class="container">
 
+
+
 		<div class="row expanded-settings-bar">
+
 			<ul class="horizontal-list">
 				<li>
-
+					<select class="form-control disease-gene-filter-list" multiple></select>
+					<button class="btn btn-primary disease-filter-btn" data-action="setFilter">
+						Add Filter</button>
+					<button class="btn btn-danger disease-filter-btn" data-action="clearFilter">
+						Clear Filter</button>
 				</li>
-
+				<li>
+					Active Filters:
+					<div id="active-filters"></div>
+				</li>
 				<li>
 					<div class="btn btn-success" id="download-btn"
 						title="Download the current state as an SVG">
@@ -26,20 +38,12 @@
 			</ul>
 		</div>
 
+
 		<div class="row settings-bar">
 			<ul class="horizontal-list">
 				<li>
 					<div class="data-selector-div">
 						<select class="form-control" onChange="updateGraph()" id="data-selector">
-							<option value="0">Alzheimer's</option>
-							<option value="1">Autism</option>
-							<option value="2">Holopressencephaly</option>
-							<option value="3">Lissencephaly</option>
-							<option value="4">Microcephaly</option>
-							<option value="5">Tauopathy</option>
-							<option value="6">Symmetrical</option>
-							<option value="7">Highly Linear</option>
-							<option value="8">Williams-Beuren Syndrome</option>
 						</select>
 					</div>
 				</li>

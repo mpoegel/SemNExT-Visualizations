@@ -81,7 +81,7 @@ function displayNone() {
 	var svg = d3.select(".chart svg");
 	svg.selectAll("path.chord")
 		.transition()
-			.style("opacity", 0.20);
+			.style("opacity", 0.10);
 };
 
 $("#display-all-btn").click(displayAll);
@@ -130,3 +130,42 @@ $("#download-btn").click(function(e) {
 	//set url value to a element's href attribute.
 	window.location.href = url;
 });
+
+// =============================================================================
+// disease cross-highlighting
+var gene_filter = {},
+		disease_filter = {};
+
+$(".disease-filter-btn").click(function() {
+	switch($(this).attr("data-action")) {
+		case "setFilter":
+			updateDiseaseFilter();
+			break;
+		case "clearFilter":
+			gene_filter = {};
+			$("#active-filters").empty();
+			displayAll();
+			break;
+		default: break;
+	}
+})
+
+function updateDiseaseFilter() {
+	var selected = $(".disease-gene-filter-list").val();
+	for (var d=0; d<selected.length; d++) {
+		$("#active-filters").append(selected[d] + ", ");
+		var i = $(".disease-gene-filter-list option[name='" + selected[d] + "']")
+			.attr("data-number");
+		for (var g=0; g<data_files[i].labels.length; g++) {
+			gene_filter[data_files[i].labels[g]] = true;
+		}
+	}
+	displayNone();
+	for (var g in gene_filter) {
+		d3.selectAll("path.chord")
+			.filter(function(d) { return d.source.name == g ||
+				d.target.name == g; })
+			.transition()
+				.style("opacity", 1.0);
+	}
+}
