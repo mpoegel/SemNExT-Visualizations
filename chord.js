@@ -427,7 +427,7 @@ function fadeToggle() {
 		var g = d3.selectAll("path.chord")
 					.filter(function(d) { return d.source.index == i || d.target.index == i; });
 		if (g.style("opacity") == 1) {
-			g.transition().style("opacity", 0.02)
+			g.transition().style("opacity", 0.15)
 				.attr("visible", false);
 		}
 		else {
@@ -443,7 +443,7 @@ function fadeToggle2() {
 					.filter(function(d) { return d.source.index == g.Index ||
 						d.target.index == g.Index; });
 		if (g.style("opacity") == 1) {
-			g.transition().style("opacity", 0.02)
+			g.transition().style("opacity", 0.15)
 				.attr("visible", false);
 		}
 		else {
@@ -459,7 +459,7 @@ function fadeToggleCluster() {
 				.filter(function(d) { return clusters[d.source.index] == g.cluster ||
 					clusters[d.target.index] == g.cluster; });
 		if (g.style("opacity") == 1) {
-			g.transition().style("opacity", 0.02);
+			g.transition().style("opacity", 0.15);
 		}
 		else {
 			g.transition().style("opacity", 1.0);
