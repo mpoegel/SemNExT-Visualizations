@@ -459,10 +459,12 @@ function fadeToggleCluster() {
 				.filter(function(d) { return clusters[d.source.index] == g.cluster ||
 					clusters[d.target.index] == g.cluster; });
 		if (g.style("opacity") == 1) {
-			g.transition().style("opacity", 0.15);
+			g.transition().style("opacity", 0.15)
+				.attr("visible", false);
 		}
 		else {
-			g.transition().style("opacity", 1.0);
+			g.transition().style("opacity", 1.0)
+				.attr("visible", true);
 		}
 	};
 }
