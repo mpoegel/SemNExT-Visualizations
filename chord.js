@@ -72,16 +72,18 @@ $(document).ready(function() {
 			.attr("name", data_files[i].name)
 			.text(data_files[i].name)
 			.appendTo( $(".disease-gene-filter-list") );
-		$("<option>")
-			.attr("value", i)
-			.text(data_files[i].name)
-			.appendTo( $("#data-selector") );
 		if (i == 1) {
 			$("<option selected>")
 				.attr("value", i)
 				.text(data_files[i].name)
 				.appendTo( $("#data-selector") );
+		} else {
+			$("<option>")
+				.attr("value", i)
+				.text(data_files[i].name)
+				.appendTo( $("#data-selector") );
 		}
+
 		mungeLabels(data_files[i].file, i);
 	}
 
