@@ -310,7 +310,6 @@ function updateFloor(chord_matrix, clusters, labels) {
 	for (var i in chord.groups()) {
 		s = outerRadius *
 			(chord.groups()[i].endAngle - chord.groups()[i].startAngle + chord_padding);
-		console.log(chord.groups()[i]);
 		group_lengths.push(s);
 	}
 	return group_lengths;

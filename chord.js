@@ -12,6 +12,14 @@ var arc = d3.svg.arc()
 		.innerRadius(innerRadius)
 		.outerRadius(outerRadius);
 
+var fill = d3.scale.category10(),
+		colorScale = d3.scale.linear()
+			.range(["#232323", "green", "red"]),
+		heatmapLegendScale = d3.scale.linear()
+			.domain([0,3])
+
+
+
 var data_files = [
 	{ name: "Alzheimer's",
 		file: 'alzheimer_chord_data.csv',
@@ -207,11 +215,8 @@ function createGraph(chord_matrix, clusters, labels, heatmap, title) {
 			.padding(chord_padding)
 			.sortSubgroups(d3.descending);
 
-	var fill = d3.scale.category10(),
-			heatmap_y = d3.scale.ordinal()
-				.rangeRoundBands([0, heatmap_height]),
-			colorScale = d3.scale.linear()
-				.range(["#232323", "green", "red"]);
+ var	heatmap_y = d3.scale.ordinal()
+				.rangeRoundBands([0, heatmap_height]);
 
 	chord.matrix(chord_matrix);
 
@@ -331,7 +336,28 @@ function createGraph(chord_matrix, clusters, labels, heatmap, title) {
 			.attr("transform", "translate(" + (width/2 + margin.top*.30) + "," + (-height/2 - margin.right*.90) + ")")
 			.attr("height", 100)
 			.attr("width", 100);
+	drawClusterLegend(clusterLegend);
 
+	// draw a legend for the heatmap in the upper left corner
+	var heatmapLegend = svg.append("g")
+			.attr("class", "heatmapLegend")
+			.attr("transform", "translate(" + (-width/2 - margin.top*.30) + "," + (-height/2 - margin.left*.90) + ")")
+			.attr("height", 100)
+			.attr("width", 100);
+	heatmapLegendScale.range(colorScale.domain());
+	drawHeatmapLegend(heatmapLegend);
+
+	// add a title to the top
+	var t = svg.append("text")
+			.attr("class", "title")
+			.attr("transform", "translate(0," + (-height/2 - margin.top*.80) + ")")
+			.attr("text-anchor", "middle")
+			.style("font-size", "32px")
+			.style("font-family", "Arial, Helvetica, sans-serif")
+			.text(title);
+}
+
+function drawClusterLegend(clusterLegend) {
 	clusterLegend.selectAll("g")
 			.data(d3.range(1, clusterToStage.length+1))
 		.enter().append("g")
@@ -353,18 +379,9 @@ function createGraph(chord_matrix, clusters, labels, heatmap, title) {
 					.style("font-size", "16px")
 					.text(clusterToStage[i]);
 			});
+}
 
-	// draw a legend for the heatmap in the upper left corner
-	var heatmapLegend = svg.append("g")
-			.attr("class", "heatmapLegend")
-			.attr("transform", "translate(" + (-width/2 - margin.top*.30) + "," + (-height/2 - margin.left*.90) + ")")
-			.attr("height", 100)
-			.attr("width", 100);
-
-	var heatmapLegendScale = d3.scale.linear()
-			.domain([0,3])
-			.range(colorScale.domain());
-
+function drawHeatmapLegend(heatmapLegend) {
 	heatmapLegend.selectAll("g")
 			.data(d3.range(0,7))
 		.enter().append("g")
@@ -381,15 +398,6 @@ function createGraph(chord_matrix, clusters, labels, heatmap, title) {
 					.attr("y", d*20+15)
 					.text(Math.round(heatmapLegendScale(d) * 10000) / 10000 );
 			});
-
-	// add a title to the top
-	var t = svg.append("text")
-			.attr("class", "title")
-			.attr("transform", "translate(0," + (-height/2 - margin.top*.80) + ")")
-			.attr("text-anchor", "middle")
-			.style("font-size", "32px")
-			.style("font-family", "Arial, Helvetica, sans-serif")
-			.text(title);
 }
 
 // Returns an event handler for fading a given chord group
