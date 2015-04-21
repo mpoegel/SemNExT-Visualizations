@@ -33,6 +33,12 @@
 	margin-bottom: 5px;
 }
 
+#active-filters {
+	width: 200px;
+	height: 100px;
+	overflow: auto;
+}
+
 /* CHART -------------------------------------------------------------------- */
 .chart {
 	text-align: center;

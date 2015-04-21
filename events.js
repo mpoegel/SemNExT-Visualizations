@@ -215,3 +215,23 @@ function updateDiseaseFilter() {
 				.style("opacity", 1.0);
 	}
 }
+
+// =============================================================================
+// additional settings
+$(".additional-settings").click(function() {
+	switch($(this).attr("data-action")) {
+		case "hideLegends":
+			$(".clusterLegend").empty();
+			$(".heatmapLegend").empty();
+			$(this).text("Show Legends");
+			$(this).attr("data-action", "showLegends");
+			break;
+		case "showLegends":
+			drawClusterLegend(d3.select(".clusterLegend"));
+			drawHeatmapLegend(d3.select(".heatmapLegend"));
+			$(this).text("Hide Legends");
+			$(this).attr("data-action", "hideLegends");
+			break;
+		default: break;
+	}
+});
