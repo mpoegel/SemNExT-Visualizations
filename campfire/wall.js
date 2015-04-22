@@ -1,6 +1,24 @@
+// node webkit gui/window stuff
+var gui = require('nw.gui'); 
+var nodewin = gui.Window.get();
+
+/* bind console shortcut for this node webkit window.
+we want this way up top so even if there are errors in other parts
+of the code, we can still (hopefully) get to the console. I'm not 
+using the Shortcut() method here because I don't want this to be
+a desktop shortcut. I want the window to need focus.
+*/
+document.body.onkeydown=function keyfunc(e){
+    if (e.keyCode == 123){ //F12
+    	nodewin.showDevTools();
+    }
+}
+
 var margin = window.opener.margin,
 		clusterToStage = window.opener.clusterToStage,
 		data_files = window.opener.data_files;
+
+
 		
 /* update the heatmap on the wall
 arguments: heatmap_data - data to build the heatmap from

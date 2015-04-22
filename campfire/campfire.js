@@ -8,6 +8,24 @@ one for the wall (heatmap) and another for the floor (chord diagram).
 
 ============================================================================= */
 
+// node webkit gui/window stuff
+var gui = require('nw.gui'); 
+var nodewin = gui.Window.get();
+
+
+/* bind console shortcut for this node webkit window.
+we want this way up top so even if there are errors in other parts
+of the code, we can still (hopefully) get to the console. I'm not 
+using the Shortcut() method here because I don't want this to be
+a desktop shortcut. I want the window to need focus.
+*/
+document.body.onkeydown=function keyfunc(e){
+    if (e.keyCode == 123){ //F12
+    	nodewin.showDevTools();
+    }
+}
+
+
 /*
 global config
 */
@@ -116,6 +134,7 @@ $(".menu li").click(function() {
 	}
 	$(".menu").hide();
 });
+
 
 /* update the graph with the currently active dataset
 arguments: d - dataset number
