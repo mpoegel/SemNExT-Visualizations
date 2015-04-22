@@ -39,6 +39,22 @@
 	overflow: auto;
 }
 
+.semData-error {
+	padding: 10px;
+	margin-bottom: 20px;
+}
+
+.linkInfo {
+	z-index: 9999;
+	display: none;
+	position: absolute;
+	border: 1px solid #CCC;
+	background: #FFF;
+	color: #333;
+	border-radius: 5px;
+	max-width:200px;
+}
+
 /* CHART -------------------------------------------------------------------- */
 .chart {
 	text-align: center;
