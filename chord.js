@@ -23,11 +23,13 @@ var fill = d3.scale.category10(),
 var data_files = [
 	{ name: "Alzheimer's",
 		file: 'alzheimer_chord_data.csv',
+		semFile: '',
 		domc: 6
 	},
 	{
 		name: 'Autism',
 		file: 'autism_chord_data.csv',
+		semFile: 'autism_semantic.json',
 		domc: 6
 	},
 	{
@@ -67,7 +69,8 @@ var data_files = [
 	}
 ],
 		clusterToStage = ['Pluripotency', 'Ectoderm', 'Neural Differentiation',
-			'Cortical Specification', 'Early Layers', 'Upper Layers'];
+			'Cortical Specification', 'Early Layers', 'Upper Layers'],
+		days = ['d0','d7','d12','d19','d26','d33','d49','d63','d77'];
 
 
 // create a default chart on load
@@ -109,15 +112,59 @@ function updateGraph() {
 	$("#set-highlight-btns label").removeClass("active");
 	$(".chart").empty();
 
-	var data_index = $("#data-selector").val();
-
-	var data_file = data_files[data_index].file;
-	var title = data_files[data_index].name
+	var data_index = $("#data-selector").val(),
+			data_file = data_files[data_index].file,
+			title = data_files[data_index].name;
 
 	mungeData(data_file).then(function(data) {
 		createGraph(data.chord_matrix, data.clusters, data.gene_symbols,
 			data.heatmap, title);
 	});
+	mungeSemantic(data_files[data_index].semFile).then(
+		function(semData) { // on success
+			$('.semData-error').hide();
+			$('.semData').show();
+			$('g.group').bind('mouseover', function(e) {
+				var gene = $(this).attr("gene");
+						geneData = semData[gene];
+				$('.semData .symbol').text( gene );
+				$('.semData .desription').text( geneData.Description );
+				$('.semData .cluster').text( geneData.Cluster );
+				$('.semData .outgoing').text( function() {
+					var g = [];
+					$.each(geneData.Outgoing, function(key) { g.push(key); });
+					return g;
+				});
+				$('.semData .incoming').text( function() {
+					var g = [];
+					$.each(geneData.Incoming, function(key) { g.push(key); });
+					return g;
+				});
+				$('.semData .days table').empty();
+				$('.semData .days table')
+					.append( function() {
+						var header = "<tr>", row = "<tr>";
+						$.each(days, function(i, day) {
+							header += '<th>' + day + '</th>';
+							row += '<td>' + geneData.Days[day] + '</td>';
+						});
+						header += '</tr>'; row += '</tr>';
+						return header + row;
+					});
+
+				$('.linkInfo').finish().show().css({
+					top: e.pageY + 5 + "px",
+					left: e.pageX + 5 + "px"
+				}).text(gene + ': ' + geneData.Description);
+			}).bind("mouseout", function(e) {
+				$('.linkInfo').hide();
+			})
+		},
+		function() { // on failure
+		$('.semData').hide();
+		$('.semData-error').show();
+	});
+
 }
 
 /* munge the specified disease data for the heatmap and chord diagram
@@ -182,14 +229,22 @@ function mungeData(file_name) {
 	});
 }
 
-/*
-
-*/
 function mungeLabels(file_name, index) {
 	d3.csv("chord_data/" + file_name, function(error, data) {
 		gene_symbols = [];
 		for (var gene in data['0']) gene_symbols.push(gene);
 		data_files[index].labels = gene_symbols;
+	});
+}
+
+function mungeSemantic(file_name) {
+	return new Promise(function(resolve, reject) {
+		d3.json("chord_data/" + file_name, function(error, data) {
+			if (error)
+				reject(error);
+			else
+				resolve(data);
+		});
 	});
 }
 
@@ -242,7 +297,8 @@ function createGraph(chord_matrix, clusters, labels, heatmap, title) {
 				d.cluster = clusters[i];
 				d.gene = labels[i];
 			})
-			.on("mouseover", fade(.15))
+			.attr("gene", function(d) { return d.gene; })
+			.on("mouseover", fade(.15), function(d) { console.log(d); })
 			.on("mouseout", fade(1.0));
 
 	g.append("svg:path")
