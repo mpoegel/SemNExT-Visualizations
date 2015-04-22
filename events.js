@@ -18,13 +18,13 @@ function setHighlightOnHover() {
 	clearHighlighting();
 	$("#set-hover-btn").addClass("active");
 	svg.selectAll("g.group")
-		.on("mouseover", fade(0.15))
+		.on("mouseover", fade(fade_opacity))
 		.on("mouseout", fade(1.0));
 	svg.selectAll(".heatmap_arc")
-		.on("mouseover", fade2(0.15))
+		.on("mouseover", fade2(fade_opacity))
 		.on("mouseout", fade2(1.0));
 	svg.selectAll(".cluster_arc")
-		.on("mouseover", fadeCluster(0.15))
+		.on("mouseover", fadeCluster(fade_opacity))
 		.on("mouseout", fadeCluster(1.0));
 };
 
@@ -97,7 +97,7 @@ function displayNone() {
 	var svg = d3.select(".chart svg");
 	svg.selectAll("path.chord")
 		.transition()
-			.style("opacity", 0.15)
+			.style("opacity", fade_opacity)
 			.attr("visible", false);
 };
 
@@ -107,7 +107,7 @@ function displayInvert() {
 	hidden.transition()
 		.style("opacity", 1.0).attr("visible", true);
 	visible.transition()
-		.style("opacity", 0.15).attr("visible", false);
+		.style("opacity", fade_opacity).attr("visible", false);
 };
 
 // =============================================================================

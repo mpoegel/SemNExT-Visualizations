@@ -1,110 +1,37 @@
-var margin = {top: 180, right: 160, bottom: 160, left: 160},
-		width = 960 - margin.right - margin.left,
-		height = 960 - margin.top - margin.bottom,
-		innerRadius = Math.min(width, height) * .41,
-		outerRadius = innerRadius * 1.07,
-		cluster_band_width = 20,
-		chord_padding = 0.02,
-		heatmap_height = 100,
-		clusters = [];
-
-var arc = d3.svg.arc()
-		.innerRadius(innerRadius)
-		.outerRadius(outerRadius);
-
-var fill = d3.scale.category10(),
-		colorScale = d3.scale.linear()
-			.range(["#232323", "green", "red"]),
-		heatmapLegendScale = d3.scale.linear()
-			.domain([0,3])
-
-
-
-var data_files = [
-	{ name: "Alzheimer's",
-		file: 'alzheimer_chord_data.csv',
-		semFile: '',
-		domc: 6
-	},
-	{
-		name: 'Autism',
-		file: 'autism_chord_data.csv',
-		semFile: 'autism_semantic.json',
-		domc: 6
-	},
-	{
-		name: 'Holoprecencephaly',
-		file: 'holoprecencephaly_chord_data.csv',
-		domc: 3
-	},
-	{
-		name: 'Lissencephaly',
-		file: 'lissencephaly_chord_data.csv',
-		domc: 6
-	},
-	{
-		name: 'Microcephaly',
-		file: 'microcephaly_chord_data.csv',
-		domc: 2
-	},
-	{
-		name: 'Tauopathy',
-		file: 'tauopathy_chord_data.csv',
-		domc: 6
-	},
-	{
-		name: 'Symmetrical',
-		file: 'WBSsymmetrical_chord_data.csv',
-		domc: 1
-	},
-	{
-		name: 'Highly Linear',
-		file: 'WBShighlyLinear_chord_data.csv',
-		domc: 1
-	},
-	{
-		name: 'Williams-Beuren Syndrome',
-		file: 'WilliamsBeurenSyndrome_chord_data.csv',
-		domc: 1
-	}
-],
-		clusterToStage = ['Pluripotency', 'Ectoderm', 'Neural Differentiation',
-			'Cortical Specification', 'Early Layers', 'Upper Layers'],
-		days = ['d0','d7','d12','d19','d26','d33','d49','d63','d77'];
-
-
 // create a default chart on load
 $(document).ready(function() {
-	// add the list of data sets to the data selection menu and the disease filter
-	// 	list; munge the labels for each data set
-	for (var i = 0; i < data_files.length; i++) {
-		$("<option>")
-			.attr("data-number", i)
-			.attr("name", data_files[i].name)
-			.text(data_files[i].name)
-			.appendTo( $(".disease-gene-filter-list") );
-		if (i == 1) {
-			$("<option selected>")
-				.attr("value", i)
-				.text(data_files[i].name)
-				.appendTo( $("#data-selector") );
-		} else {
+	// load the config settings
+	$.getScript('config.js').done(function() {
+		// add the list of data sets to the data selection menu and the disease filter
+		// 	list; munge the labels for each data set
+		for (var i = 0; i < data_files.length; i++) {
 			$("<option>")
-				.attr("value", i)
+				.attr("data-number", i)
+				.attr("name", data_files[i].name)
 				.text(data_files[i].name)
-				.appendTo( $("#data-selector") );
+				.appendTo( $(".disease-gene-filter-list") );
+			if (i == 1) {
+				$("<option selected>")
+					.attr("value", i)
+					.text(data_files[i].name)
+					.appendTo( $("#data-selector") );
+			} else {
+				$("<option>")
+					.attr("value", i)
+					.text(data_files[i].name)
+					.appendTo( $("#data-selector") );
+			}
+
+			mungeLabels(data_files[i].file, i);
 		}
-
-		mungeLabels(data_files[i].file, i);
-	}
-
-	updateGraph();
-
+		updateGraph();
+	});
 });
 
-/* this function is called whenever the user selects a new dataset from the
- 		dropdown
+/* redraw the selected graph
+arguments: none
 
+returns:   nothing
 */
 function updateGraph() {
 	// reset settings
@@ -168,7 +95,7 @@ function updateGraph() {
 }
 
 /* munge the specified disease data for the heatmap and chord diagram
-arguments: file_name - name of the file to munge
+arguments: file_name- name of the file to munge
 
 returns:   a promise of an object containing the chord data matrix,
 						heatmap data, index-to-cluster array, and index-to-gene_symbol array
@@ -229,6 +156,13 @@ function mungeData(file_name) {
 	});
 }
 
+/* capture all the gene symbols for a disease and stores them with the data
+		file information
+arguments: file_name- name of the file to munge
+					 index - index to store the data at in data_file
+
+returns: 	 nothing
+*/
 function mungeLabels(file_name, index) {
 	d3.csv("chord_data/" + file_name, function(error, data) {
 		gene_symbols = [];
@@ -237,6 +171,11 @@ function mungeLabels(file_name, index) {
 	});
 }
 
+/* loads the semantic data from a json file
+arguments: file_name- name of the json file
+
+returns:   a promise of the data if it exists
+*/
 function mungeSemantic(file_name) {
 	return new Promise(function(resolve, reject) {
 		d3.json("chord_data/" + file_name, function(error, data) {
@@ -266,13 +205,6 @@ function createGraph(chord_matrix, clusters, labels, heatmap, title) {
 			.append("g")
 				.attr("transform", "translate(" + (width/2 + margin.left) + "," + (height/2 + margin.top) + ")");
 
-	var chord = d3.layout.chord()
-			.padding(chord_padding)
-			.sortSubgroups(d3.descending);
-
- var	heatmap_y = d3.scale.ordinal()
-				.rangeRoundBands([0, heatmap_height]);
-
 	chord.matrix(chord_matrix);
 
 	// make the colorScale domain to be mean +/- 2*sigma
@@ -298,7 +230,7 @@ function createGraph(chord_matrix, clusters, labels, heatmap, title) {
 				d.gene = labels[i];
 			})
 			.attr("gene", function(d) { return d.gene; })
-			.on("mouseover", fade(.15), function(d) { console.log(d); })
+			.on("mouseover", fade(fade_opacity), function(d) { console.log(d); })
 			.on("mouseout", fade(1.0));
 
 	g.append("svg:path")
@@ -331,7 +263,7 @@ function createGraph(chord_matrix, clusters, labels, heatmap, title) {
 			)
 			.attr("class", "heatmap_arc")
 			.attr("fill", function(d) { return colorScale(d.Value); })
-			.on("mouseover", fade2(.15))
+			.on("mouseover", fade2(fade_opacity))
 			.on("mouseout", fade2(1.0))
 
 	// draw the cluster bands
@@ -357,7 +289,6 @@ function createGraph(chord_matrix, clusters, labels, heatmap, title) {
 	band.genes = g;
 	band.endAngle = chord.groups()[clusters.length-1].endAngle;
 	cluster_bands.push(band);
-
 	svg.selectAll(".cluster_arc")
 			.data(cluster_bands)
 		.enter().append("path")
@@ -369,7 +300,7 @@ function createGraph(chord_matrix, clusters, labels, heatmap, title) {
 			)
 			.attr("class", "cluster_arc")
 			.attr("fill", function(d) { return fill(d.cluster); })
-			.on("mouseover", fadeCluster(.15))
+			.on("mouseover", fadeCluster(fade_opacity))
 			.on("mouseout", fadeCluster(1.0));
 
 	// draw chords
@@ -413,6 +344,11 @@ function createGraph(chord_matrix, clusters, labels, heatmap, title) {
 			.text(title);
 }
 
+/* draw the legend for the clusters
+arguments: clusterLegend- object on which to draw the legend
+
+returns:   nothing
+*/
 function drawClusterLegend(clusterLegend) {
 	clusterLegend.selectAll("g")
 			.data(d3.range(1, clusterToStage.length+1))
@@ -437,6 +373,11 @@ function drawClusterLegend(clusterLegend) {
 			});
 }
 
+/* draw the legend for the heatmap
+arugments: heatmapLegend- object on which to draw the legend
+
+returns:   nothing
+*/
 function drawHeatmapLegend(heatmapLegend) {
 	heatmapLegend.selectAll("g")
 			.data(d3.range(0,7))
@@ -456,6 +397,8 @@ function drawHeatmapLegend(heatmapLegend) {
 			});
 }
 
+
+// =============================================================================
 // Returns an event handler for fading a given chord group
 function fade(opacity) {
 	return function(g, i) {
@@ -493,7 +436,7 @@ function fadeToggle() {
 		var g = d3.selectAll("path.chord")
 					.filter(function(d) { return d.source.index == i || d.target.index == i; });
 		if (g.style("opacity") == 1) {
-			g.transition().style("opacity", 0.15)
+			g.transition().style("opacity", fade_opacity)
 				.attr("visible", false);
 		}
 		else {
@@ -509,7 +452,7 @@ function fadeToggle2() {
 					.filter(function(d) { return d.source.index == g.Index ||
 						d.target.index == g.Index; });
 		if (g.style("opacity") == 1) {
-			g.transition().style("opacity", 0.15)
+			g.transition().style("opacity", fade_opacity)
 				.attr("visible", false);
 		}
 		else {
@@ -525,7 +468,7 @@ function fadeToggleCluster() {
 				.filter(function(d) { return clusters[d.source.index] == g.cluster ||
 					clusters[d.target.index] == g.cluster; });
 		if (g.style("opacity") == 1) {
-			g.transition().style("opacity", 0.15)
+			g.transition().style("opacity", fade_opacity)
 				.attr("visible", false);
 		}
 		else {
