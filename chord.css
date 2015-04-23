@@ -39,12 +39,16 @@
 	overflow: auto;
 }
 
+.semData {
+	display: none;
+}
+
 .semData-error {
 	padding: 10px;
 	margin-bottom: 20px;
 }
 
-.linkInfo {
+.geneInfo {
 	z-index: 9999;
 	display: none;
 	position: absolute;
@@ -53,6 +57,10 @@
 	color: #333;
 	border-radius: 5px;
 	max-width:200px;
+}
+
+.hr-list-item {
+	padding-right: 5px;
 }
 
 /* CHART -------------------------------------------------------------------- */

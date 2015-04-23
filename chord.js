@@ -21,14 +21,13 @@ $(document).ready(function() {
 					.text(data_files[i].name)
 					.appendTo( $("#data-selector") );
 			}
-
 			mungeLabels(data_files[i].file, i);
 		}
 		updateGraph();
 	});
 });
 
-/* redraw the selected graph
+/* redraw with the selected graph
 arguments: none
 
 returns:   nothing
@@ -51,41 +50,7 @@ function updateGraph() {
 		function(semData) { // on success
 			$('.semData-error').hide();
 			$('.semData').show();
-			$('g.group').bind('mouseover', function(e) {
-				var gene = $(this).attr("gene");
-						geneData = semData[gene];
-				$('.semData .symbol').text( gene );
-				$('.semData .desription').text( geneData.Description );
-				$('.semData .cluster').text( geneData.Cluster );
-				$('.semData .outgoing').text( function() {
-					var g = [];
-					$.each(geneData.Outgoing, function(key) { g.push(key); });
-					return g;
-				});
-				$('.semData .incoming').text( function() {
-					var g = [];
-					$.each(geneData.Incoming, function(key) { g.push(key); });
-					return g;
-				});
-				$('.semData .days table').empty();
-				$('.semData .days table')
-					.append( function() {
-						var header = "<tr>", row = "<tr>";
-						$.each(days, function(i, day) {
-							header += '<th>' + day + '</th>';
-							row += '<td>' + geneData.Days[day] + '</td>';
-						});
-						header += '</tr>'; row += '</tr>';
-						return header + row;
-					});
-
-				$('.linkInfo').finish().show().css({
-					top: e.pageY + 5 + "px",
-					left: e.pageX + 5 + "px"
-				}).text(gene + ': ' + geneData.Description);
-			}).bind("mouseout", function(e) {
-				$('.linkInfo').hide();
-			})
+			attachSemanticData(semData);
 		},
 		function() { // on failure
 		$('.semData').hide();
@@ -93,6 +58,9 @@ function updateGraph() {
 	});
 
 }
+
+// =============================================================================
+// DATA MUNGING
 
 /* munge the specified disease data for the heatmap and chord diagram
 arguments: file_name- name of the file to munge
@@ -186,6 +154,9 @@ function mungeSemantic(file_name) {
 		});
 	});
 }
+
+// =============================================================================
+// GRAPH CREATION
 
 /* create a full sized graph
 arguments: chord_matrix- matrix of the gene connections
@@ -374,7 +345,7 @@ function drawClusterLegend(clusterLegend) {
 }
 
 /* draw the legend for the heatmap
-arugments: heatmapLegend- object on which to draw the legend
+argments: heatmapLegend- object on which to draw the legend
 
 returns:   nothing
 */
@@ -397,6 +368,131 @@ function drawHeatmapLegend(heatmapLegend) {
 			});
 }
 
+// =============================================================================
+
+/* attach event listeners to the graph
+arguments: semData - semantic data read from the json file
+
+returns:   nothing
+*/
+function attachSemanticData(semData) {
+	$('g.group').bind('mouseover', function(e) {
+		var gene = $(this).attr("gene");
+				geneData = semData[gene];
+		// gene symbol
+		$('.semData .symbol').text( gene );
+		// gene description
+		$('.semData .desription').text( geneData.Description );
+		// gene cluster
+		$('.semData .cluster').text( geneData.Cluster );
+		// other diseases that this gene appears in
+		$('.semData .relations').empty();
+		$.each(geneData.Relations, function(key, val) {
+			if (val) {
+				$('.semData .relations').append(
+					$('<span>')
+						.addClass('hr-list-item')
+						.text(key)
+				);
+			}
+		});
+		// information on outgoing connections
+		$('.semData .outgoing').empty();
+		$.each(geneData.Outgoing, function(key, val) {
+			$('.semData .outgoing').append(
+				$('<span>')
+					.text(key)
+					.attr('gene', key)
+					.addClass('hr-list-item')
+					.bind('mouseover', function(e) {
+						$(this).css({
+							'border-bottom': '4px solid #ABC'
+						});
+						$('.semData .outgoing .outLinkInfo').append(
+							$('<table>')
+								.addClass('table')
+								.append(function() {
+									var header = '<tr>',
+											row = '<tr>';
+									$.each(geneData.Outgoing[key], function(key2, val2) {
+										header += '<th>' + key2 + '</th>';
+										row += '<td>' + val2 + '</td>';
+									});
+									return header + '</tr>' + row + '</tr>';
+								})
+						)
+					})
+					.bind('mouseout', function(e) {
+						$(this).css({
+							'border-bottom': 'None'
+						});
+						$('.semData .outgoing .outLinkInfo').empty();
+					})
+			);
+		});
+		$('.semData .outgoing').append(
+			$('<div>').addClass('outLinkInfo')
+		);
+		// information on incoming connections
+		$('.semData .incoming').empty();
+		$.each(geneData.Incoming, function(key, val) {
+			$('.semData .incoming').append(
+				$('<span>')
+					.text(key)
+					.attr('gene', key)
+					.addClass('hr-list-item')
+					.bind('mouseover', function(e) {
+						$(this).css({
+							'border-bottom': '4px solid #ABC'
+						});
+						$('.semData .incoming .inLinkInfo').append(
+							$('<table>')
+								.addClass('table')
+								.append(function() {
+									var header = '<tr>',
+											row = '<tr>';
+									$.each(geneData.Incoming[key], function(key2, val2) {
+										header += '<th>' + key2 + '</th>';
+										row += '<td>' + val2 + '</td>';
+									});
+									return header + '</tr>' + row + '</tr>';
+								})
+						)
+					})
+					.bind('mouseout', function(e) {
+						$(this).css({
+							'border-bottom': 'None'
+						});
+						$('.semData .incoming .inLinkInfo').empty();
+					})
+			);
+		});
+		$('.semData .incoming').append(
+			$('<div>').addClass('inLinkInfo')
+		);
+		// information on the experimental data from the heatmap
+		$('.semData .days table').empty();
+		$('.semData .days table')
+			.append( function() {
+				var header = "<tr>", row = "<tr>";
+				$.each(days, function(i, day) {
+					header += '<th>' + day + '</th>';
+					row += '<td style="background-color:' + colorScale(geneData.Days[day])
+						+ ';color:#FFFFFF' + '">'
+						+ geneData.Days[day] + '</td>';
+				});
+				header += '</tr>'; row += '</tr>';
+				return header + row;
+			});
+		// overlay of gene description on the chart itself when hovering over a gene
+		$('.geneInfo').finish().show().css({
+			top: e.pageY + 5 + "px",
+			left: e.pageX + 5 + "px"
+		}).text(gene + ': ' + geneData.Description);
+	}).bind("mouseout", function(e) {
+		$('.geneInfo').hide();
+	});
+}
 
 // =============================================================================
 // Returns an event handler for fading a given chord group
