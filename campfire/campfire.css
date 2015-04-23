@@ -4,6 +4,7 @@
 
 html {
 	background-color: #000;
+	overflow:hidden;
 }
 
 #floor {
