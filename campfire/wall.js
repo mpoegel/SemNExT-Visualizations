@@ -14,6 +14,17 @@ document.body.onkeydown=function keyfunc(e){
     }
 }
 
+/* bind fullscreen to a global shortcut, so the window doesn't 
+need focus to enter or exit fullscreen
+*/
+var fullscreen_shortcut = new gui.Shortcut({
+    key : "F2",
+    active : function(){ nodewin.toggleFullscreen(); },
+    failed : function(msg) { console.log(msg); }
+});
+gui.App.registerGlobalHotKey(fullscreen_shortcut);
+
+
 var margin = window.opener.margin,
 		clusterToStage = window.opener.clusterToStage,
 		data_files = window.opener.data_files;

@@ -24,6 +24,15 @@ document.body.onkeydown=function keyfunc(e){
     	nodewin.showDevTools();
     }
 }
+/* bind fullscreen to a global shortcut, so the window doesn't 
+need focus to enter or exit fullscreen
+*/
+var fullscreen_shortcut = new gui.Shortcut({
+    key : "F1",
+    active : function(){ nodewin.toggleFullscreen(); },
+    failed : function(msg) { console.log(msg); }
+});
+gui.App.registerGlobalHotKey(fullscreen_shortcut);
 
 
 /*
