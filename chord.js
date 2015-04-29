@@ -305,6 +305,10 @@ function createGraph(chord_matrix, clusters, labels, heatmap, title) {
 	heatmapLegendScale.range(colorScale.domain());
 	drawHeatmapLegend(heatmapLegend);
 
+	$('.additional-settings[data-action="showLegends"]')
+		.text("Hide Legends")
+		.attr("data-action", "hideLegends");
+
 	// add a title to the top
 	var t = svg.append("text")
 			.attr("class", "title")
