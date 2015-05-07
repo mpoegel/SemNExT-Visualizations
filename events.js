@@ -178,8 +178,8 @@ function getName() {
 
 // =============================================================================
 // disease cross-highlighting
-var gene_filter = {},
-		disease_filter = {};
+var gene_filter = [],
+		disease_filter = [];
 
 $(".disease-filter-btn").click(function() {
 	switch($(this).attr("data-action")) {
@@ -187,7 +187,8 @@ $(".disease-filter-btn").click(function() {
 			updateDiseaseFilter();
 			break;
 		case "clearFilter":
-			gene_filter = {};
+			gene_filter = [];
+			disease_filter = [];
 			$("#active-filters").empty();
 			displayAll();
 			break;
@@ -198,22 +199,24 @@ $(".disease-filter-btn").click(function() {
 function updateDiseaseFilter() {
 	var selected = $(".disease-gene-filter-list").val();
 	if (!selected) return;
-	for (var d=0; d<selected.length; d++) {
-		$("#active-filters").append(selected[d] + ", ");
-		var i = $(".disease-gene-filter-list option[name='" + selected[d] + "']")
-			.attr("data-number");
-		for (var g=0; g<data_files[i].labels.length; g++) {
-			gene_filter[data_files[i].labels[g]] = true;
-		}
-	}
+	disease_filter = _.union(disease_filter, selected);
+	$('#active-filters').empty();
+	_.each(disease_filter, function(d, i) {
+		gene_filter = _.union(gene_filter, data_files[
+		 	$('.disease-gene-filter-list option[name="' + d + '"]').attr('data-number')]
+			.labels);
+			$('#active-filters').append(d);
+			if (i < disease_filter.length - 1)
+				$('#active-filters').append(' OR ');
+	});
 	displayNone();
-	for (var g in gene_filter) {
+	_.each(gene_filter, function(g) {
 		d3.selectAll("path.chord")
 			.filter(function(d) { return d.source.name == g ||
 				d.target.name == g; })
 			.transition()
 				.style("opacity", 1.0);
-	}
+	});
 }
 
 // =============================================================================
