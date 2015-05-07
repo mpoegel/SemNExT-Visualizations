@@ -39,8 +39,8 @@ var margin = {top: 180, right: 160, bottom: 160, left: 160},
 			domc: 6
 		},
 		{
-			name: 'Holoprecencephaly',
-			file: 'holoprecencephaly_chord_data.csv',
+			name: 'Holoprosencephaly',
+			file: 'holoprosencephaly_chord_data.csv',
 			domc: 3
 		},
 		{
