@@ -59,7 +59,7 @@ $("#highlight-dom-cluster-btn").click(function() {
 		var data_index = $("#data-selector").val();
 		var c = data_files[data_index].domc;
 		var g = d3.select(".chart svg")
-			.selectAll(".chordMask")
+			.selectAll("path.chord, .chordMask")
 				.filter(function(d) { return clusters[$(this).attr('source')] == c ||
 				 	clusters[$(this).attr('target')] == c; })
 				.transition()
@@ -87,7 +87,7 @@ $(".display-btn").click(function() {
 
 function displayAll() {
 	var svg = d3.select(".chart svg");
-	svg.selectAll(".chordMask")
+	svg.selectAll("path.chord, .chordMask")
 		.transition()
 			.style("opacity", 1.0)
 			.attr("visible", true);
@@ -95,15 +95,17 @@ function displayAll() {
 
 function displayNone() {
 	var svg = d3.select(".chart svg");
-	svg.selectAll(".chordMask")
+	svg.selectAll("path.chord, .chordMask")
 		.transition()
 			.style("opacity", fade_opacity)
 			.attr("visible", false);
 };
 
 function displayInvert() {
-	var hidden  = d3.selectAll(".chordMask[visible=false]"),
-			visible = d3.selectAll(".chordMask[visible=true]");
+	var hidden  = d3.selectAll(
+				"path.chord[visible=false], .chordMask[visible=false]"),
+			visible = d3.selectAll(
+				"path.chord[visible=true], .chordMask[visible=true]");
 	hidden.transition()
 		.style("opacity", 1.0).attr("visible", true);
 	visible.transition()
@@ -211,7 +213,7 @@ function updateDiseaseFilter() {
 	});
 	displayNone();
 	_.each(gene_filter, function(g) {
-		d3.selectAll(".chordMask")
+		d3.selectAll("path.chord, .chordMask")
 			.filter(function(d) { return d.source.name == g ||
 				d.target.name == g; })
 			.transition()
@@ -234,6 +236,12 @@ $(".additional-settings").click(function() {
 			drawHeatmapLegend(d3.select(".heatmapLegend"));
 			$(this).text("Hide Legends");
 			$(this).attr("data-action", "hideLegends");
+			break;
+		case 'pathColorGradient':
+			// color gradient
+			d3.selectAll('path.chord')
+				.each(drawGradientPath)
+				.remove();
 			break;
 		default: break;
 	}

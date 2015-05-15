@@ -10,7 +10,7 @@ $(document).ready(function() {
 				.attr("name", data_files[i].name)
 				.text(data_files[i].name)
 				.appendTo( $(".disease-gene-filter-list") );
-			if (i == 7) {
+			if (i == 1) {
 				$("<option selected>")
 					.attr("value", i)
 					.text(data_files[i].name)
@@ -45,10 +45,6 @@ function updateGraph() {
 	mungeData(data_file).then(function(data) {
 		createGraph(data.chord_matrix, data.clusters, data.gene_symbols,
 			data.heatmap, title);
-		// color gradient
-		d3.selectAll('path.chord')
-			.each(drawGradientPath)
-			.remove();
 	});
 	mungeSemantic(data_files[data_index].semFile).then(
 		function(semData) { // on success
@@ -285,6 +281,8 @@ function createGraph(chord_matrix, clusters, labels, heatmap, title) {
 		.enter().append("svg:path")
 			.attr("class", "chord")
 			.attr("visible", true)
+			.attr('source', function(d) { return d.source.index; })
+			.attr('target', function(d) { return d.target.index; })
 			.each(function(d) {
 				d.source.name = labels[d.source.index];
 				d.source.cluster = clusters[d.source.index];
@@ -292,10 +290,8 @@ function createGraph(chord_matrix, clusters, labels, heatmap, title) {
 				d.target.cluster = clusters[d.target.index];
 				d.pathString = d3.svg.chord().radius(innerRadius)(d);
 			})
-			.style("stroke", '#FFF')
-			.style("fill", '#FFF')
-			// .style("stroke", function(d) { return d3.rgb(fill(clusters[d.source.index])).darker(); })
-			// .style("fill", function(d) { return fill(clusters[d.source.index]); })
+			.style("stroke", function(d) { return d3.rgb(fill(clusters[d.source.index])).darker(); })
+			.style("fill", function(d) { return fill(clusters[d.source.index]); })
 			.attr("d", d3.svg.chord().radius(innerRadius));
 
 	// draw a legend for the clusters in the upper right corner
@@ -514,7 +510,7 @@ function attachSemanticData(semData) {
 // Returns an event handler for fading a given chord group
 function fade(opacity) {
 	return function(g, i) {
-		d3.selectAll('.chordMask')
+		d3.selectAll('.chordMask, path.chord')
 				.filter(function(d) { return $(this).attr('source') != g.index &&
 					$(this).attr('target') != g.index; })
 			.transition()
@@ -525,7 +521,7 @@ function fade(opacity) {
 
 function fade2(opacity) {
 	return function(g,i) {
-		d3.selectAll(".chordMask")
+		d3.selectAll(".chordMask, path.chord")
 				.filter(function(d) { return $(this).attr('source') != g.Index &&
 					$(this).attr('target') != g.Index; })
 			.transition()
@@ -536,7 +532,7 @@ function fade2(opacity) {
 
 function fadeCluster(opacity) {
 	return function(g, i) {
-		d3.selectAll(".chordMask")
+		d3.selectAll(".chordMask, path.chord")
 				.filter(function(d) { return clusters[$(this).attr('source')] != g.cluster &&
 					clusters[$(this).attr('target')] != g.cluster; })
 			.transition()
@@ -547,7 +543,7 @@ function fadeCluster(opacity) {
 
 function fadeToggle() {
 	return function(g,i) {
-		var g = d3.selectAll(".chordMask")
+		var g = d3.selectAll(".chordMask, path.chord")
 					.filter(function(d) { return $(this).attr('source') == i || $(this).attr('target') == i; });
 		if (g.style("opacity") == 1) {
 			g.transition().style("opacity", fade_opacity)
@@ -562,7 +558,7 @@ function fadeToggle() {
 
 function fadeToggle2() {
 	return function(g,i) {
-		var g = d3.selectAll(".chordMask")
+		var g = d3.selectAll(".chordMask, path.chord")
 					.filter(function(d) { return $(this).attr('source') == g.Index ||
 						$(this).attr('target') == g.Index; });
 		if (g.style("opacity") == 1) {
@@ -578,7 +574,7 @@ function fadeToggle2() {
 
 function fadeToggleCluster() {
 	return function(g, i) {
-		var g = d3.selectAll(".chordMask")
+		var g = d3.selectAll(".chordMask, path.chord")
 				.filter(function(d) { return clusters[$(this).attr('source')] == g.cluster ||
 					clusters[$(this).attr('target')] == g.cluster; });
 		if (g.style("opacity") == 1) {
