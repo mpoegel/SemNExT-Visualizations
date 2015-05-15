@@ -6,7 +6,6 @@
 # ==============================================================================
 import sys
 import json
-import copy
 
 
 def mapConnections(nodes, data_file):
@@ -29,6 +28,13 @@ def mapConnections(nodes, data_file):
 		# make sure all of the secondary nodes are captured in the grand list
 		if (line[1] not in nodes):
 			nodes[line[1]] = dict()
+		# create the connection in the other direction
+		if (line[1] in nodes):
+			nodes[line[1]][line[0]] = line[-1]
+		else:
+			nodes[line[1]] = {
+				line[0]: line[-1]
+			}
 	return nodes
 
 def mapGeneData(gene_info_filename):
@@ -172,6 +178,7 @@ def captureSemanticData(genes, gene_data, gene_desc, connections):
 			semData[gene]['Description'] = gene_desc[gene]
 		else:
 			semData[gene]['Description'] = ''
+		semData[gene]['Cluster'] = int(gene_data[gene]['cluster'])
 		semData[gene]['Outgoing'] = dict()
 		semData[gene]['Incoming'] = dict()
 	# add all the information on the connections
@@ -199,7 +206,6 @@ def captureSemanticData(genes, gene_data, gene_desc, connections):
 
 	return semData
 
-
 def saveGenes(genes_filename, nodes):
 	out_file = open(genes_filename, "w")
 	for gene in nodes.keys():
@@ -209,7 +215,7 @@ def saveGenes(genes_filename, nodes):
 # ------------------------------------------------------------------------------
 if (__name__ == '__main__'):
 
-	DISEASES = ['alzheimer', 'autism', 'holoprecencephaly', 'lissencephaly',
+	DISEASES = ['alzheimer', 'autism', 'holoprosencephaly', 'lissencephaly',
 		'microcephaly', 'tauopathy', 'WBSsymmetrical', 'WBShighlyLinear',
 		'WilliamsBeurenSyndrome']
 	DAYS = ['d0','d7','d12','d19','d26','d33','d49','d63','d77']
@@ -221,9 +227,6 @@ if (__name__ == '__main__'):
 	gene_data = mapGeneData(gene_info_filename)
 
 	for disease in DISEASES:
-
-		disease = DISEASES[1]
-
 		print(disease + "... ", end="")
 		# input file names
 		connections_filename = "data/" + disease + "_data.csv"
@@ -247,14 +250,16 @@ if (__name__ == '__main__'):
 		# print a list of all the genes related to the disease
 		saveGenes(genes_filename, nodes)
 		# save the semantic data
-		gene_desc = getGeneDescriptions(gene_descriptions_filename)
-		semData = captureSemanticData(nodes.keys(), gene_data, gene_desc,
-			connections_filename)
-		sem_json = open(semantic_json_filename, 'w')
-		sem_json.write( json.dumps(semData, indent=2) )
+		try:
+			gene_desc = getGeneDescriptions(gene_descriptions_filename)
+			semData = captureSemanticData(nodes.keys(), gene_data, gene_desc,
+				connections_filename)
+			sem_json = open(semantic_json_filename, 'w')
+			sem_json.write( json.dumps(semData, indent=2) )
+		except:
+			pass
 
 		print("Done")
-		break
 
 	if (len(sys.argv) > 1):
 		file_name = sys.argv[1]

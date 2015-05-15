@@ -59,9 +59,9 @@ $("#highlight-dom-cluster-btn").click(function() {
 		var data_index = $("#data-selector").val();
 		var c = data_files[data_index].domc;
 		var g = d3.select(".chart svg")
-			.selectAll("path.chord")
-				.filter(function(d) { return clusters[d.source.index] == c ||
-				 	clusters[d.target.index] == c; })
+			.selectAll(".chordMask")
+				.filter(function(d) { return clusters[$(this).attr('source')] == c ||
+				 	clusters[$(this).attr('target')] == c; })
 				.transition()
 					.style("opacity", 1.0)
 					.attr("visible", true);
@@ -87,7 +87,7 @@ $(".display-btn").click(function() {
 
 function displayAll() {
 	var svg = d3.select(".chart svg");
-	svg.selectAll("path.chord")
+	svg.selectAll(".chordMask")
 		.transition()
 			.style("opacity", 1.0)
 			.attr("visible", true);
@@ -95,15 +95,15 @@ function displayAll() {
 
 function displayNone() {
 	var svg = d3.select(".chart svg");
-	svg.selectAll("path.chord")
+	svg.selectAll(".chordMask")
 		.transition()
 			.style("opacity", fade_opacity)
 			.attr("visible", false);
 };
 
 function displayInvert() {
-	var hidden  = d3.selectAll("path.chord[visible=false]"),
-			visible = d3.selectAll("path.chord[visible=true]");
+	var hidden  = d3.selectAll(".chordMask[visible=false]"),
+			visible = d3.selectAll(".chordMask[visible=true]");
 	hidden.transition()
 		.style("opacity", 1.0).attr("visible", true);
 	visible.transition()
@@ -211,7 +211,7 @@ function updateDiseaseFilter() {
 	});
 	displayNone();
 	_.each(gene_filter, function(g) {
-		d3.selectAll("path.chord")
+		d3.selectAll(".chordMask")
 			.filter(function(d) { return d.source.name == g ||
 				d.target.name == g; })
 			.transition()
