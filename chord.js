@@ -114,6 +114,7 @@ function mungeData(file_name) {
 				matrix.push(row);
 				count++;
 			});
+			// console.log(matrix);
 			resolve({
 				chord_matrix: matrix,
 				heatmap: heatmap,
@@ -280,9 +281,14 @@ function createGraph(chord_matrix, clusters, labels, heatmap, title) {
 		.enter().append("svg:path")
 			.attr("class", "chord")
 			.attr("visible", true)
+			.attr('source', function(d) { return d.source.index; })
+			.attr('target', function(d) { return d.target.index; })
 			.each(function(d) {
 				d.source.name = labels[d.source.index];
+				d.source.cluster = clusters[d.source.index];
 				d.target.name = labels[d.target.index];
+				d.target.cluster = clusters[d.target.index];
+				d.pathString = d3.svg.chord().radius(innerRadius)(d);
 			})
 			.style("stroke", function(d) { return d3.rgb(fill(clusters[d.source.index])).darker(); })
 			.style("fill", function(d) { return fill(clusters[d.source.index]); })
@@ -371,6 +377,8 @@ function drawHeatmapLegend(heatmapLegend) {
 					.text(Math.round(heatmapLegendScale(d) * 10000) / 10000 );
 			});
 }
+
+
 
 // =============================================================================
 
@@ -502,8 +510,9 @@ function attachSemanticData(semData) {
 // Returns an event handler for fading a given chord group
 function fade(opacity) {
 	return function(g, i) {
-		d3.selectAll("path.chord")
-				.filter(function(d) { return d.source.index != i && d.target.index != i; })
+		d3.selectAll('.chordMask, path.chord')
+				.filter(function(d) { return $(this).attr('source') != g.index &&
+					$(this).attr('target') != g.index; })
 			.transition()
 				.style("opacity", opacity)
 				.attr("visible", opacity == 1);
@@ -512,8 +521,9 @@ function fade(opacity) {
 
 function fade2(opacity) {
 	return function(g,i) {
-		d3.selectAll("path.chord")
-				.filter(function(d) { return d.source.index != g.Index && d.target.index != g.Index; })
+		d3.selectAll(".chordMask, path.chord")
+				.filter(function(d) { return $(this).attr('source') != g.Index &&
+					$(this).attr('target') != g.Index; })
 			.transition()
 				.style("opacity", opacity)
 				.attr("visible", opacity == 1);
@@ -522,9 +532,9 @@ function fade2(opacity) {
 
 function fadeCluster(opacity) {
 	return function(g, i) {
-		d3.selectAll("path.chord")
-				.filter(function(d) { return clusters[d.source.index] != g.cluster &&
-					clusters[d.target.index] != g.cluster; })
+		d3.selectAll(".chordMask, path.chord")
+				.filter(function(d) { return clusters[$(this).attr('source')] != g.cluster &&
+					clusters[$(this).attr('target')] != g.cluster; })
 			.transition()
 				.style("opacity", opacity)
 				.attr("visible", opacity == 1);
@@ -533,8 +543,8 @@ function fadeCluster(opacity) {
 
 function fadeToggle() {
 	return function(g,i) {
-		var g = d3.selectAll("path.chord")
-					.filter(function(d) { return d.source.index == i || d.target.index == i; });
+		var g = d3.selectAll(".chordMask, path.chord")
+					.filter(function(d) { return $(this).attr('source') == i || $(this).attr('target') == i; });
 		if (g.style("opacity") == 1) {
 			g.transition().style("opacity", fade_opacity)
 				.attr("visible", false);
@@ -548,9 +558,9 @@ function fadeToggle() {
 
 function fadeToggle2() {
 	return function(g,i) {
-		var g = d3.selectAll("path.chord")
-					.filter(function(d) { return d.source.index == g.Index ||
-						d.target.index == g.Index; });
+		var g = d3.selectAll(".chordMask, path.chord")
+					.filter(function(d) { return $(this).attr('source') == g.Index ||
+						$(this).attr('target') == g.Index; });
 		if (g.style("opacity") == 1) {
 			g.transition().style("opacity", fade_opacity)
 				.attr("visible", false);
@@ -564,9 +574,9 @@ function fadeToggle2() {
 
 function fadeToggleCluster() {
 	return function(g, i) {
-		var g = d3.selectAll("path.chord")
-				.filter(function(d) { return clusters[d.source.index] == g.cluster ||
-					clusters[d.target.index] == g.cluster; });
+		var g = d3.selectAll(".chordMask, path.chord")
+				.filter(function(d) { return clusters[$(this).attr('source')] == g.cluster ||
+					clusters[$(this).attr('target')] == g.cluster; });
 		if (g.style("opacity") == 1) {
 			g.transition().style("opacity", fade_opacity)
 				.attr("visible", false);
@@ -576,4 +586,103 @@ function fadeToggleCluster() {
 				.attr("visible", true);
 		}
 	};
+}
+
+// =============================================================================
+// PATH COLOR GRADIENTS
+
+/* Calculate the length of a bezier curve
+arguments: p0 - starting point
+					 p1 - anchor point
+					 p2 - ending point
+returns: curve length
+*/
+function bezierLength(p0, p1, p2) {
+	var a = {
+				x: p0.x - 2*p1.x + p2.x,
+				y: p0.y - 2*p1.y + p2.y
+			},
+			b = {
+				x: 2*p1.x - 2*p0.x,
+				y: 2*p1.y - 2*p0.y
+			},
+			A = 4*(a.x*a.x + a.y*a.y),
+			B = 4*(a.x*b.x + a.y*b.y),
+			C = b.x*b.x + b.y*b.y,
+
+			Sabc = 2*Math.sqrt(A+B+C),
+			A_2 = Math.sqrt(A),
+			A_32 = 2*A*A_2,
+			C_2 = 2*Math.sqrt(C),
+			BA = B/A_2;
+
+	return (A_32*Sabc +
+					A_2*B*(Sabc-C_2) +
+					(4*C*A - B*B) * Math.log( (2*A_2 + BA + Sabc) / (BA + C_2) )
+				 ) / (4*A_32);
+}
+
+/* Draws color gradient as a series of paths that follow PATH
+arguments: path - path data source
+					 i - path index
+
+returns: nothing
+*/
+function drawGradientPath(path, i) {
+	var pathSVG = $('path.chord')[i],
+			arc_len1 = innerRadius * (path.source.endAngle -
+				path.source.startAngle),
+			arc_len2 = innerRadius * (path.target.endAngle -
+				path.target.startAngle),
+			pathCommands = path.pathString.match(/[ACHLMQSTVZ][^ACHLMQSTVZ]*/gi),
+			p0_str = pathCommands[1].split(' ')[3].split(','),
+			p0 = { x: +(p0_str[0]), y: +(p0_str[1]) },
+			p1 = { x: 0, y: 0 },
+			p2_str = pathCommands[2].split(' ')[2].split(','),
+			p2 = { x: +(p2_str[0]), y: +(p2_str[1]) },
+			bezLen1 = bezierLength(p0, p1, p2),
+			bezLen2 = pathSVG.getTotalLength() - arc_len1 - bezLen1 -
+				arc_len2,
+			epsilon1 = colorGradientPrecision
+			n = Math.floor(bezLen1 / epsilon1),
+			epsilon2 = bezLen2 / n,
+			delta0 = pathSVG.getPointAtLength(0 + arc_len1),
+			deltap0 = pathSVG.getPointAtLength(0),
+			deltai = 0,
+			deltapi = 0,
+			mask = [],
+			colorGradient = d3.scale.linear()
+				.range([fill( path.source.cluster ),
+							 fill( path.target.cluster )])
+				.domain([0,n]);
+
+	for (var i = 1; i < n; i++) {
+		deltai = pathSVG.getPointAtLength(arc_len1 + epsilon1*i);
+		deltapi = pathSVG.getPointAtLength(arc_len1 + bezLen1 +
+			arc_len2 + epsilon2*(n - i));
+		mask.push([delta0, deltai, deltapi, deltap0]);
+		delta0 = deltai;
+		deltap0 = deltapi;
+	}
+	deltai = pathSVG.getPointAtLength(arc_len1 + bezLen1);
+	deltapi = pathSVG.getPointAtLength(arc_len1 + bezLen1 +
+		arc_len2);
+	mask.push([delta0, deltai, deltapi, deltap0]);
+
+	d3.select('.chart svg g').append('g')
+			.attr('class', 'chordMask')
+			.attr('source', path.source.index)
+			.attr('target', path.target.index)
+		.selectAll('path.colorGradient')
+			.data(mask)
+		.enter().append('svg:path')
+			.style('stroke', function(d,i) { return d3.rgb(colorGradient(i)).darker(); })
+			.style('fill', function(d,i) { return colorGradient(i); })
+			.attr('d', function(d) {
+				return 'M' + d[3].x + ',' + d[3].y +
+					'A' + innerRadius + ',' + innerRadius + ' 0 0,1 ' + d[0].x + ',' + d[0].y +
+					'L' + d[1].x + ',' + d[1].y +
+					'A' + innerRadius + ',' + innerRadius + ' 0 0,1 ' + d[2].x + ',' + d[2].y +
+					'z';
+			});
 }
