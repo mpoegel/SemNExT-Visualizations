@@ -18,6 +18,8 @@ var margin = {top: 180, right: 160, bottom: 160, left: 160},
 			.range(["#232323", "green", "red"]),
 		heatmapLegendScale = d3.scale.linear()
 			.domain([0,3]),
+			
+		colorGradientPrecision = 20,
 
 		chord = d3.layout.chord()
 			.padding(chord_padding)
