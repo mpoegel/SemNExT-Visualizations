@@ -83,6 +83,21 @@
 	min-height: 100%;
 }
 
+.chart-status  {
+	text-align: center;
+	display: none;
+	margin: auto;
+	width: 600px;
+	position: absolute;
+	top: 0;
+	left: 0;
+	bottom: 0;
+	right: 0;
+	text-align: center;
+	width: 600px;
+	height: 300px;
+}
+
 .welcome-message {
 	margin: auto;
 	position: absolute;
