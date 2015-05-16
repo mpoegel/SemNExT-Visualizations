@@ -5,7 +5,8 @@ $(document).ready(function() {
 	// 	list; munge the labels for each data set
 	$.ajax({
 		url: 'https://semnext.tw.rpi.edu/api/v1/list_known_diseases',
-		type: 'GET'
+		method: 'GET',
+		dataType: 'json'
 	}).done(function(data) {
 		diseaseObjs = data;
 	}).always(function() {
@@ -27,31 +28,12 @@ $(document).ready(function() {
 		$('.totalDiseases').text( diseaseObjs.length );
 	});
 
-	// diseaseObjs = [{
-	//   "@context": "https://semnext.tw.rpi.edu/ontology/disease.jsonld",
-	//   "@id": "https://semnext.tw.rpi.edu/id/source/cortecon-neuralsci-org/cortecon/disease/60042",
-	//   "label": "Atypical autism"
-	// }, {
-	//   "@context": "https://semnext.tw.rpi.edu/ontology/disease.jsonld",
-	//   "@id": "https://semnext.tw.rpi.edu/id/source/cortecon-neuralsci-org/cortecon/disease/12849",
-	//   "label": "Autism"
-	// }, {
-	//   "@context": "https://semnext.tw.rpi.edu/ontology/disease.jsonld",
-	//   "@id": "https://semnext.tw.rpi.edu/id/source/cortecon-neuralsci-org/cortecon/disease/60041",
-	//   "label": "Autism spectrum disease"
-	// }];
-
-
 });
 
 $('#diseaseList').bind('typeahead:select', function(ev, selection) {
 	$('.welcome-message').hide();
 	updateGraph(selection);
 });
-
-function updateProgress(x) {
-	$('.chart-progress .progress-bar').css('width', x + '%');
-}
 
 /* redraw with the selected graph
 arguments: none
@@ -64,26 +46,43 @@ function updateGraph(diseaseObj) {
 	$("#set-highlight-btns label").removeClass("active");
 	$(".chart").empty();
 
-	$('.chart-progress').show();
-	updateProgress(5);
+	$('.chart-status').empty();
+	$('.chart-status')
+		.append('<i class="fa fa-spinner fa-spin fa-4x"></i>')
+		.append('<p>Creating CHeM Diagram</p>')
+		.show();
 
 	$.ajax({
 		url: 'https://semnext.tw.rpi.edu/api/v1/matrix_for_disease?disease=' +
 			diseaseObj['@id'],
 		type: 'GET',
 	}).done(function(rawData) {
-		updateProgress(20);
-		data = mungeData(rawData);
-		updateProgress(30);
-		createGraph(data.chord_matrix, data.clusters, data.gene_symbols,
-			data.heatmap, diseaseObj.label);
-		updateProgress(100);
+		try {
+			data = mungeData(rawData);
+			createGraph(data.chord_matrix, data.clusters, data.gene_symbols,
+				data.heatmap, diseaseObj.label);
+			$('.chart-status').hide();
+		}
+		catch (e) {
+			$('.chart-status').empty();
+			$('.chart-status')
+				.append('<div class="panel panel-danger">' +
+					'<div class="panel-heading">Error</div>' +
+					'<div class="panel-body">Data munging and chart creation failed.' +
+					'</div>');
+			console.log(e);
+		}
 	}).fail(function(error) {
-		console.log(error.status);
-		console.log(error.statueText)
+		$('.chart-status').empty();
+		$('.chart-status')
+			.append('<div class="panel panel-danger">' +
+				'<div class="panel-heading">Error</div>' +
+				'<div class="panel-body">Could not retrieve data.' +
+				'</div>');
+
 	}).always(function() {
-		$('.chart-progress').hide();
-	})
+		// foo
+	});
 
 	// mungeSemantic(data_files[data_index].semFile).then(
 	// 	function(semData) { // on success
@@ -219,8 +218,7 @@ function createGraph(chord_matrix, clusters, labels, heatmap, title) {
 			.append("g")
 				.attr("transform", "translate(" + (width/2 + margin.left) + "," + (height/2 + margin.top) + ")");
 
-	chord.matrix(chord_matrix);
-	updateProgress(35);
+	chord.matrix(chord_matrix)
 
 	// make the colorScale domain to be mean +/- 2*sigma
 	var mu = d3.mean(heatmap, function(d) { return d.Value; }),
@@ -248,8 +246,6 @@ function createGraph(chord_matrix, clusters, labels, heatmap, title) {
 			.on("mouseover", fade(fade_opacity), function(d) { console.log(d); })
 			.on("mouseout", fade(1.0));
 
-	updateProgress(40);
-
 	g.append("svg:path")
 			.style("stroke", function(d) { return fill(clusters[d.index]); })
 			.style("fill", function(d) { return fill(clusters[d.index]); })
@@ -267,8 +263,6 @@ function createGraph(chord_matrix, clusters, labels, heatmap, title) {
 			})
 			.text(function(d) { return labels[d.index]; });
 
-	updateProgress(50);
-
 	var blank_arc = d3.svg.arc();
 	// heatmap around the chord diagram
 	svg.selectAll(".heatmap_arc")
@@ -283,9 +277,7 @@ function createGraph(chord_matrix, clusters, labels, heatmap, title) {
 			.attr("class", "heatmap_arc")
 			.attr("fill", function(d) { return colorScale(d.Value); })
 			.on("mouseover", fade2(fade_opacity))
-			.on("mouseout", fade2(1.0))
-
-	updateProgress(60);
+			.on("mouseout", fade2(1.0));
 
 	// draw the cluster bands
 	var cluster_bands = [],
@@ -324,8 +316,6 @@ function createGraph(chord_matrix, clusters, labels, heatmap, title) {
 			.on("mouseover", fadeCluster(fade_opacity))
 			.on("mouseout", fadeCluster(1.0));
 
-	updateProgress(70);
-
 	// draw chords
 	svg.selectAll("path.chord")
 			.data(chord.chords)
@@ -345,8 +335,6 @@ function createGraph(chord_matrix, clusters, labels, heatmap, title) {
 			.style("fill", function(d) { return fill(clusters[d.source.index]); })
 			.attr("d", d3.svg.chord().radius(innerRadius));
 
-	updateProgress(80);
-
 	// draw a legend for the clusters in the upper right corner
 	var clusterLegend = svg.append("g")
 			.attr("class", "clusterLegend")
@@ -363,8 +351,6 @@ function createGraph(chord_matrix, clusters, labels, heatmap, title) {
 			.attr("width", 100);
 	heatmapLegendScale.range(colorScale.domain());
 	drawHeatmapLegend(heatmapLegend);
-
-	updateProgress(90);
 
 	$('.additional-settings[data-action="showLegends"]')
 		.text("Hide Legends")
