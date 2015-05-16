@@ -5,63 +5,81 @@ $(document).ready(function() {
 	// 	list; munge the labels for each data set
 	$.ajax({
 		url: 'https://semnext.tw.rpi.edu/api/v1/list_known_diseases',
-		type: 'GET',
-		success: function(data) {
-			diseaseObjs = data;
-			$('#diseaseList').typeahead({
-				hint: true,
-				highlight: true,
-				minLength: 1
-			},
-			{
-				name: 'disease-list',
-				source: new Bloodhound({
-					datumTokenizer: Bloodhound.tokenizers.whitespace,
-					queryTokenizer: Bloodhound.tokenizers.whitespace,
-					local: diseaseObjs
-				})
-			});
-		}
+		type: 'GET'
+	}).done(function(data) {
+		diseaseObjs = data;
+	}).always(function() {
+		$('#diseaseList').typeahead({
+			hint: true,
+			highlight: true,
+			minLength: 1
+		},
+		{
+			name: 'disease-list',
+			display: 'label',
+			source: new Bloodhound({
+				datumTokenizer: function(datum) { return [datum.label]; },
+				queryTokenizer: Bloodhound.tokenizers.whitespace,
+				local: diseaseObjs,
+				identify: function(obj) { return obj['@id']; },
+			})
+		});
 	});
-	updateGraph();
+
+	// diseaseObjs = [{
+	//   "@context": "https://semnext.tw.rpi.edu/ontology/disease.jsonld",
+	//   "@id": "https://semnext.tw.rpi.edu/id/source/cortecon-neuralsci-org/cortecon/disease/60042",
+	//   "label": "Atypical autism"
+	// }, {
+	//   "@context": "https://semnext.tw.rpi.edu/ontology/disease.jsonld",
+	//   "@id": "https://semnext.tw.rpi.edu/id/source/cortecon-neuralsci-org/cortecon/disease/12849",
+	//   "label": "Autism"
+	// }, {
+	//   "@context": "https://semnext.tw.rpi.edu/ontology/disease.jsonld",
+	//   "@id": "https://semnext.tw.rpi.edu/id/source/cortecon-neuralsci-org/cortecon/disease/60041",
+	//   "label": "Autism spectrum disease"
+	// }];
+
 
 });
 
-$('#diseaseList').keyup(function(e) {
-	if (e.keyCode === 13) {
-		console.log($('diseaseList').val());
-	}
-})
+$('#diseaseList').bind('typeahead:select', function(ev, selection) {
+	updateGraph(selection);
+});
 
 /* redraw with the selected graph
 arguments: none
 
 returns:   nothing
 */
-function updateGraph() {
+function updateGraph(diseaseObj) {
 	// reset settings
 	$("#set-hover-btn").addClass("active");
 	$("#set-highlight-btns label").removeClass("active");
 	$(".chart").empty();
 
-	var data_index = $("#data-selector").val(),
-			data_file = data_files[data_index].file,
-			title = data_files[data_index].name;
-
-	mungeData(data_file).then(function(data) {
+	$.ajax({
+		url: 'https://semnext.tw.rpi.edu/api/v1/matrix_for_disease?disease=' +
+			diseaseObj['@id'],
+		type: 'GET',
+	}).done(function(rawData) {
+		data = mungeData(rawData);
 		createGraph(data.chord_matrix, data.clusters, data.gene_symbols,
-			data.heatmap, title);
+			data.heatmap, diseaseObj.label);
+	}).fail(function(error) {
+		console.log(error);
 	});
-	mungeSemantic(data_files[data_index].semFile).then(
-		function(semData) { // on success
-			$('.semData-error').hide();
-			$('.semData').show();
-			attachSemanticData(semData);
-		},
-		function() { // on failure
-		$('.semData').hide();
-		$('.semData-error').show();
-	});
+
+	// mungeSemantic(data_files[data_index].semFile).then(
+	// 	function(semData) { // on success
+	// 		$('.semData-error').hide();
+	// 		$('.semData').show();
+	// 		attachSemanticData(semData);
+	// 	},
+	// 	function() { // on failure
+	// 	$('.semData').hide();
+	// 	$('.semData-error').show();
+	// });
 
 }
 
@@ -74,61 +92,54 @@ arguments: file_name- name of the file to munge
 returns:   a promise of an object containing the chord data matrix,
 						heatmap data, index-to-cluster array, and index-to-gene_symbol array
 */
-function mungeData(file_name) {
-	return new Promise(function(resolve, reject) {
-		// load the data from the csv file asynchronously
-		d3.csv("chord_data/" + file_name, function(error, data) {
-			// extract the labels from the input data
-			var gene_symbols = [];
-			for (var gene in data['0']) gene_symbols.push(gene);
+function mungeData(data) {
+	var gene_symbols = [];
+	for (var gene in data['0']) gene_symbols.push(gene);
 
-			var	matrix = [], 						// square matrix of gene connections
-					row = [],								// vector used to construct the matrix
-					count = 0,							// track the index of each gene
-					day_re = /[d]\d{1,2}/,  // regular expression to find heatmap data
-					heatmap = [];						// heatmap data
+	var	matrix = [], 						// square matrix of gene connections
+			row = [],								// vector used to construct the matrix
+			count = 0,							// track the index of each gene
+			day_re = /[d]\d{1,2}/,  // regular expression to find heatmap data
+			heatmap = [];						// heatmap data
 			clusters = [];
 
-			data.forEach(function(d) {
-				row = [];
-				// get the data for the cluster and the connection matrix
-				for (var gene in d) {
-					// ignore empty lines
-					if (d[gene] == "") {
-						continue;
-					}
-					// if the data contains cluster information...
-					else if (gene == "Cluster") {
-						clusters.push(+d[gene]);
-					}
-					// if the data contains heatmap data as determined by the regex
-					else if (day_re.exec(gene)) {
-						heatmap.push({
-							Gene_Symbol: gene_symbols[count],
-							Day: gene,
-							Value: +d[gene],
-							Cluster: clusters[count],
-							Index: count
-						})
-					}
-					// otherwise data is a gene connections
-					else {
-						d[gene] = +d[gene];
-						row.push(d[gene]);
-					}
-				}
-				matrix.push(row);
-				count++;
-			});
-			// console.log(matrix);
-			resolve({
-				chord_matrix: matrix,
-				heatmap: heatmap,
-				clusters: clusters,
-				gene_symbols: gene_symbols
-			});
-		})
+	data.forEach(function(d) {
+		row = [];
+		// get the data for the cluster and the connection matrix
+		for (var gene in d) {
+			// ignore empty lines
+			if (d[gene] == "") {
+				continue;
+			}
+			// if the data contains cluster information...
+			else if (gene == "Cluster") {
+				clusters.push(+d[gene]);
+			}
+			// if the data contains heatmap data as determined by the regex
+			else if (day_re.exec(gene)) {
+				heatmap.push({
+					Gene_Symbol: gene_symbols[count],
+					Day: gene,
+					Value: +d[gene],
+					Cluster: clusters[count],
+					Index: count
+				})
+			}
+			// otherwise data is a gene connections
+			else {
+				d[gene] = +d[gene];
+				row.push(d[gene]);
+			}
+		}
+		matrix.push(row);
+		count++;
 	});
+	return {
+		chord_matrix: matrix,
+		heatmap: heatmap,
+		clusters: clusters,
+		gene_symbols: gene_symbols
+	};
 }
 
 /* capture all the gene symbols for a disease and stores them with the data
