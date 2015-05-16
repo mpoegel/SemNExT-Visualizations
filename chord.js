@@ -1,40 +1,37 @@
 // create a default chart on load
 $(document).ready(function() {
 
+	// add the list of data sets to the data selection menu and the disease filter
+	// 	list; munge the labels for each data set
 	$.ajax({
 		url: 'https://semnext.tw.rpi.edu/api/v1/list_known_diseases',
 		type: 'GET',
 		success: function(data) {
-			console.log(data);
+			diseaseObjs = data;
+			$('#diseaseList').typeahead({
+				hint: true,
+				highlight: true,
+				minLength: 1
+			},
+			{
+				name: 'disease-list',
+				source: new Bloodhound({
+					datumTokenizer: Bloodhound.tokenizers.whitespace,
+					queryTokenizer: Bloodhound.tokenizers.whitespace,
+					local: diseaseObjs
+				})
+			});
 		}
 	});
+	updateGraph();
 
-	// load the config settings
-	$.getScript('config.js').done(function() {
-		// add the list of data sets to the data selection menu and the disease filter
-		// 	list; munge the labels for each data set
-		for (var i = 0; i < data_files.length; i++) {
-			$("<option>")
-				.attr("data-number", i)
-				.attr("name", data_files[i].name)
-				.text(data_files[i].name)
-				.appendTo( $(".disease-gene-filter-list") );
-			if (i == 7) {
-				$("<option selected>")
-					.attr("value", i)
-					.text(data_files[i].name)
-					.appendTo( $("#data-selector") );
-			} else {
-				$("<option>")
-					.attr("value", i)
-					.text(data_files[i].name)
-					.appendTo( $("#data-selector") );
-			}
-			mungeLabels(data_files[i].file, i);
-		}
-		updateGraph();
-	});
 });
+
+$('#diseaseList').keyup(function(e) {
+	if (e.keyCode === 13) {
+		console.log($('diseaseList').val());
+	}
+})
 
 /* redraw with the selected graph
 arguments: none
