@@ -64,12 +64,14 @@ function updateGraph(diseaseObj) {
 			$('.chart-status').hide();
 		}
 		catch (e) {
+			$('.chart').empty();
 			$('.chart-status').empty();
 			$('.chart-status')
 				.append('<div class="panel panel-danger">' +
 					'<div class="panel-heading">Error</div>' +
 					'<div class="panel-body">Data munging and chart creation failed.' +
 					'</div>');
+			console.log(data);
 			console.log(e);
 		}
 	}).fail(function(error) {
