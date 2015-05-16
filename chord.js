@@ -1,5 +1,14 @@
 // create a default chart on load
 $(document).ready(function() {
+
+	$.ajax({
+		url: 'https://semnext.tw.rpi.edu/api/v1/list_known_diseases',
+		type: 'GET',
+		success: function(data) {
+			console.log(data);
+		}
+	});
+
 	// load the config settings
 	$.getScript('config.js').done(function() {
 		// add the list of data sets to the data selection menu and the disease filter
@@ -10,7 +19,7 @@ $(document).ready(function() {
 				.attr("name", data_files[i].name)
 				.text(data_files[i].name)
 				.appendTo( $(".disease-gene-filter-list") );
-			if (i == 1) {
+			if (i == 7) {
 				$("<option selected>")
 					.attr("value", i)
 					.text(data_files[i].name)
