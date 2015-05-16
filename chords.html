@@ -53,10 +53,8 @@
 		<div class="row settings-bar">
 			<ul class="horizontal-list">
 				<li>
-					<div class="data-selector-div">
-						<select class="form-control" onChange="updateGraph()" id="data-selector">
-						</select>
-					</div>
+					<input type="text" name="diseaseList" id="diseaseList"
+						class="form-control"  placeholder="Search for a disease">
 				</li>
 
 				<li>
@@ -132,7 +130,9 @@
 <script src="lib/jquery-2.1.3.min.js" charset="utf-8"></script>
 <script src="lib/bootstrap.min.js" charset="utf-8"></script>
 <script src="lib/underscore-min.js" charset="utf-8"></script>
+<script src="lib/typeahead.bundle.js" charset="utf-8"></script>
 
+<script src="config.js" charset="utf-8"></script>
 <script src="chord.js" charset="utf-8"></script>
 <script src="events.js" charset="utf-8"></script>
 
