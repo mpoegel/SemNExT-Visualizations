@@ -24,6 +24,7 @@ $(document).ready(function() {
 				identify: function(obj) { return obj['@id']; },
 			})
 		});
+		$('.totalDiseases').text( diseaseObjs.length );
 	});
 
 	// diseaseObjs = [{
@@ -44,8 +45,13 @@ $(document).ready(function() {
 });
 
 $('#diseaseList').bind('typeahead:select', function(ev, selection) {
+	$('.welcome-message').hide();
 	updateGraph(selection);
 });
+
+function updateProgress(x) {
+	$('.chart-progress .progress-bar').css('width', x + '%');
+}
 
 /* redraw with the selected graph
 arguments: none
@@ -58,17 +64,26 @@ function updateGraph(diseaseObj) {
 	$("#set-highlight-btns label").removeClass("active");
 	$(".chart").empty();
 
+	$('.chart-progress').show();
+	updateProgress(5);
+
 	$.ajax({
 		url: 'https://semnext.tw.rpi.edu/api/v1/matrix_for_disease?disease=' +
 			diseaseObj['@id'],
 		type: 'GET',
 	}).done(function(rawData) {
+		updateProgress(20);
 		data = mungeData(rawData);
+		updateProgress(30);
 		createGraph(data.chord_matrix, data.clusters, data.gene_symbols,
 			data.heatmap, diseaseObj.label);
+		updateProgress(100);
 	}).fail(function(error) {
-		console.log(error);
-	});
+		console.log(error.status);
+		console.log(error.statueText)
+	}).always(function() {
+		$('.chart-progress').hide();
+	})
 
 	// mungeSemantic(data_files[data_index].semFile).then(
 	// 	function(semData) { // on success
@@ -93,8 +108,16 @@ returns:   a promise of an object containing the chord data matrix,
 						heatmap data, index-to-cluster array, and index-to-gene_symbol array
 */
 function mungeData(data) {
-	var gene_symbols = [];
-	for (var gene in data['0']) gene_symbols.push(gene);
+	data = data.split('\n');
+	data = _.map(data, function(d) { return d.split(','); });
+	// grab the header and then extract all of the gene symbols
+	var header = data[0],
+			gene_symbols = [],
+			i = 0;
+	while (i < header.length && header[i] !== 'Cluster') {
+		gene_symbols.push(header[i]);
+		i++;
+	}
 
 	var	matrix = [], 						// square matrix of gene connections
 			row = [],								// vector used to construct the matrix
@@ -103,37 +126,39 @@ function mungeData(data) {
 			heatmap = [];						// heatmap data
 			clusters = [];
 
-	data.forEach(function(d) {
+	for (var i=1; i<data.length; i++) {
 		row = [];
 		// get the data for the cluster and the connection matrix
-		for (var gene in d) {
+		for (var k=0; k<data[i].length; k++) {
 			// ignore empty lines
-			if (d[gene] == "") {
+			if (data[i][k] === '') {
 				continue;
 			}
-			// if the data contains cluster information...
-			else if (gene == "Cluster") {
-				clusters.push(+d[gene]);
+			// if the data contains cluster information
+			else if (header[k] === 'Cluster') {
+				clusters.push( +data[i][k] );
 			}
 			// if the data contains heatmap data as determined by the regex
-			else if (day_re.exec(gene)) {
+			else if (day_re.exec(header[k])) {
 				heatmap.push({
-					Gene_Symbol: gene_symbols[count],
-					Day: gene,
-					Value: +d[gene],
-					Cluster: clusters[count],
-					Index: count
-				})
+					Gene_Symbol: gene_symbols[i-1],
+					Day: header[k],
+					Value: +data[i][k],
+					Cluster: clusters[i-1],
+					Index: i-1
+				});
 			}
 			// otherwise data is a gene connections
 			else {
-				d[gene] = +d[gene];
-				row.push(d[gene]);
+				row.push( +data[i][k] );
 			}
 		}
-		matrix.push(row);
-		count++;
-	});
+		if (row.length === header.length - 10) {
+			matrix.push(row);
+		}
+
+	}
+
 	return {
 		chord_matrix: matrix,
 		heatmap: heatmap,
@@ -195,6 +220,7 @@ function createGraph(chord_matrix, clusters, labels, heatmap, title) {
 				.attr("transform", "translate(" + (width/2 + margin.left) + "," + (height/2 + margin.top) + ")");
 
 	chord.matrix(chord_matrix);
+	updateProgress(35);
 
 	// make the colorScale domain to be mean +/- 2*sigma
 	var mu = d3.mean(heatmap, function(d) { return d.Value; }),
@@ -222,6 +248,8 @@ function createGraph(chord_matrix, clusters, labels, heatmap, title) {
 			.on("mouseover", fade(fade_opacity), function(d) { console.log(d); })
 			.on("mouseout", fade(1.0));
 
+	updateProgress(40);
+
 	g.append("svg:path")
 			.style("stroke", function(d) { return fill(clusters[d.index]); })
 			.style("fill", function(d) { return fill(clusters[d.index]); })
@@ -239,6 +267,8 @@ function createGraph(chord_matrix, clusters, labels, heatmap, title) {
 			})
 			.text(function(d) { return labels[d.index]; });
 
+	updateProgress(50);
+
 	var blank_arc = d3.svg.arc();
 	// heatmap around the chord diagram
 	svg.selectAll(".heatmap_arc")
@@ -254,6 +284,8 @@ function createGraph(chord_matrix, clusters, labels, heatmap, title) {
 			.attr("fill", function(d) { return colorScale(d.Value); })
 			.on("mouseover", fade2(fade_opacity))
 			.on("mouseout", fade2(1.0))
+
+	updateProgress(60);
 
 	// draw the cluster bands
 	var cluster_bands = [],
@@ -292,6 +324,8 @@ function createGraph(chord_matrix, clusters, labels, heatmap, title) {
 			.on("mouseover", fadeCluster(fade_opacity))
 			.on("mouseout", fadeCluster(1.0));
 
+	updateProgress(70);
+
 	// draw chords
 	svg.selectAll("path.chord")
 			.data(chord.chords)
@@ -311,6 +345,8 @@ function createGraph(chord_matrix, clusters, labels, heatmap, title) {
 			.style("fill", function(d) { return fill(clusters[d.source.index]); })
 			.attr("d", d3.svg.chord().radius(innerRadius));
 
+	updateProgress(80);
+
 	// draw a legend for the clusters in the upper right corner
 	var clusterLegend = svg.append("g")
 			.attr("class", "clusterLegend")
@@ -327,6 +363,8 @@ function createGraph(chord_matrix, clusters, labels, heatmap, title) {
 			.attr("width", 100);
 	heatmapLegendScale.range(colorScale.domain());
 	drawHeatmapLegend(heatmapLegend);
+
+	updateProgress(90);
 
 	$('.additional-settings[data-action="showLegends"]')
 		.text("Hide Legends")
