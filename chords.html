@@ -12,99 +12,117 @@
 
 <body>
 
-	<div class="container">
+	<div class="header">
+		<div class="container">
+			<div class="row expanded-settings-bar">
+				<ul class="horizontal-list">
+					<!-- <li>
+						<select class="form-control disease-gene-filter-list" multiple></select>
+						<button class="btn btn-primary disease-filter-btn" data-action="setFilter">
+							Add Filter</button>
+						<button class="btn btn-danger disease-filter-btn" data-action="clearFilter">
+							Clear Filter</button>
+					</li>
+					<li>
+						Active Filters:
+						<div id="active-filters"></div>
+					</li> -->
+					<li>
+						<button class="btn btn-primary additional-settings"
+							title="Hide both legends in the diagram."
+							data-action="hideLegends">
+							Hide Legends</button>
+					</li>
+					<li>
+						<button class="btn btn-primary additional-settings"
+							title="Recolor the chords with a gradient. WARNING: this may take a while to complete for large data sets."
+							data-action="pathColorGradient">Path Color Gradient</button>
+					</li>
+					<li>
+						<div class="btn btn-success download-btn" data-target="svg"
+							title="Download the current diagram as an SVG.">
+							Download SVG
+						</div>
+						<div class="btn btn-success download-btn" data-target="png"
+							title="Download the current diagram as a PNG.">
+							Download PNG
+						</div>
+					</li>
+				</ul>
+			</div> <!-- close EXPANDED-SETTINGS-BAR -->
+			<div class="row settings-bar">
+				<ul class="horizontal-list">
+					<li>
+						<input type="text" name="diseaseList" id="diseaseList"
+							class="form-control"  placeholder="Search for a disease">
+					</li>
+					<li>
+						<div class="btn btn-primary" id="highlight-dom-cluster-btn"
+							title="Highlight the dominant cluster for protein set, if defined.">
+							Highlight Dominant Cluster
+						</div>
+					</li>
+					<li>
+						<div class="btn-group" data-toggle="buttons" id="set-highlight-btns">
+							<label class="btn btn-primary active" id="set-hover-btn"
+								title="Highlight a protein on hover.">
+								<input type="radio" autocomplete="off" checked>Hover
+							</label>
+							<label class="btn btn-primary" id="set-click-btn"
+								title="Hightlight a protein on click.">
+								<input type="radio" autocomplete="off">Click
+							</label>
+							<label class="btn btn-primary" id="set-no-highlight-btn"
+								title="Disable protein highlighting.">
+								<input type="radio" autocomplete="off">None
+							</label>
+						</div>
+					</li>
+					<li>
+						<div class="btn btn-primary display-btn" data-action="all"
+							title="Display all protein connections.">
+							Display All</div>
+						<div class="btn btn-primary display-btn" data-action="none"
+							title="Display no protein connections.">
+							Display None</div>
+						<div class="btn btn-primary display-btn" data-action="invert"
+							title="Invert the highlighted protein connections.">
+							Invert Display
+						</div>
+					</li>
+					<li>
+						<div class="btn btn-link" id="expand-settings-btn"
+							title="Show more settings.">
+							<i class="fa fa-plus-square-o fa-2x"></i>
+						</div>
+					</li>
+				</ul>
+			</div> <!-- close SETTINGS-BAR -->
+		</div> <!-- close CONTAINER -->
+	</div> <!-- close HEADER -->
 
-		<div class="row expanded-settings-bar">
-
-			<ul class="horizontal-list">
-				<li>
-					<select class="form-control disease-gene-filter-list" multiple></select>
-					<button class="btn btn-primary disease-filter-btn" data-action="setFilter">
-						Add Filter</button>
-					<button class="btn btn-danger disease-filter-btn" data-action="clearFilter">
-						Clear Filter</button>
-				</li>
-				<li>
-					Active Filters:
-					<div id="active-filters"></div>
-				</li>
-				<li>
-					<button class="btn btn-primary additional-settings" data-action="hideLegends">
-						Hide Legends</button>
-				</li>
-				<li>
-					<button class="btn btn-primary additional-settings"
-						data-action="pathColorGradient">Path Color Gradient</button>
-				</li>
-				<li>
-					<div class="btn btn-success download-btn" data-target="svg"
-						title="Download the current state as an SVG">
-						Download SVG
-					</div><br/>
-					<div class="btn btn-success download-btn" data-target="png"
-						title="Download the current state as an PNG">
-						Download PNG
-					</div>
-				</li>
-			</ul>
+	<div class="container content">
+		<div class="welcome-message">
+			<h3>
+				Welcome to the SemNExT CHeM Visualizer.
+			</h3>
+			<p>
+				There are <span class="totalDiseases">#</span> diseases currently
+				in the database.
+			</p>
+			<p>
+				This is a visualization tool to create a Chord-Heat Map (CHeM)
+				diagram that illustrates the relationships between proteins
+				connected	to a particular disease.
+			</p>
 		</div>
-
-
-		<div class="row settings-bar">
-			<ul class="horizontal-list">
-				<li>
-					<input type="text" name="diseaseList" id="diseaseList"
-						class="form-control"  placeholder="Search for a disease">
-				</li>
-
-				<li>
-					<div class="btn btn-primary" id="highlight-dom-cluster-btn"
-						title="Highlight the dominant cluster for gene set, if defined.">
-						Highlight Dominant Cluster
-					</div>
-				</li>
-
-				<li>
-					<div class="btn-group" data-toggle="buttons" id="set-highlight-btns">
-						<label class="btn btn-primary active" id="set-hover-btn"
-							title="Highlight a gene on hover.">
-					    <input type="radio" autocomplete="off" checked>Hover
-					  </label>
-						<label class="btn btn-primary" id="set-click-btn"
-							title="Hightlight a gene on click.">
-					    <input type="radio" autocomplete="off">Click
-					  </label>
-						<label class="btn btn-primary" id="set-no-highlight-btn"
-							title="Disable gene highlighting.">
-					    <input type="radio" autocomplete="off">None
-					  </label>
-					</div>
-				</li>
-
-				<li>
-					<div class="btn btn-primary display-btn" data-action="all"
-					 	title="Display all gene connections.">
-						Display All</div>
-					<div class="btn btn-primary display-btn" data-action="none"
-					 	title="Display no gene connections.">
-						Display None</div>
-					<div class="btn btn-primary display-btn" data-action="invert"
-					 	title="Invert the highlighted gene connections.">
-						Invert Display
-					</div>
-				</li>
-
-				<li>
-
-					<div class="btn btn-link" id="expand-settings-btn"
-						title="Show more settings.">
-						<i class="fa fa-plus-square-o fa-2x"></i>
-					</div>
-				</li>
-			</ul>
-
+		<div class="progress chart-progress hidden">
+		  <div class="progress-bar progress-bar-success" role="progressbar"
+				aria-valuenow="60" aria-valuemin="0" aria-valuemax="100"
+				style="width: 0%;">
+		    0%
+		  </div>
 		</div>
-
 		<div class="chart"></div>
 		<div class="semData">
 			<dl>
@@ -117,13 +135,31 @@
 				<dt>Experimental Data</dt><dd class="days"><table class="table"></table></dd>
 			</dl>
 		</div>
-		<div class="semData-error bg-warning">
+		<div class="semData-error bg-warning hidden">
 			Semantic Data is not available for the selected data set.
 		</div>
-
 		<div class="geneInfo"></div>
-
 	</div>
+
+	<div class="footer">
+		<div class="container">
+			<div class="row">
+				<div class="pull-left">
+					<p>
+						<a href="http://tw.rpi.edu/web/project/SemNExT">
+							Semantic Numeric Exploration Techonology (SemNExt) Project</a>
+					</p>
+				</div>
+				<div class="pull-right">
+					<p>
+						<a href="http://rpi.edu">
+							Rensselaer Polytechnic Institute, Troy, NY, USA</a>
+					</p>
+				</div>
+			</div>
+		</div>
+	</div>
+
 </body>
 
 <script src="lib/d3.min.js" charset="utf-8"></script>
