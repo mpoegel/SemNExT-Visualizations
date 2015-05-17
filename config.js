@@ -18,7 +18,7 @@ var margin = {top: 180, right: 160, bottom: 160, left: 160},
 			.range(["#232323", "green", "red"]),
 		heatmapLegendScale = d3.scale.linear()
 			.domain([0,3]),
-			
+
 		colorGradientPrecision = 20,
 
 		chord = d3.layout.chord()
@@ -28,54 +28,7 @@ var margin = {top: 180, right: 160, bottom: 160, left: 160},
 		heatmap_y = d3.scale.ordinal()
 			.rangeRoundBands([0, heatmap_height]),
 
-		data_files = [
-		{ name: "Alzheimer's",
-			file: 'alzheimer_chord_data.csv',
-			semFile: '',
-			domc: 6
-		},
-		{
-			name: 'Autism',
-			file: 'autism_chord_data.csv',
-			semFile: 'autism_semantic.json',
-			domc: 6
-		},
-		{
-			name: 'Holoprosencephaly',
-			file: 'holoprosencephaly_chord_data.csv',
-			domc: 3
-		},
-		{
-			name: 'Lissencephaly',
-			file: 'lissencephaly_chord_data.csv',
-			domc: 6
-		},
-		{
-			name: 'Microcephaly',
-			file: 'microcephaly_chord_data.csv',
-			domc: 2
-		},
-		{
-			name: 'Tauopathy',
-			file: 'tauopathy_chord_data.csv',
-			domc: 6
-		},
-		{
-			name: 'Symmetrical',
-			file: 'WBSsymmetrical_chord_data.csv',
-			domc: 1
-		},
-		{
-			name: 'Highly Linear',
-			file: 'WBShighlyLinear_chord_data.csv',
-			domc: 1
-		},
-		{
-			name: 'Williams-Beuren Syndrome',
-			file: 'WilliamsBeurenSyndrome_chord_data.csv',
-			domc: 1
-		}
-		],
+		diseaseObjs = [],
 
 		clusterToStage = ['Pluripotency', 'Ectoderm', 'Neural Differentiation',
 			'Cortical Specification', 'Early Layers', 'Upper Layers'],

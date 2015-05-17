@@ -1,30 +1,38 @@
 // create a default chart on load
 $(document).ready(function() {
-	// load the config settings
-	$.getScript('config.js').done(function() {
-		// add the list of data sets to the data selection menu and the disease filter
-		// 	list; munge the labels for each data set
-		for (var i = 0; i < data_files.length; i++) {
-			$("<option>")
-				.attr("data-number", i)
-				.attr("name", data_files[i].name)
-				.text(data_files[i].name)
-				.appendTo( $(".disease-gene-filter-list") );
-			if (i == 1) {
-				$("<option selected>")
-					.attr("value", i)
-					.text(data_files[i].name)
-					.appendTo( $("#data-selector") );
-			} else {
-				$("<option>")
-					.attr("value", i)
-					.text(data_files[i].name)
-					.appendTo( $("#data-selector") );
-			}
-			mungeLabels(data_files[i].file, i);
-		}
-		updateGraph();
+
+	// add the list of data sets to the data selection menu and the disease filter
+	// 	list; munge the labels for each data set
+	$.ajax({
+		url: 'https://semnext.tw.rpi.edu/api/v1/list_known_diseases',
+		method: 'GET',
+		dataType: 'json'
+	}).done(function(data) {
+		diseaseObjs = data;
+	}).always(function() {
+		$('#diseaseList').typeahead({
+			hint: true,
+			highlight: true,
+			minLength: 1
+		},
+		{
+			name: 'disease-list',
+			display: 'label',
+			source: new Bloodhound({
+				datumTokenizer: function(datum) { return [datum.label]; },
+				queryTokenizer: Bloodhound.tokenizers.whitespace,
+				local: diseaseObjs,
+				identify: function(obj) { return obj['@id']; },
+			})
+		});
+		$('.totalDiseases').text( diseaseObjs.length );
 	});
+
+});
+
+$('#diseaseList').bind('typeahead:select', function(ev, selection) {
+	$('.welcome-message').hide();
+	updateGraph(selection);
 });
 
 /* redraw with the selected graph
@@ -32,30 +40,62 @@ arguments: none
 
 returns:   nothing
 */
-function updateGraph() {
+function updateGraph(diseaseObj) {
 	// reset settings
 	$("#set-hover-btn").addClass("active");
 	$("#set-highlight-btns label").removeClass("active");
 	$(".chart").empty();
 
-	var data_index = $("#data-selector").val(),
-			data_file = data_files[data_index].file,
-			title = data_files[data_index].name;
+	$('.chart-status').empty();
+	$('.chart-status')
+		.append('<i class="fa fa-spinner fa-spin fa-4x"></i>')
+		.append('<p>Creating CHeM Diagram</p>')
+		.show();
 
-	mungeData(data_file).then(function(data) {
-		createGraph(data.chord_matrix, data.clusters, data.gene_symbols,
-			data.heatmap, title);
+	$.ajax({
+		url: 'https://semnext.tw.rpi.edu/api/v1/matrix_for_disease?disease=' +
+			diseaseObj['@id'],
+		type: 'GET',
+	}).done(function(rawData) {
+		try {
+			data = mungeData(rawData);
+			createGraph(data.chord_matrix, data.clusters, data.gene_symbols,
+				data.heatmap, diseaseObj.label);
+			$('.chart-status').hide();
+		}
+		catch (e) {
+			$('.chart').empty();
+			$('.chart-status').empty();
+			$('.chart-status')
+				.append('<div class="panel panel-danger">' +
+					'<div class="panel-heading">Error</div>' +
+					'<div class="panel-body">Data munging and chart creation failed.' +
+					'</div>');
+			console.log(data);
+			console.log(e);
+		}
+	}).fail(function(error) {
+		$('.chart-status').empty();
+		$('.chart-status')
+			.append('<div class="panel panel-danger">' +
+				'<div class="panel-heading">Error</div>' +
+				'<div class="panel-body">Could not retrieve data.' +
+				'</div>');
+
+	}).always(function() {
+		// foo
 	});
-	mungeSemantic(data_files[data_index].semFile).then(
-		function(semData) { // on success
-			$('.semData-error').hide();
-			$('.semData').show();
-			attachSemanticData(semData);
-		},
-		function() { // on failure
-		$('.semData').hide();
-		$('.semData-error').show();
-	});
+
+	// mungeSemantic(data_files[data_index].semFile).then(
+	// 	function(semData) { // on success
+	// 		$('.semData-error').hide();
+	// 		$('.semData').show();
+	// 		attachSemanticData(semData);
+	// 	},
+	// 	function() { // on failure
+	// 	$('.semData').hide();
+	// 	$('.semData-error').show();
+	// });
 
 }
 
@@ -68,61 +108,64 @@ arguments: file_name- name of the file to munge
 returns:   a promise of an object containing the chord data matrix,
 						heatmap data, index-to-cluster array, and index-to-gene_symbol array
 */
-function mungeData(file_name) {
-	return new Promise(function(resolve, reject) {
-		// load the data from the csv file asynchronously
-		d3.csv("chord_data/" + file_name, function(error, data) {
-			// extract the labels from the input data
-			var gene_symbols = [];
-			for (var gene in data['0']) gene_symbols.push(gene);
+function mungeData(data) {
+	data = data.split('\n');
+	data = _.map(data, function(d) { return d.split(','); });
+	// grab the header and then extract all of the gene symbols
+	var header = data[0],
+			gene_symbols = [],
+			i = 0;
+	while (i < header.length && header[i] !== 'Cluster') {
+		gene_symbols.push(header[i]);
+		i++;
+	}
 
-			var	matrix = [], 						// square matrix of gene connections
-					row = [],								// vector used to construct the matrix
-					count = 0,							// track the index of each gene
-					day_re = /[d]\d{1,2}/,  // regular expression to find heatmap data
-					heatmap = [];						// heatmap data
+	var	matrix = [], 						// square matrix of gene connections
+			row = [],								// vector used to construct the matrix
+			count = 0,							// track the index of each gene
+			day_re = /[d]\d{1,2}/,  // regular expression to find heatmap data
+			heatmap = [];						// heatmap data
 			clusters = [];
 
-			data.forEach(function(d) {
-				row = [];
-				// get the data for the cluster and the connection matrix
-				for (var gene in d) {
-					// ignore empty lines
-					if (d[gene] == "") {
-						continue;
-					}
-					// if the data contains cluster information...
-					else if (gene == "Cluster") {
-						clusters.push(+d[gene]);
-					}
-					// if the data contains heatmap data as determined by the regex
-					else if (day_re.exec(gene)) {
-						heatmap.push({
-							Gene_Symbol: gene_symbols[count],
-							Day: gene,
-							Value: +d[gene],
-							Cluster: clusters[count],
-							Index: count
-						})
-					}
-					// otherwise data is a gene connections
-					else {
-						d[gene] = +d[gene];
-						row.push(d[gene]);
-					}
-				}
-				matrix.push(row);
-				count++;
-			});
-			// console.log(matrix);
-			resolve({
-				chord_matrix: matrix,
-				heatmap: heatmap,
-				clusters: clusters,
-				gene_symbols: gene_symbols
-			});
-		})
-	});
+	for (var i=1; i<data.length; i++) {
+		row = [];
+		// get the data for the cluster and the connection matrix
+		for (var k=0; k<data[i].length; k++) {
+			// ignore empty lines
+			if (data[i][k] === '') {
+				continue;
+			}
+			// if the data contains cluster information
+			else if (header[k] === 'Cluster') {
+				clusters.push( +data[i][k] );
+			}
+			// if the data contains heatmap data as determined by the regex
+			else if (day_re.exec(header[k])) {
+				heatmap.push({
+					Gene_Symbol: gene_symbols[i-1],
+					Day: header[k],
+					Value: +data[i][k],
+					Cluster: clusters[i-1],
+					Index: i-1
+				});
+			}
+			// otherwise data is a gene connections
+			else {
+				row.push( +data[i][k] );
+			}
+		}
+		if (row.length === header.length - 10) {
+			matrix.push(row);
+		}
+
+	}
+
+	return {
+		chord_matrix: matrix,
+		heatmap: heatmap,
+		clusters: clusters,
+		gene_symbols: gene_symbols
+	};
 }
 
 /* capture all the gene symbols for a disease and stores them with the data
@@ -177,7 +220,7 @@ function createGraph(chord_matrix, clusters, labels, heatmap, title) {
 			.append("g")
 				.attr("transform", "translate(" + (width/2 + margin.left) + "," + (height/2 + margin.top) + ")");
 
-	chord.matrix(chord_matrix);
+	chord.matrix(chord_matrix)
 
 	// make the colorScale domain to be mean +/- 2*sigma
 	var mu = d3.mean(heatmap, function(d) { return d.Value; }),
@@ -236,7 +279,7 @@ function createGraph(chord_matrix, clusters, labels, heatmap, title) {
 			.attr("class", "heatmap_arc")
 			.attr("fill", function(d) { return colorScale(d.Value); })
 			.on("mouseover", fade2(fade_opacity))
-			.on("mouseout", fade2(1.0))
+			.on("mouseout", fade2(1.0));
 
 	// draw the cluster bands
 	var cluster_bands = [],
