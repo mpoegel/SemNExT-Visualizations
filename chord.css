@@ -1,7 +1,7 @@
 /* HEADER ------------------------------------------------------------- */
 .header {
-	background-color: #d3d3d3;
 	margin-bottom: 20px;
+	background-color: #d3d3d3;
 }
 .settings-bar {
 	height: 60px;
@@ -15,6 +15,7 @@
 .horizontal-list li {
 	float: left;
 	padding-right: 20px;
+	padding-bottom: 10px;
 }
 
 .horizontal-list li:last-child {
@@ -27,7 +28,6 @@
 
 .expanded-settings-bar {
 	display: none;
-	padding: 10px;
 }
 
 .disease-gene-filter-list {
@@ -66,26 +66,9 @@
 	padding-right: 5px;
 }
 
-/* FOOTER ------------------------------------------------------------------- */
-.footer {
-	width: 100%;
-	height: 50px;
-	background-color: #d3d3d3;
-}
-
-.footer p {
-	padding-top: 15px;
-}
-
 /* CONTENT  ----------------------------------------------------------------- */
 html, body {
 	height: 100%;
-}
-
-.content {
-	min-height: 100%;
-	margin-top: -80px;
-	margin-bottom: -50px;
 }
 
 .chart-status  {

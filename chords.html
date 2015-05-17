@@ -15,40 +15,51 @@
 	<div class="header">
 		<div class="container">
 			<div class="row expanded-settings-bar">
-				<ul class="horizontal-list">
-					<!-- <li>
-						<select class="form-control disease-gene-filter-list" multiple></select>
-						<button class="btn btn-primary disease-filter-btn" data-action="setFilter">
-							Add Filter</button>
-						<button class="btn btn-danger disease-filter-btn" data-action="clearFilter">
-							Clear Filter</button>
-					</li>
-					<li>
-						Active Filters:
-						<div id="active-filters"></div>
-					</li> -->
-					<li>
-						<button class="btn btn-primary additional-settings"
-							title="Hide both legends in the diagram."
-							data-action="hideLegends">
-							Hide Legends</button>
-					</li>
-					<li>
-						<button class="btn btn-primary additional-settings"
-							title="Recolor the chords with a gradient. WARNING: this may take a while to complete for large data sets."
-							data-action="pathColorGradient">Path Color Gradient</button>
-					</li>
-					<li>
-						<div class="btn btn-success download-btn" data-target="svg"
-							title="Download the current diagram as an SVG.">
-							Download SVG
-						</div>
-						<div class="btn btn-success download-btn" data-target="png"
-							title="Download the current diagram as a PNG.">
-							Download PNG
-						</div>
-					</li>
-				</ul>
+				<div class="row">
+					<ul class="horizontal-list">
+						<li><a href="http://tw.rpi.edu/web/project/SemNExT">
+							Semantic Numeric Exploration Techonology (SemNExt) Project</a>
+							</li>
+						<li><a href="http://rpi.edu">
+							Rensselaer Polytechnic Institute, Troy, NY, USA</a></li>
+					</ul>
+				</div>
+				<div class="row">
+					<ul class="horizontal-list">
+						<!-- <li>
+							<select class="form-control disease-gene-filter-list" multiple></select>
+							<button class="btn btn-primary disease-filter-btn" data-action="setFilter">
+								Add Filter</button>
+							<button class="btn btn-danger disease-filter-btn" data-action="clearFilter">
+								Clear Filter</button>
+						</li>
+						<li>
+							Active Filters:
+							<div id="active-filters"></div>
+						</li> -->
+						<li>
+							<button class="btn btn-primary additional-settings"
+								title="Hide both legends in the diagram."
+								data-action="hideLegends">
+								Hide Legends</button>
+						</li>
+						<li>
+							<button class="btn btn-primary additional-settings"
+								title="Recolor the chords with a gradient. WARNING: this may take a while to complete for large data sets."
+								data-action="pathColorGradient">Path Color Gradient</button>
+						</li>
+						<li>
+							<div class="btn btn-success download-btn" data-target="svg"
+								title="Download the current diagram as an SVG.">
+								Download SVG
+							</div>
+							<div class="btn btn-success download-btn" data-target="png"
+								title="Download the current diagram as a PNG.">
+								Download PNG
+							</div>
+						</li>
+					</ul>
+				</div>
 			</div> <!-- close EXPANDED-SETTINGS-BAR -->
 			<div class="row settings-bar">
 				<ul class="horizontal-list">
@@ -133,25 +144,6 @@
 			Semantic Data is not available for the selected data set.
 		</div>
 		<div class="geneInfo"></div>
-	</div>
-
-	<div class="footer">
-		<div class="container">
-			<div class="row">
-				<div class="pull-left">
-					<p>
-						<a href="http://tw.rpi.edu/web/project/SemNExT">
-							Semantic Numeric Exploration Techonology (SemNExt) Project</a>
-					</p>
-				</div>
-				<div class="pull-right">
-					<p>
-						<a href="http://rpi.edu">
-							Rensselaer Polytechnic Institute, Troy, NY, USA</a>
-					</p>
-				</div>
-			</div>
-		</div>
 	</div>
 
 </body>
