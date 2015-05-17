@@ -121,13 +121,11 @@ $("#expand-settings-btn").click(function() {
 		$(".expanded-settings-bar").slideUp();
 		$(this).attr("title", "Show more settings.")
 		$(this).append('<i class="fa fa-plus-square-o fa-2x"></i>');
-		$('.content').css('margin-top', '-80px');
 	}
 	else {
 		$(".expanded-settings-bar").slideDown();
 		$(this).attr("title", "Show less settings.")
 		$(this).append('<i class="fa fa-minus-square-o fa-2x"></i>');
-		$('.content').css('margin-top', '-140px');
 
 	}
 	exp_set_toggle = !exp_set_toggle;
@@ -139,7 +137,7 @@ $(".download-btn").click(function() {
 	switch($(this).attr("data-target")) {
 		case "svg":
 			var a = document.createElement("a");
-			a.download = getName() + ".svg";
+			a.download = $('#diseaseList').val() + ".svg";
 			a.href = downloadSVG();
 			a.click();
 			break;
@@ -171,14 +169,10 @@ function downloadPNG() {
 		context.drawImage(image, 0, 0);
 		var canvas_data = canvas.toDataURL("image/png");
 		var a = document.createElement("a");
-		a.download = getName() + ".png";
+		a.download = $('#diseaseList').val() + ".png";
 		a.href = canvas_data;
 		a.click();
 	}
-}
-
-function getName() {
-	return data_files[$("#data-selector").val()].name;
 }
 
 // =============================================================================
