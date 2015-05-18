@@ -5,11 +5,7 @@ function clearHighlighting() {
 	$("#set-highlight-btns label").removeClass("active");
 	$("#highlight-dom-cluster-btn").removeClass("active");
 
-	svg.selectAll("g.group")
-		.on("mouseover", null).on("mouseout", null).on("click", null);
-	svg.selectAll(".heatmap_arc")
-		.on("mouseover", null).on("mouseout", null).on("click", null);
-	svg.selectAll(".cluster_arc")
+	svg.selectAll("g.group, .heatmap_arc, .cluster_arc")
 		.on("mouseover", null).on("mouseout", null).on("click", null);
 };
 
@@ -17,12 +13,9 @@ function setHighlightOnHover() {
 	var svg = d3.select(".chart svg");
 	clearHighlighting();
 	$("#set-hover-btn").addClass("active");
-	svg.selectAll("g.group")
+	svg.selectAll("g.group, .heatmap_arc")
 		.on("mouseover", fade(fade_opacity))
 		.on("mouseout", fade(1.0));
-	svg.selectAll(".heatmap_arc")
-		.on("mouseover", fade2(fade_opacity))
-		.on("mouseout", fade2(1.0));
 	svg.selectAll(".cluster_arc")
 		.on("mouseover", fadeCluster(fade_opacity))
 		.on("mouseout", fadeCluster(1.0));
@@ -32,10 +25,8 @@ function setHighlightOnClick() {
 	var svg = d3.select(".chart svg");
 	clearHighlighting();
 	$("#set-click-btn").addClass("active");
-	svg.selectAll("g.group")
+	svg.selectAll("g.group, .heatmap_arc")
 		.on("click", fadeToggle());
-	svg.selectAll(".heatmap_arc")
-		.on("click", fadeToggle2());
 	svg.selectAll(".cluster_arc")
 		.on("click", fadeToggleCluster());
 };
@@ -137,7 +128,7 @@ $(".download-btn").click(function() {
 	switch($(this).attr("data-target")) {
 		case "svg":
 			var a = document.createElement("a");
-			a.download = $('#diseaseList').val() + ".svg";
+			a.download = $('svg .title').text() + ".svg";
 			a.href = downloadSVG();
 			a.click();
 			break;
@@ -169,7 +160,7 @@ function downloadPNG() {
 		context.drawImage(image, 0, 0);
 		var canvas_data = canvas.toDataURL("image/png");
 		var a = document.createElement("a");
-		a.download = $('#diseaseList').val() + ".png";
+		a.download = $('svg .title').text() + ".png";
 		a.href = canvas_data;
 		a.click();
 	}
@@ -240,6 +231,65 @@ $(".additional-settings").click(function() {
 				.each(drawGradientPath)
 				.remove();
 			break;
+		case 'createCustomCHeM':
+			var file = $('#inputDataFile')[0].files[0],
+					reader = new FileReader(),
+					title = $('#inputDataTitle').val();
+			$('.welcome-message').hide();
+			$('#dataUploadModal').modal('hide');
+			reader.readAsText(file);
+			reader.onload = function(e) {
+				updateGraph(reader.result, title);
+			}
+			break;
 		default: break;
 	}
 });
+
+// =============================================================================
+// recoloring
+$('.chord-fill-btns').click(function() {
+	switch ($(this).attr('data-action')) {
+		case 'setD310Colors':
+			recolor(function(i) {
+				return (['#1F77B4', '#FF7F0E', '#2CA02C', '#D62728', '#9467BD',
+					'#8C564B'])[(i-1)%6];
+			});
+			break;
+		case 'setMatlabColors':
+			recolor(function(i) {
+				return (['#F00', '#FF0', '#0F0', '#0FF', '#00F', '#F0F'])[(i-1)%6];
+			});
+		default:
+			break;
+	}
+});
+
+function recolor(color) {
+	fill = color;
+	d3.selectAll('path.chord')
+		.style('fill', function(d) {
+			return color(clusters[$(this).attr('source')]);
+		})
+		.style('stroke', function(d) {
+			return d3.rgb(color(clusters[$(this).attr('source')])).darker();
+		});
+	_.each($('.chordMask'), function(d) {
+		gradient = d3.scale.linear()
+			.range([color(clusters[$(d).attr('source')]),
+							color(clusters[$(d).attr('target')])])
+			.domain([0,$(d).children().length]);
+		$(d).children().each(function(i) {
+			$(this)
+				.css('fill', gradient(i))
+				.css('stroke', d3.rgb(gradient(i)).darker());
+		});
+	});
+	d3.selectAll('g.group path')
+		.style('fill', function(d) { return color(clusters[d.index]); })
+		.style('stroke', function(d) { return color(clusters[d.index]); });
+	d3.selectAll('.cluster_arc')
+		.style('fill', function(d) { return color(d.cluster); });
+	d3.selectAll('.clusterLegend g rect')
+		.style('fill', function(d) { return color(d); });
+}

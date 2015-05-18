@@ -30,9 +30,22 @@ $(document).ready(function() {
 
 });
 
-$('#diseaseList').bind('typeahead:select', function(ev, selection) {
+$('#diseaseList').bind('typeahead:select', function(ev, diseaseObj) {
 	$('.welcome-message').hide();
-	updateGraph(selection);
+	$.ajax({
+		url: 'https://semnext.tw.rpi.edu/api/v1/matrix_for_disease?disease=' +
+			diseaseObj['@id'],
+		type: 'GET',
+	}).done(function(rawData) {
+		updateGraph(rawData, diseaseObj.label);
+	}).fail(function(error) {
+		$('.chart-status').empty();
+		$('.chart-status')
+			.append('<div class="panel panel-danger">' +
+				'<div class="panel-heading">Error</div>' +
+				'<div class="panel-body">Could not retrieve data.' +
+				'</div>');
+	});
 });
 
 /* redraw with the selected graph
@@ -40,10 +53,10 @@ arguments: none
 
 returns:   nothing
 */
-function updateGraph(diseaseObj) {
+function updateGraph(rawData, title) {
 	// reset settings
-	$("#set-hover-btn").addClass("active");
 	$("#set-highlight-btns label").removeClass("active");
+	$("#set-hover-btn").addClass("active");
 	$(".chart").empty();
 
 	$('.chart-status').empty();
@@ -52,39 +65,23 @@ function updateGraph(diseaseObj) {
 		.append('<p>Creating CHeM Diagram</p>')
 		.show();
 
-	$.ajax({
-		url: 'https://semnext.tw.rpi.edu/api/v1/matrix_for_disease?disease=' +
-			diseaseObj['@id'],
-		type: 'GET',
-	}).done(function(rawData) {
-		try {
-			data = mungeData(rawData);
-			createGraph(data.chord_matrix, data.clusters, data.gene_symbols,
-				data.heatmap, diseaseObj.label);
-			$('.chart-status').hide();
-		}
-		catch (e) {
-			$('.chart').empty();
-			$('.chart-status').empty();
-			$('.chart-status')
-				.append('<div class="panel panel-danger">' +
-					'<div class="panel-heading">Error</div>' +
-					'<div class="panel-body">Data munging and chart creation failed.' +
-					'</div>');
-			console.log(data);
-			console.log(e);
-		}
-	}).fail(function(error) {
+	try {
+		data = mungeData(rawData);
+		createGraph(data.chord_matrix, data.clusters, data.gene_symbols,
+			data.heatmap, title);
+		$('.chart-status').hide();
+	}
+	catch (e) {
+		$('.chart').empty();
 		$('.chart-status').empty();
 		$('.chart-status')
 			.append('<div class="panel panel-danger">' +
 				'<div class="panel-heading">Error</div>' +
-				'<div class="panel-body">Could not retrieve data.' +
+				'<div class="panel-body">Data munging and chart creation failed.' +
 				'</div>');
-
-	}).always(function() {
-		// foo
-	});
+		console.log(data);
+		console.log(e);
+	}
 
 	// mungeSemantic(data_files[data_index].semFile).then(
 	// 	function(semData) { // on success
@@ -146,7 +143,7 @@ function mungeData(data) {
 					Day: header[k],
 					Value: +data[i][k],
 					Cluster: clusters[i-1],
-					Index: i-1
+					index: i-1
 				});
 			}
 			// otherwise data is a gene connections
@@ -278,8 +275,8 @@ function createGraph(chord_matrix, clusters, labels, heatmap, title) {
 			)
 			.attr("class", "heatmap_arc")
 			.attr("fill", function(d) { return colorScale(d.Value); })
-			.on("mouseover", fade2(fade_opacity))
-			.on("mouseout", fade2(1.0));
+			.on("mouseover", fade(fade_opacity))
+			.on("mouseout", fade(1.0));
 
 	// draw the cluster bands
 	var cluster_bands = [],
@@ -390,7 +387,7 @@ function drawClusterLegend(clusterLegend) {
 					.attr("y", i*20 + 10)
 					.attr("height", 30)
 					.attr("width", 100)
-					.attr("fill", fill(d))
+					.attr("fill", '#000')
 					.attr("text-anchor", "end")
 					.style("font-size", "16px")
 					.text(clusterToStage[i]);
@@ -562,17 +559,6 @@ function fade(opacity) {
 	};
 }
 
-function fade2(opacity) {
-	return function(g,i) {
-		d3.selectAll(".chordMask, path.chord")
-				.filter(function(d) { return $(this).attr('source') != g.Index &&
-					$(this).attr('target') != g.Index; })
-			.transition()
-				.style("opacity", opacity)
-				.attr("visible", opacity == 1);
-	}
-}
-
 function fadeCluster(opacity) {
 	return function(g, i) {
 		d3.selectAll(".chordMask, path.chord")
@@ -587,23 +573,8 @@ function fadeCluster(opacity) {
 function fadeToggle() {
 	return function(g,i) {
 		var g = d3.selectAll(".chordMask, path.chord")
-					.filter(function(d) { return $(this).attr('source') == i || $(this).attr('target') == i; });
-		if (g.style("opacity") == 1) {
-			g.transition().style("opacity", fade_opacity)
-				.attr("visible", false);
-		}
-		else {
-			g.transition().style("opacity", 1.0)
-				.attr("visible", true);
-		}
-	};
-}
-
-function fadeToggle2() {
-	return function(g,i) {
-		var g = d3.selectAll(".chordMask, path.chord")
-					.filter(function(d) { return $(this).attr('source') == g.Index ||
-						$(this).attr('target') == g.Index; });
+					.filter(function(d) { return $(this).attr('source') == g.index ||
+						$(this).attr('target') == g.index; });
 		if (g.style("opacity") == 1) {
 			g.transition().style("opacity", fade_opacity)
 				.attr("visible", false);
