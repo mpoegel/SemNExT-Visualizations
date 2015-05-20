@@ -13,11 +13,18 @@ var margin = {top: 180, right: 160, bottom: 160, left: 160},
 			.innerRadius(innerRadius)
 			.outerRadius(outerRadius),
 
-		fill = d3.scale.category10(),
 		colorScale = d3.scale.linear()
 			.range(["#232323", "green", "red"]),
 		heatmapLegendScale = d3.scale.linear()
 			.domain([0,3]),
+			
+		matlabColors = function(i) {
+			return (['#F00', '#FF0', '#0F0', '#0FF', '#00F', '#F0F'])[(i-1)%6];
+		},
+		d3Cat10Colors = function(i) {
+			return (['#D62728', '#FF7F0E', '#2CA02C', '#1F77B4', '#9467BD',
+				'#8C564B'])[(i-1)%6];
+		},
 
 		colorGradientPrecision = 20,
 

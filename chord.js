@@ -246,8 +246,8 @@ function createGraph(chord_matrix, clusters, labels, heatmap, title) {
 			.on("mouseout", fade(1.0));
 
 	g.append("svg:path")
-			.style("stroke", function(d) { return fill(clusters[d.index]); })
-			.style("fill", function(d) { return fill(clusters[d.index]); })
+			.style("stroke", function(d) { return d3Cat10Colors(clusters[d.index]); })
+			.style("fill", function(d) { return d3Cat10Colors(clusters[d.index]); })
 			.attr("d", arc);
 
 	// add gene labels
@@ -311,7 +311,7 @@ function createGraph(chord_matrix, clusters, labels, heatmap, title) {
 				.endAngle(function(d) { return d.endAngle + chord_padding/2; })
 			)
 			.attr("class", "cluster_arc")
-			.attr("fill", function(d) { return fill(d.cluster); })
+			.attr("fill", function(d) { return d3Cat10Colors(d.cluster); })
 			.on("mouseover", fadeCluster(fade_opacity))
 			.on("mouseout", fadeCluster(1.0));
 
@@ -330,8 +330,8 @@ function createGraph(chord_matrix, clusters, labels, heatmap, title) {
 				d.target.cluster = clusters[d.target.index];
 				d.pathString = d3.svg.chord().radius(innerRadius)(d);
 			})
-			.style("stroke", function(d) { return d3.rgb(fill(clusters[d.source.index])).darker(); })
-			.style("fill", function(d) { return fill(clusters[d.source.index]); })
+			.style("stroke", function(d) { return d3.rgb(d3Cat10Colors(clusters[d.source.index])).darker(); })
+			.style("fill", function(d) { return d3Cat10Colors(clusters[d.source.index]); })
 			.attr("d", d3.svg.chord().radius(innerRadius));
 
 	// draw a legend for the clusters in the upper right corner
@@ -381,7 +381,7 @@ function drawClusterLegend(clusterLegend) {
 					.attr("y", i*20)
 					.attr("width", 10)
 					.attr("height", 10)
-					.style("fill", fill(d));
+					.style("fill", d3Cat10Colors(d));
 				g.append("text")
 					.attr("x", 40)
 					.attr("y", i*20 + 10)
@@ -666,8 +666,8 @@ function drawGradientPath(path, i) {
 			deltapi = 0,
 			mask = [],
 			colorGradient = d3.scale.linear()
-				.range([fill( path.source.cluster ),
-							 fill( path.target.cluster )])
+				.range([d3Cat10Colors( path.source.cluster ),
+							 d3Cat10Colors( path.target.cluster )])
 				.domain([0,n]);
 
 	for (var i = 1; i < n; i++) {

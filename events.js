@@ -251,15 +251,10 @@ $(".additional-settings").click(function() {
 $('.chord-fill-btns').click(function() {
 	switch ($(this).attr('data-action')) {
 		case 'setD310Colors':
-			recolor(function(i) {
-				return (['#1F77B4', '#FF7F0E', '#2CA02C', '#D62728', '#9467BD',
-					'#8C564B'])[(i-1)%6];
-			});
+			recolor(d3Cat10Colors);
 			break;
 		case 'setMatlabColors':
-			recolor(function(i) {
-				return (['#F00', '#FF0', '#0F0', '#0FF', '#00F', '#F0F'])[(i-1)%6];
-			});
+			recolor(matlabColors);
 		default:
 			break;
 	}
