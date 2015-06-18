@@ -1,0 +1,29 @@
+{
+    "version": "1.5.0-alpha",
+    "compilerOptions": {
+        "target": "es6",
+        "module": "commonjs",
+        "declaration": false,
+        "noImplicitAny": false,
+        "removeComments": true,
+        "noLib": false,
+        "preserveConstEnums": true,
+        "suppressImplicitAnyIndexErrors": true,
+        "out": "./main.js"
+    },
+    "filesGlob": [
+        "./**/*.ts",
+        "!./node_modules/**/*.ts"
+    ],
+    "files": [
+        "./typescript/graph.ts",
+        "./typescript/main.ts",
+        "./typescript/munge.ts",
+        "./typescript/typings/bootstrap/bootstrap.d.ts",
+        "./typescript/typings/d3/d3.d.ts",
+        "./typescript/typings/jquery/jquery.d.ts",
+        "./typescript/typings/tsd.d.ts",
+        "./typescript/typings/typeahead/typeahead.d.ts",
+        "./typescript/typings/underscore/underscore.d.ts"
+    ]
+}
