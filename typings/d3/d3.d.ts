@@ -1486,8 +1486,6 @@ declare module d3 {
 
             range(): Range[];
             range(values: Range[]): Linear<Range, Output>;
-            range(): string[];
-            range(values: string[]): Linear<Range, Output>;
 
             rangeRound(values: number[]): Linear<number, number>;
 

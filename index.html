@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<meta charset="utf-8">
+<link href="style/style.css" rel="stylesheet">
+<link href="lib/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+
+</head>
+
+<body>
+
+	<div class="header">
+		<div class="container">
+
+			<div class="row expanded-settings-bar">
+
+				<div class="row">
+					<ul class="horizontal-list">
+						<li><a href="http://tw.rpi.edu/web/project/SemNExT">
+							Semantic Numeric Exploration Techonology (SemNExt) Project</a>
+							</li>
+						<li><a href="http://rpi.edu">
+							Rensselaer Polytechnic Institute, Troy, NY, USA</a></li>
+					</ul>
+				</div>
+
+				<div class="row">
+					<ul class="horizontal-list">
+						<!-- <li>
+							<select class="form-control disease-gene-filter-list" multiple></select>
+							<button class="btn btn-primary disease-filter-btn" data-action="setFilter">
+								Add Filter</button>
+							<button class="btn btn-danger disease-filter-btn" data-action="clearFilter">
+								Clear Filter</button>
+						</li>
+						<li>
+							Active Filters:
+							<div id="active-filters"></div>
+						</li> -->
+						<li>
+							<div class="btn btn-primary chart-btn"
+								title="Hide both legends in the diagram."
+								data-action="hide-legends">
+								Hide Legends</div>
+						</li>
+						<li>
+							<div class="btn btn-primary chart-btn"
+								title="Recolor the chords with a gradient. WARNING: this may take a while to complete for large data sets."
+								data-action="path-color-gradient">Path Color Gradient</div>
+						</li>
+						<li>
+							<div class="btn btn-primary chart-btn"
+								title="Upload a custom data set." data-toggle="modal"
+								data-target="#dataUploadModal">Upload Data</div>
+						</li>
+						<li>
+							<div class="btn-group" data-toggle="buttons">
+								<label class="btn btn-primary active chart-btn"
+									data-action="set-D310-colors"
+									title="Color the chords with D3 Category 10 colors.">
+									<input type="radio" autocomplete="off" checked>D3 Category 10
+										Colors
+								</label>
+								<label class="btn btn-primary chart-btn"
+									data-action="set-matlab-colors"
+									title="Color the chords with matlab colors.">
+									<input type="radio" autocomplete="off">Matlab Colors
+								</label>
+							</div>
+						</li>
+						<li>
+							<div class="btn btn-success chart-btn" data-action="download-svg"
+								title="Download the current diagram as an SVG.">
+								Download SVG
+							</div>
+							<div class="btn btn-success chart-btn" data-action="download-png"
+								title="Download the current diagram as a PNG.">
+								Download PNG
+							</div>
+						</li>
+					</ul>
+				</div>
+			</div> <!-- close EXPANDED-SETTINGS-BAR -->
+
+			<div class="row settings-bar">
+				<ul class="horizontal-list">
+					<li>
+						<input type="text" name="diseaseList" id="diseaseList"
+							class="form-control"  placeholder="Search for a disease">
+					</li>
+					<li>
+						<div class="btn btn-primary" id="highlight-dom-cluster-btn"
+							title="Highlight the dominant cluster for protein set, if defined.">
+							Highlight Dominant Cluster
+						</div>
+					</li>
+					<li>
+						<div class="btn-group" data-toggle="buttons">
+							<label class="btn btn-primary active chart-btn highlight-btn"
+								data-action="highlight-hover"
+								title="Highlight a protein on hover.">
+								<input type="radio" autocomplete="off" checked>Hover
+							</label>
+							<label class="btn btn-primary chart-btn highlight-btn"
+								data-action="highlight-click"
+								title="Hightlight a protein on click.">
+								<input type="radio" autocomplete="off">Click
+							</label>
+							<label class="btn btn-primary chart-btn highlight-btn"
+								data-action="highlight-none"
+								title="Disable protein highlighting.">
+								<input type="radio" autocomplete="off">None
+							</label>
+						</div>
+					</li>
+					<li>
+						<div class="btn btn-primary chart-btn" data-action="display-all"
+							title="Display all protein connections.">
+							Display All</div>
+						<div class="btn btn-primary chart-btn" data-action="display-none"
+							title="Display no protein connections.">
+							Display None</div>
+						<div class="btn btn-primary chart-btn" data-action="display-invert"
+							title="Invert the highlighted protein connections.">
+							Invert Display
+						</div>
+					</li>
+					<li>
+						<i class="btn chart-btn fa fa-plus-square-o fa-2x"
+							data-action="toggle-settings" title="Show more settings."
+							expanded="false"></i>
+					</li>
+				</ul>
+			</div> <!-- close SETTINGS-BAR -->
+
+		</div> <!-- close CONTAINER -->
+	</div> <!-- close HEADER -->
+
+	<div class="container content">
+		<div class="welcome-message">
+			<h3>
+				Welcome to the SemNExT CHeM Visualizer.
+			</h3>
+			<p>
+				There are <span class="totalDiseases">#</span> diseases currently
+				in the database.
+			</p>
+			<p>
+				This is a visualization tool to create a Chord-Heat Map (CHeM)
+				diagram that illustrates the relationships between proteins
+				connected	to a particular disease.
+			</p>
+		</div>
+		<div class="chart-status"></div>
+		<div class="chart"></div>
+		<div class="semData">
+			<dl>
+				<dt>Gene Symbol</dt><dd class="symbol"></dd>
+				<dt>Description</dt><dd class="desription"></dd>
+				<dt>Cluster</dt><dd class="cluster"></dd>
+				<dt>Present In</dt><dd class="relations"></dd>
+				<dt>Outgoing Connections</dt><dd class="outgoing"></dd>
+				<dt>Incoming Connections</dt><dd class="incoming"></dd>
+				<dt>Experimental Data</dt><dd class="days"><table class="table"></table></dd>
+			</dl>
+		</div>
+		<div class="semData-error bg-warning hidden">
+			Semantic Data is not available for the selected data set.
+		</div>
+		<div class="geneInfo"></div>
+
+
+	<script src="lib/d3.min.js" charset="utf-8"></script>
+	<script src="lib/jquery-2.1.3.min.js" charset="utf-8"></script>
+	<script src="lib/bootstrap.min.js" charset="utf-8"></script>
+	<script src="lib/underscore-min.js" charset="utf-8"></script>
+	<script src="lib/typeahead.bundle.js" charset="utf-8"></script>
+
+	<script src="/script/graph.js" charset="utf-8"></script>
+	<script src="/script/munge.js" charset="utf-8"></script>
+	<script src="/script/ui.js" charset="utf-8"></script>
+	<script src="/script/main.js" charset="utf-8"></script>
+
+</body>
+
+</html>

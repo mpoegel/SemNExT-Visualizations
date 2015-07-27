@@ -1,4 +1,4 @@
-/// <reference path="./typings/tsd.d.ts"/>
+/// <reference path="../typings/tsd.d.ts"/>
 
 module Munge {
 
@@ -7,6 +7,7 @@ module Munge {
 		clusters: number[];
 		labels: string[];
 		heatmap: heatmap_datum[];
+		domc?: number;
 		title?: string;
 	}
 
@@ -18,33 +19,48 @@ module Munge {
 		index: number;
 	}
 
-	var SemNExT_URL = {
-		disease: 'https://semnext.tw.rpi.edu/api/v1/matrix_for_disease?disease='
+	let SemNExT_URLs = {
+		disease: 'https://semnext.tw.rpi.edu/api/v1/matrix_for_disease?disease=',
+		list_diseases: 'https://semnext.tw.rpi.edu/api/v1/list_known_diseases'
 	}
 
-	export function fetch(diseaseId: string, callback: (data: string[][]) => any,
-			url = SemNExT_URL.disease) {
-		$.get(
-				url + diseaseId
-			)
+	export function fetchMatrix(diseaseId: string, callback: (data: string[][]) => any,
+												url = SemNExT_URLs.disease) {
+		$.get(url + diseaseId)
 			.done((raw_data: string) => {
 			 	callback(_.map(raw_data.split('\n'), (d) => {
 					return d.split(',');
 				}));
 			})
 			.fail((error) => {
+				$('.chart-status').empty();
+				$('.chart-status')
+					.append('<div class="panel panel-danger">' +
+						'<div class="panel-heading">Error</div>' +
+						'<div class="panel-body">Could not retrieve data.' +
+						'</div>');
 				throw error;
 			});
 	}
 
+	export function fetchDiseaseList(callback: (data: DiseaseObject[]) => any) {
+		$.get(SemNExT_URLs.list_diseases)
+			.done((raw_data: DiseaseObject[]) => {
+					callback(raw_data);
+				})
+			.fail((error) => {
+					throw error;
+				});
+	}
+
 	export function munge(data: string[][]): chem_data {
-		var header = data[0],
+		let header = data[0],
 				labels = [];
 		// grab all the labels from the header
 		for (let i = 0; i < header.length && header[i] !== 'Cluster';
 			labels.push(header[i++]));
 
-		var	matrix = [], 						// square matrix of gene connections
+		let	matrix = [], 						// square matrix of gene connections
 				row = [],								// vector used to construct the matrix
 				count = 0,							// track the index of each gene
 				day_re = /[d]\d{1,2}/,  // regular expression to find heatmap data
