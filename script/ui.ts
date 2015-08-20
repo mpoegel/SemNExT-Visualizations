@@ -11,6 +11,7 @@ namespace UI {
 	export function configure(c: CHeM.Canvas): void {
 		canvas = c;
 		attachListener();
+		initDiseaseList();
 	}
 
 	export function initDiseaseList(): void {
@@ -53,7 +54,7 @@ namespace UI {
 			graph = g;
 			fade_opacity = graph.getFadeOpacity();
 			dom_cluster = graph.getData().domc;
-		}, '/');
+		}, url);
 	}
 
 	function attachListener(): void {
