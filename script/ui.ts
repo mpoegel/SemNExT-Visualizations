@@ -14,9 +14,11 @@ namespace UI {
 		initDiseaseList();
 	}
 
-	export function initDiseaseList(): void {
+	function initDiseaseList(): void {
 		Munge.fetchDiseaseList((diseaseObjs) => {
-			$('#diseaseList').typeahead({
+			$('#searchBox')
+				.typeahead('destroy')
+				.typeahead({
 					hint: true,
 					highlight: true,
 					minLength: 1
@@ -29,20 +31,56 @@ namespace UI {
 						local: diseaseObjs,
 						identify: (obj) => { return obj['@id']; },
 					})
-			});
+				})
+				.attr('placeholder', 'Search for a disease')
+				.off('typeahead:select')
+				.on('typeahead:select', (ev, diseaseObj) => {
+					drawCompleteGraph(diseaseObj, 'disease');
+				});
 			$('.totalDiseases').text( diseaseObjs.length );
-			$('#diseaseList').on('typeahead:select', (ev, diseaseObj) => {
-				drawCompleteGraph(diseaseObj);
-			});
 		});
 	}
 
-	export function drawCompleteGraph(diseaseObj: DiseaseObject,
-																		url?: string): void {
+	function initKeggPathwayList(): void {
+		Munge.fetchKeggPathwaysList((keggObjs) => {
+			$('#searchBox')
+				.typeahead('destroy')
+				.typeahead({
+					hint: true,
+					highlight: true,
+					minLength: 1
+				}, {
+					name: 'kegg-pathways-list',
+					display: 'label',
+					source: new Bloodhound({
+						datumTokenizer: (datum) => { return [datum.label]; },
+						queryTokenizer: Bloodhound.tokenizers.whitespace,
+						local: keggObjs,
+						identify: (obj) => { return obj['@id']; },
+					})
+				})
+				.attr('placeholder', 'Search for a Kegg Pathway')
+				.off('typeahead:select')
+				.on('typeahead:select', (ev, keggObj) => {
+					drawCompleteGraph(keggObj, 'kegg pathways');
+				});
+		});
+	}
+
+	export function drawCompleteGraph(semnextObj: DiseaseObject|KeggPathwayObject,
+																		data_type: string): void {
+		canvas.clear();
 		$('.welcome-message').hide();
-		Munge.fetchMatrix(diseaseObj['@id'], (raw_data: string[][]) => {
+		(function() {
+			if (data_type === 'disease')
+				return Munge.fetchDiseaseMatrix;
+			else if (data_type === 'kegg pathways')
+				return Munge.fetchKeggPathwaysMatrix;
+			else
+				return _.noop;
+		})()(semnextObj['@id'], (raw_data: string[][]) => {
 			let data = Munge.munge(raw_data);
-			data.title = diseaseObj.label;
+			data.title = semnextObj.label;
 			let g = new CHeM.Graph(data, canvas)
 				.drawChords()
 				.drawClusterBands()
@@ -54,7 +92,7 @@ namespace UI {
 			graph = g;
 			fade_opacity = graph.getFadeOpacity();
 			dom_cluster = graph.getData().domc;
-		}, url);
+		});
 	}
 
 	function attachListener(): void {
@@ -105,6 +143,12 @@ namespace UI {
 					break;
 				case 'path-color-gradient':
 					graph.drawGradientPaths();
+					break;
+				case 'set-search-disease':
+					setDiseaseSearch();
+					break;
+				case 'set-search-kegg-pathway':
+					setKeggPathwaySearch();
 					break;
 			}
 		});
@@ -251,6 +295,14 @@ namespace UI {
 
 	function createCustomCHeM(): void {
 		// todo
+	}
+
+	function setDiseaseSearch(): void {
+		initDiseaseList();
+	}
+
+	function setKeggPathwaySearch(): void {
+		initKeggPathwayList();
 	}
 
 }

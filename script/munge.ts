@@ -19,13 +19,22 @@ module Munge {
 		index: number;
 	}
 
-	let SemNExT_URLs = {
-		disease: 'https://semnext.tw.rpi.edu/api/v1/matrix_for_disease?disease=',
-		list_diseases: 'https://semnext.tw.rpi.edu/api/v1/list_known_diseases'
+	const SemNExT_URLs = {
+		disease_matrix: 'https://semnext.tw.rpi.edu/api/v1/matrix_for_disease?disease=',
+		diseases_list: 'https://semnext.tw.rpi.edu/api/v1/list_known_diseases',
+		kegg_matrix: 'https://semnext.tw.rpi.edu/api/v1/matrix_for_kegg_pathway?pathway=',
+		kegg_list: 'https://semnext.tw.rpi.edu/api/v1/list_known_kegg_pathways'
 	}
 
-	export function fetchMatrix(diseaseId: string, callback: (data: string[][]) => any,
-												url = SemNExT_URLs.disease) {
+	export function fetchDiseaseMatrix(diseaseId: string, callback: (data: string[][]) => any) {
+		fetchMatrix(diseaseId, callback, SemNExT_URLs.disease_matrix);
+	}
+
+	export function fetchKeggPathwaysMatrix(diseaseId: string, callback: (data: string[][]) => any) {
+		fetchMatrix(diseaseId, callback, SemNExT_URLs.kegg_matrix);
+	}
+
+	function fetchMatrix(diseaseId: string, callback: (data: string[][]) => any, url) {
 		$.get(url + diseaseId)
 			.done((raw_data: string) => {
 			 	callback(_.map(raw_data.split('\n'), (d) => {
@@ -44,13 +53,23 @@ module Munge {
 	}
 
 	export function fetchDiseaseList(callback: (data: DiseaseObject[]) => any) {
-		$.get(SemNExT_URLs.list_diseases)
+		$.get(SemNExT_URLs.diseases_list)
 			.done((raw_data: DiseaseObject[]) => {
-					callback(raw_data);
-				})
+				callback(raw_data);
+			})
 			.fail((error) => {
-					throw error;
-				});
+				throw error;
+			});
+	}
+
+	export function fetchKeggPathwaysList(callback: (data: KeggPathwayObject[]) => any) {
+		$.get(SemNExT_URLs.kegg_list)
+			.done((raw_data: KeggPathwayObject[]) => {
+				callback(raw_data);
+			})
+			.fail((error) => {
+				throw error;
+			});
 	}
 
 	export function munge(data: string[][]): chem_data {
