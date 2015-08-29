@@ -60,6 +60,10 @@ module CHeM {
 		getMargins(): margin { return this.margins; }
 		getSelector(): string { return this.selector; }
 
+		clear(): void {
+			$(this.selector + ' svg g').empty();
+		}
+
 	}
 
 	export class Graph {

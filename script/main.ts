@@ -12,7 +12,7 @@ UI.configure(canvas);
 function debug() {
 	UI.drawCompleteGraph({
 			'@context': '',
-			'@id': 'autism_chord_data.csv',
-			'label': 'Autism',
-		}, '/');
+			'@id': 'kegg.csv',
+			'label': 'mTOR Kegg Pathways',
+		}, 'kegg pathways');
 }

@@ -41,30 +41,44 @@
 							<div id="active-filters"></div>
 						</li> -->
 						<li>
-							<div class="btn btn-primary chart-btn"
+							<div class="btn-group" data-toggle="buttons">
+								<label class="btn btn-sm btn-primary active chart-btn"
+									data-action="set-search-disease"
+									title="Search for diseases">
+									<input type="radio" autocomplete="off" checked>Disease Search
+								</label>
+								<label class="btn btn-sm btn-primary chart-btn"
+									data-action="set-search-kegg-pathway"
+									title="Search for KEGG Pathways">
+									<input type="radio" autocomplete="off">KEGG Pathway Search
+								</label>
+							</div>
+						</li>
+						<li>
+							<div class="btn btn-sm btn-primary chart-btn"
 								title="Hide both legends in the diagram."
 								data-action="hide-legends">
 								Hide Legends</div>
 						</li>
 						<li>
-							<div class="btn btn-primary chart-btn"
+							<div class="btn btn-sm btn-primary chart-btn"
 								title="Recolor the chords with a gradient. WARNING: this may take a while to complete for large data sets."
 								data-action="path-color-gradient">Path Color Gradient</div>
 						</li>
 						<li>
-							<div class="btn btn-primary chart-btn"
+							<div class="btn btn-sm btn-primary chart-btn"
 								title="Upload a custom data set." data-toggle="modal"
 								data-target="#dataUploadModal">Upload Data</div>
 						</li>
 						<li>
 							<div class="btn-group" data-toggle="buttons">
-								<label class="btn btn-primary active chart-btn"
+								<label class="btn btn-sm btn-primary active chart-btn"
 									data-action="set-D310-colors"
 									title="Color the chords with D3 Category 10 colors.">
 									<input type="radio" autocomplete="off" checked>D3 Category 10
 										Colors
 								</label>
-								<label class="btn btn-primary chart-btn"
+								<label class="btn btn-sm btn-primary chart-btn"
 									data-action="set-matlab-colors"
 									title="Color the chords with matlab colors.">
 									<input type="radio" autocomplete="off">Matlab Colors
@@ -72,13 +86,13 @@
 							</div>
 						</li>
 						<li>
-							<div class="btn btn-success chart-btn" data-action="download-svg"
+							<div class="btn btn-sm btn-success chart-btn" data-action="download-svg"
 								title="Download the current diagram as an SVG.">
-								Download SVG
+								SVG
 							</div>
-							<div class="btn btn-success chart-btn" data-action="download-png"
+							<div class="btn btn-sm btn-success chart-btn" data-action="download-png"
 								title="Download the current diagram as a PNG.">
-								Download PNG
+								PNG
 							</div>
 						</li>
 					</ul>
@@ -88,7 +102,7 @@
 			<div class="row settings-bar">
 				<ul class="horizontal-list">
 					<li>
-						<input type="text" name="diseaseList" id="diseaseList"
+						<input type="text" name="diseaseList" id="searchBox"
 							class="form-control"  placeholder="Search for a disease">
 					</li>
 					<li>
