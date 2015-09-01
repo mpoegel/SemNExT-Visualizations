@@ -71,6 +71,7 @@ namespace UI {
 																		data_type: string): void {
 		canvas.clear();
 		$('.welcome-message').hide();
+		$('.loading').show();
 		(function() {
 			if (data_type === 'disease')
 				return Munge.fetchDiseaseMatrix;
@@ -81,6 +82,7 @@ namespace UI {
 		})()(semnextObj['@id'], (raw_data: string[][]) => {
 			let data = Munge.munge(raw_data);
 			data.title = semnextObj.label;
+			$('.loading').hide();
 			let g = new CHeM.Graph(data, canvas)
 				.drawChords()
 				.drawClusterBands()
