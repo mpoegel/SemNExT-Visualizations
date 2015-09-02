@@ -330,6 +330,7 @@ namespace UI {
 			'@id': genes.join(','),
 			label: title
 		}
+		$('.custom-dataset-menu').hide();
 		drawCompleteGraph(CustomObj, 'custom');
 	}
 

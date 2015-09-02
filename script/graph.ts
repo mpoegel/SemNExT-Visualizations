@@ -202,17 +202,17 @@ module CHeM {
 					band_genes: string[] = [],
 					band_startAngle: number,
 					band_cluster: number;
-			this.data.clusters.map((d,i) => {
+			_.each(this.data.clusters, (d,i) => {
 				if (i != 0 && d != this.data.clusters[i-1]) {
-					band_genes.push(this.data.labels[i]);
 					cluster_bands.push({
 						genes: band_genes,
 						endAngle: (i === this.data.clusters.length - 1 ?
 							this.chord.groups()[i].endAngle :
 							this.chord.groups()[i-1].endAngle),
 						startAngle: (band_startAngle ? band_startAngle : 0),
-						cluster: (band_cluster ? band_cluster : 1)
+						cluster: (band_cluster ? band_cluster : this.data.clusters[i-1])
 					});
+					band_genes = [this.data.labels[i]];
 					band_cluster = d;
 					band_startAngle = this.chord.groups()[i].startAngle;
 				}
