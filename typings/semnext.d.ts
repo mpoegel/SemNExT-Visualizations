@@ -45,6 +45,17 @@ interface KeggPathwayObject {
 	label: string;
 }
 
+interface CustomObject {
+	/*
+	 * Comma deliminated string of gene symbols.
+	 */
+	'@id': string;
+	/*
+	 * Description of the Custom Object
+	 */
+	label: string;
+}
+
 interface NetworkObject {
 
 }

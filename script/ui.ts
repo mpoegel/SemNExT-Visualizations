@@ -67,7 +67,7 @@ namespace UI {
 		});
 	}
 
-	export function drawCompleteGraph(semnextObj: DiseaseObject|KeggPathwayObject,
+	export function drawCompleteGraph(semnextObj: DiseaseObject|KeggPathwayObject|CustomObject,
 																		data_type: string): void {
 		canvas.clear();
 		$('.welcome-message').hide();
@@ -77,6 +77,8 @@ namespace UI {
 				return Munge.fetchDiseaseMatrix;
 			else if (data_type === 'kegg pathways')
 				return Munge.fetchKeggPathwaysMatrix;
+			else if (data_type === 'custom')
+				return Munge.fetchCustomMatrix;
 			else
 				return _.noop;
 		})()(semnextObj['@id'], (raw_data: string[][]) => {
@@ -137,6 +139,9 @@ namespace UI {
 				case 'hide-legends':
 					hideLegends($(e.target));
 					break;
+				case 'custom-data':
+					$('.custom-dataset-menu').toggle();
+					break;
 				case 'set-D310-colors':
 					graph.recolor(CHeM.Graph.d3Cat10Colors);
 					break;
@@ -152,6 +157,27 @@ namespace UI {
 				case 'set-search-kegg-pathway':
 					setKeggPathwaySearch();
 					break;
+				case 'create-custom':
+					createCustomCHeM();
+					break;
+				case 'clear-custom-genes':
+					$('.custom-dataset-menu textarea').val('');
+					break;
+			}
+		});
+		$('.custom-dataset-menu input[name="gene-file"]').off().on('change', (e: Event) => {
+			let file = $(e.target)[0].files[0];
+			if (file) {
+				let reader = new FileReader(),
+						$gene_list = $('.custom-dataset-menu textarea');
+				reader.readAsText(file);
+				reader.onload = function() {
+					let raw_input = reader.result,
+							genes = parseGeneInput(raw_input),
+							gene_list = $gene_list.val();
+					gene_list += gene_list ? '\n' + genes.join('\n') : genes.join('\n');
+					$gene_list.val(gene_list);
+				}
 			}
 		});
 	}
@@ -296,7 +322,25 @@ namespace UI {
 	}
 
 	function createCustomCHeM(): void {
-		// todo
+		let $geneBox = $('.custom-dataset-menu textarea'),
+				title = $('.custom-dataset-menu input[name="custom-name"]').val(),
+				raw_genes = $geneBox.val(),
+				genes = parseGeneInput(raw_genes);
+		let CustomObj: CustomObject = {
+			'@id': genes.join(','),
+			label: title
+		}
+		drawCompleteGraph(CustomObj, 'custom');
+	}
+
+	function parseGeneInput(raw_genes: string): string[] {
+		let genes: string[] = [];
+		genes = raw_genes.split(',');
+		genes = _.flatten(_.map(genes, (gene) => {
+			gene = gene.trim();
+			return gene.split('\n');
+		}));
+		return genes;
 	}
 
 	function setDiseaseSearch(): void {

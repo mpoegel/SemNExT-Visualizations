@@ -23,19 +23,24 @@ module Munge {
 		disease_matrix: 'https://semnext.tw.rpi.edu/api/v1/matrix_for_disease?disease=',
 		diseases_list: 'https://semnext.tw.rpi.edu/api/v1/list_known_diseases',
 		kegg_matrix: 'https://semnext.tw.rpi.edu/api/v1/matrix_for_kegg_pathway?pathway=',
-		kegg_list: 'https://semnext.tw.rpi.edu/api/v1/list_known_kegg_pathways'
+		kegg_list: 'https://semnext.tw.rpi.edu/api/v1/list_known_kegg_pathways',
+		custom_matrix: 'https://semnext.tw.rpi.edu/api/v1/matrix_for_genes?symbols='
 	}
 
 	export function fetchDiseaseMatrix(diseaseId: string, callback: (data: string[][]) => any) {
 		fetchMatrix(diseaseId, callback, SemNExT_URLs.disease_matrix);
 	}
 
-	export function fetchKeggPathwaysMatrix(diseaseId: string, callback: (data: string[][]) => any) {
-		fetchMatrix(diseaseId, callback, SemNExT_URLs.kegg_matrix);
+	export function fetchKeggPathwaysMatrix(keggId: string, callback: (data: string[][]) => any) {
+		fetchMatrix(keggId, callback, SemNExT_URLs.kegg_matrix);
 	}
 
-	function fetchMatrix(diseaseId: string, callback: (data: string[][]) => any, url) {
-		$.get(url + diseaseId)
+	export function fetchCustomMatrix(genes: string, callback: (data: string[][]) => any) {
+		fetchMatrix(genes, callback, SemNExT_URLs.custom_matrix);
+	}
+
+	function fetchMatrix(id: string, callback: (data: string[][]) => any, url) {
+		$.get(url + id)
 			.done((raw_data: string) => {
 			 	callback(_.map(raw_data.split('\n'), (d) => {
 					return d.split(',');

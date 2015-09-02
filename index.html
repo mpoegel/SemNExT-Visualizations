@@ -67,8 +67,8 @@
 						</li>
 						<li>
 							<div class="btn btn-sm btn-primary chart-btn"
-								title="Upload a custom data set." data-toggle="modal"
-								data-target="#dataUploadModal">Upload Data</div>
+								title="Define a custom set of genes."
+								data-action="custom-data">Custom Gene Set</div>
 						</li>
 						<li>
 							<div class="btn-group" data-toggle="buttons">
@@ -172,6 +172,32 @@
 			<i class="fa fa-5x fa-cog fa-spin"></i>
 			<p>
 				Building the CHeM Diagram!
+			</p>
+		</div>
+		<div class="custom-dataset-menu">
+			<span class="chart-btn" data-action="custom-data">&times</span>
+			<p>
+				You can create a CHeM diagram using a user-defined list of genes.
+			</p>
+			<p>
+				Dataset Name
+				<input type="text" name="custom-name">
+			</p>
+			<p>
+				Upload genes from a file.
+				<input type="file" name="gene-file">
+			</p>
+			<p>
+				Enter genes manually.<br>
+				<textarea name="gene-list" rows="6" cols="20"></textarea>
+				<span class="chart-btn clear-genes" data-action="clear-custom-genes">
+					&times</span>
+			</p>
+			<p>
+				<div class="btn btn-success chart-btn"
+					data-action="create-custom">
+					Create CHeM
+				</div>
 			</p>
 		</div>
 		<div class="chart-status"></div>

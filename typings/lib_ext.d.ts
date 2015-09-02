@@ -18,3 +18,12 @@ interface HTMLAnchorElement {
 	 */
 	download: string;
 }
+
+interface HTMLElement {
+  /*
+	 * An object of this type is returned by the files property of the HTML
+	 * <input> element; this lets you access the list of files selected
+	 * with the <input type="file"> element.
+	 */
+	files: FileList;
+}
