@@ -4,9 +4,9 @@
 <head>
 
 <meta charset="utf-8">
-<link href="chord.css" rel="stylesheet">
+<link href="style/style.css" rel="stylesheet">
 <link href="lib/bootstrap.min.css" rel="stylesheet">
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+<link href="lib/font-awesome.min.css" rel="stylesheet">
 
 </head>
 
@@ -14,7 +14,9 @@
 
 	<div class="header">
 		<div class="container">
+
 			<div class="row expanded-settings-bar">
+
 				<div class="row">
 					<ul class="horizontal-list">
 						<li><a href="http://tw.rpi.edu/web/project/SemNExT">
@@ -24,6 +26,7 @@
 							Rensselaer Polytechnic Institute, Troy, NY, USA</a></li>
 					</ul>
 				</div>
+
 				<div class="row">
 					<ul class="horizontal-list">
 						<!-- <li>
@@ -38,53 +41,68 @@
 							<div id="active-filters"></div>
 						</li> -->
 						<li>
-							<div class="btn btn-primary additional-settings"
+							<div class="btn-group" data-toggle="buttons">
+								<label class="btn btn-sm btn-primary active chart-btn"
+									data-action="set-search-disease"
+									title="Search for diseases">
+									<input type="radio" autocomplete="off" checked>Disease Search
+								</label>
+								<label class="btn btn-sm btn-primary chart-btn"
+									data-action="set-search-kegg-pathway"
+									title="Search for KEGG Pathways">
+									<input type="radio" autocomplete="off">KEGG Pathway Search
+								</label>
+							</div>
+						</li>
+						<li>
+							<div class="btn btn-sm btn-primary chart-btn"
 								title="Hide both legends in the diagram."
-								data-action="hideLegends">
+								data-action="hide-legends">
 								Hide Legends</div>
 						</li>
 						<li>
-							<div class="btn btn-primary additional-settings"
+							<div class="btn btn-sm btn-primary chart-btn"
 								title="Recolor the chords with a gradient. WARNING: this may take a while to complete for large data sets."
-								data-action="pathColorGradient">Path Color Gradient</div>
+								data-action="path-color-gradient">Path Color Gradient</div>
 						</li>
 						<li>
-							<div class="btn btn-primary additional-settings"
-								title="Upload a custom data set." data-toggle="modal"
-								data-target="#dataUploadModal">Upload Data</div>
+							<div class="btn btn-sm btn-primary chart-btn"
+								title="Define a custom set of genes."
+								data-action="custom-data">Custom Gene Set</div>
 						</li>
 						<li>
 							<div class="btn-group" data-toggle="buttons">
-								<label class="btn btn-primary active chord-fill-btns"
-									data-action="setD310Colors"
+								<label class="btn btn-sm btn-primary active chart-btn"
+									data-action="set-D310-colors"
 									title="Color the chords with D3 Category 10 colors.">
 									<input type="radio" autocomplete="off" checked>D3 Category 10
 										Colors
 								</label>
-								<label class="btn btn-primary chord-fill-btns"
-									data-action="setMatlabColors"
+								<label class="btn btn-sm btn-primary chart-btn"
+									data-action="set-matlab-colors"
 									title="Color the chords with matlab colors.">
 									<input type="radio" autocomplete="off">Matlab Colors
 								</label>
 							</div>
 						</li>
 						<li>
-							<div class="btn btn-success download-btn" data-target="svg"
+							<div class="btn btn-sm btn-success chart-btn" data-action="download-svg"
 								title="Download the current diagram as an SVG.">
-								Download SVG
+								SVG
 							</div>
-							<div class="btn btn-success download-btn" data-target="png"
+							<div class="btn btn-sm btn-success chart-btn" data-action="download-png"
 								title="Download the current diagram as a PNG.">
-								Download PNG
+								PNG
 							</div>
 						</li>
 					</ul>
 				</div>
 			</div> <!-- close EXPANDED-SETTINGS-BAR -->
+
 			<div class="row settings-bar">
 				<ul class="horizontal-list">
 					<li>
-						<input type="text" name="diseaseList" id="diseaseList"
+						<input type="text" name="diseaseList" id="searchBox"
 							class="form-control"  placeholder="Search for a disease">
 					</li>
 					<li>
@@ -94,41 +112,44 @@
 						</div>
 					</li>
 					<li>
-						<div class="btn-group" data-toggle="buttons" id="set-highlight-btns">
-							<label class="btn btn-primary active" id="set-hover-btn"
+						<div class="btn-group" data-toggle="buttons">
+							<label class="btn btn-primary active chart-btn highlight-btn"
+								data-action="highlight-hover"
 								title="Highlight a protein on hover.">
 								<input type="radio" autocomplete="off" checked>Hover
 							</label>
-							<label class="btn btn-primary" id="set-click-btn"
+							<label class="btn btn-primary chart-btn highlight-btn"
+								data-action="highlight-click"
 								title="Hightlight a protein on click.">
 								<input type="radio" autocomplete="off">Click
 							</label>
-							<label class="btn btn-primary" id="set-no-highlight-btn"
+							<label class="btn btn-primary chart-btn highlight-btn"
+								data-action="highlight-none"
 								title="Disable protein highlighting.">
 								<input type="radio" autocomplete="off">None
 							</label>
 						</div>
 					</li>
 					<li>
-						<div class="btn btn-primary display-btn" data-action="all"
+						<div class="btn btn-primary chart-btn" data-action="display-all"
 							title="Display all protein connections.">
 							Display All</div>
-						<div class="btn btn-primary display-btn" data-action="none"
+						<div class="btn btn-primary chart-btn" data-action="display-none"
 							title="Display no protein connections.">
 							Display None</div>
-						<div class="btn btn-primary display-btn" data-action="invert"
+						<div class="btn btn-primary chart-btn" data-action="display-invert"
 							title="Invert the highlighted protein connections.">
 							Invert Display
 						</div>
 					</li>
 					<li>
-						<div class="btn btn-link" id="expand-settings-btn"
-							title="Show more settings.">
-							<i class="fa fa-plus-square-o fa-2x"></i>
-						</div>
+						<i class="btn chart-btn fa fa-plus-square-o fa-2x"
+							data-action="toggle-settings" title="Show more settings."
+							expanded="false"></i>
 					</li>
 				</ul>
 			</div> <!-- close SETTINGS-BAR -->
+
 		</div> <!-- close CONTAINER -->
 	</div> <!-- close HEADER -->
 
@@ -147,6 +168,38 @@
 				connected	to a particular disease.
 			</p>
 		</div>
+		<div class="loading">
+			<i class="fa fa-5x fa-cog fa-spin"></i>
+			<p>
+				Building the CHeM Diagram!
+			</p>
+		</div>
+		<div class="custom-dataset-menu">
+			<span class="chart-btn" data-action="custom-data">&times</span>
+			<p>
+				You can create a CHeM diagram from a user-defined list of genes.
+			</p>
+			<p>
+				Dataset Name
+				<input type="text" name="custom-name">
+			</p>
+			<p>
+				Upload genes from a file.
+				<input type="file" name="gene-file">
+			</p>
+			<p>
+				Enter genes manually.<br>
+				<textarea name="gene-list" rows="6" cols="20"></textarea>
+				<span class="chart-btn clear-genes" data-action="clear-custom-genes">
+					&times</span>
+			</p>
+			<p>
+				<div class="btn btn-success chart-btn"
+					data-action="create-custom">
+					Create CHeM
+				</div>
+			</p>
+		</div>
 		<div class="chart-status"></div>
 		<div class="chart"></div>
 		<div class="semData">
@@ -154,7 +207,7 @@
 				<dt>Gene Symbol</dt><dd class="symbol"></dd>
 				<dt>Description</dt><dd class="desription"></dd>
 				<dt>Cluster</dt><dd class="cluster"></dd>
-				<dt>Present In</dt><dd class='relations'></dd>
+				<dt>Present In</dt><dd class="relations"></dd>
 				<dt>Outgoing Connections</dt><dd class="outgoing"></dd>
 				<dt>Incoming Connections</dt><dd class="incoming"></dd>
 				<dt>Experimental Data</dt><dd class="days"><table class="table"></table></dd>
@@ -164,62 +217,19 @@
 			Semantic Data is not available for the selected data set.
 		</div>
 		<div class="geneInfo"></div>
-		<div class="modal fade" id="dataUploadModal">
-		  <div class="modal-dialog">
-		    <div class="modal-content">
-		      <div class="modal-header">
-		        <button type="button" class="close" data-dismiss="modal"
-							aria-label="Close"><span aria-hidden="true">&times;</span>
-							</button>
-		        <h4 class="modal-title">Upload Data Set</h4>
-		      </div>
-		      <div class="modal-body">
-		        <form class="form-horizontal">
-		        	<div class="form-group">
-		        		<label for="inputDataTitle" class="col-sm-2 control-label">Title
-									</label>
-								<div class="col-sm-10">
-									<input type="text" class="form-control" name="inputDataTitle"
-										id="inputDataTitle">
-								</div>
-		        	</div>
-							<div class="form-group">
-						    <label for="inputDataFile" class="col-sm-2 control-label">
-									File input</label>
-						    <div class="col-sm-10">
-									<input type="file" id="inputDataFile">
-						    </div>
-						    <p class="help-block">The input data file should be in the
-									following format:
-									<pre class="col-sm-offset-2 col-sm-8">
-Gene1,Gene2,Gene3,...,GeneN,Cluster,d0,d7,...,d77
-0,0,0,...0,1,0,0,...,0
-...
-0,0,0,...0,6,0,0,...,0</pre>
-								</p>
-						  </div>
-		        </form>
-		      </div>
-		      <div class="modal-footer">
-		        <div class="btn btn-default" data-dismiss="modal">Close</div>
-		        <div class="btn btn-primary additional-settings"
-							data-action="createCustomCHeM">Create CHeM Diagram</div>
-		      </div>
-		    </div><!-- /.modal-content -->
-		  </div><!-- /.modal-dialog -->
-		</div><!-- /.modal -->
-	</div>
+
+
+	<script src="./lib/d3.min.js" charset="utf-8"></script>
+	<script src="./lib/jquery-2.1.3.min.js" charset="utf-8"></script>
+	<script src="./lib/bootstrap.min.js" charset="utf-8"></script>
+	<script src="./lib/underscore-min.js" charset="utf-8"></script>
+	<script src="./lib/typeahead.bundle.js" charset="utf-8"></script>
+
+	<script src="./script/graph.js" charset="utf-8"></script>
+	<script src="./script/munge.js" charset="utf-8"></script>
+	<script src="./script/ui.js" charset="utf-8"></script>
+	<script src="./script/main.js" charset="utf-8"></script>
 
 </body>
-
-<script src="lib/d3.min.js" charset="utf-8"></script>
-<script src="lib/jquery-2.1.3.min.js" charset="utf-8"></script>
-<script src="lib/bootstrap.min.js" charset="utf-8"></script>
-<script src="lib/underscore-min.js" charset="utf-8"></script>
-<script src="lib/typeahead.bundle.js" charset="utf-8"></script>
-
-<script src="config.js" charset="utf-8"></script>
-<script src="chord.js" charset="utf-8"></script>
-<script src="events.js" charset="utf-8"></script>
 
 </html>

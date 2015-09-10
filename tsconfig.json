@@ -1,0 +1,31 @@
+{
+    "version": "1.5.3",
+    "compilerOptions": {
+        "target": "es5",
+        "module": "commonjs",
+        "declaration": false,
+        "noImplicitAny": false,
+        "removeComments": true,
+        "noLib": false,
+        "preserveConstEnums": true,
+        "suppressImplicitAnyIndexErrors": true
+    },
+    "filesGlob": [
+        "./**/*.ts",
+        "!./node_modules/**/*.ts"
+    ],
+    "files": [
+        "./script/graph.ts",
+        "./script/main.ts",
+        "./script/munge.ts",
+        "./script/ui.ts",
+        "./typings/bootstrap/bootstrap.d.ts",
+        "./typings/d3/d3.d.ts",
+        "./typings/jquery/jquery.d.ts",
+        "./typings/lib_ext.d.ts",
+        "./typings/semnext.d.ts",
+        "./typings/tsd.d.ts",
+        "./typings/typeahead/typeahead.d.ts",
+        "./typings/underscore/underscore.d.ts"
+    ]
+}
