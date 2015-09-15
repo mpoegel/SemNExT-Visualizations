@@ -68,6 +68,18 @@
 	padding-right: 5px;
 }
 
+.header .error-bar {
+	color: #FFF;
+	overflow: hidden;
+	padding: 10px;
+}
+
+.header .error-bar .text {
+	width: 50%;
+	margin-left: 25%;
+	padding: 10px;
+}
+
 /* CONTENT  ----------------------------------------------------------------- */
 html, body {
 	height: 100%;

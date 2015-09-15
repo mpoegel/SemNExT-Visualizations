@@ -8,10 +8,51 @@ namespace UI {
 			fade_opacity: number,
 			dom_cluster: number;
 
+	const colors = {
+					critical: '#F77',
+					warning:  '#DC3',
+					info: 		'#3CD'
+				},
+				MIN_GRAPH_SIZE = 5;
+
+
 	export function configure(c: CHeM.Canvas): void {
 		canvas = c;
 		attachListener();
 		initDiseaseList();
+	}
+
+	function errorHandler(error: Error, errorLevel: string, dismissable: boolean): void {
+		$('.loading').hide();
+		let $existing_bars = $('.error-bar');
+		_.each($existing_bars, (bar) => {
+			if ($(bar).find('.title').text() === error.name) {
+				$(bar).remove();
+				return;
+			}
+		});
+		let $error_bar = $('<div/>', {
+			class: 'error-bar chart-btn',
+			'data-action': dismissable ? 'close-error' : ''
+		})
+			.append($('<span/>', {
+				class: 'text'
+			}))
+			.css({
+				'background-color': colors[errorLevel],
+				'cursor': dismissable ? 'pointer' : 'default'
+			})
+			.appendTo('.error-bar-bin');
+		$error_bar.find('.text')
+			.append($('<b/>', {
+				class: 'title',
+				text: error.name
+			}))
+			.append('<span>. </span>')
+			.append($('<span/>', {
+				class: 'body',
+				html: error.message
+			}));
 	}
 
 	function initDiseaseList(): void {
@@ -38,7 +79,7 @@ namespace UI {
 					drawCompleteGraph(diseaseObj, 'disease');
 				});
 			$('.totalDiseases').text( diseaseObjs.length );
-		});
+		}, (error) => { errorHandler(error, 'critical', false); });
 	}
 
 	function initKeggPathwayList(): void {
@@ -64,11 +105,11 @@ namespace UI {
 				.on('typeahead:select', (ev, keggObj) => {
 					drawCompleteGraph(keggObj, 'kegg pathways');
 				});
-		});
+		}, (error) => { errorHandler(error, 'critical', false); });
 	}
 
 	export function drawCompleteGraph(semnextObj: DiseaseObject|KeggPathwayObject|CustomObject,
-																		data_type: string): void {
+																		data_type: string, callback ?: () => any): void {
 		canvas.clear();
 		$('.welcome-message').hide();
 		$('.loading').show();
@@ -82,26 +123,48 @@ namespace UI {
 			else
 				return _.noop;
 		})()(semnextObj['@id'], (raw_data: string[][]) => {
-			let data = Munge.munge(raw_data);
-			data.title = semnextObj.label;
-			$('.loading').hide();
-			let g = new CHeM.Graph(data, canvas)
-				.drawChords()
-				.drawClusterBands()
-				.drawTextLabels()
-				.drawCircularHeatmap()
-				.drawClusterLegend()
-				.drawHeatmapLegend()
-				.drawTitle();
-			graph = g;
-			fade_opacity = graph.getFadeOpacity();
-			dom_cluster = graph.getData().domc;
-		});
+			try {
+				let data = Munge.munge(raw_data);
+				if (data.labels.length < MIN_GRAPH_SIZE) {
+					let error = new Error('Not enough data received to create CHeM.');
+					error.name = 'CHeM Error';
+					throw error;
+				}
+				data.title = semnextObj.label;
+				$('.loading').hide();
+				try {
+					let g = new CHeM.Graph(data, canvas)
+						.drawChords()
+						.drawClusterBands()
+						.drawTextLabels()
+						.drawCircularHeatmap()
+						.drawClusterLegend()
+						.drawHeatmapLegend()
+						.drawTitle();
+					graph = g;
+				}
+				catch (e) {
+					let error = new Error('Creation of CHeM reached an unknown error.');
+					error.name = 'CHeM Error';
+					throw error;
+				}
+				fade_opacity = graph.getFadeOpacity();
+				dom_cluster = graph.getData().domc;
+				if (callback) callback();
+			}
+			catch (error) {
+				errorHandler(error, 'critical', true);
+			}
+		}, (error) => { errorHandler(error, 'critical', true); });
 	}
 
 	function attachListener(): void {
-		$('.chart-btn').off('click').on('click', (e: Event) => {
-			let action = $(e.target).attr('data-action');
+		$('body').off('click').on('click', '.chart-btn', (e: Event) => {
+			let $btn = $(e.target);
+			while (! $btn.hasClass('chart-btn')) {
+				$btn = $btn.parent();
+			}
+			let action = $btn.attr('data-action');
 			switch (action) {
 				case 'highlight-none':
 					clearHighlighting();
@@ -140,7 +203,7 @@ namespace UI {
 					hideLegends($(e.target));
 					break;
 				case 'custom-data':
-					$('.custom-dataset-menu').toggle();
+					openCustomCHeMMenu();
 					break;
 				case 'set-D310-colors':
 					graph.recolor(CHeM.Graph.d3Cat10Colors);
@@ -162,6 +225,9 @@ namespace UI {
 					break;
 				case 'clear-custom-genes':
 					$('.custom-dataset-menu textarea').val('');
+					break;
+				case 'close-error':
+					$btn.remove();
 					break;
 			}
 		});
@@ -321,17 +387,31 @@ namespace UI {
 		}
 	}
 
+	function openCustomCHeMMenu(): void {
+		$('.chart-status').hide();
+		$('.welcome-message').hide();
+		$('.custom-dataset-menu').toggle();
+	}
+
 	function createCustomCHeM(): void {
 		let $geneBox = $('.custom-dataset-menu textarea'),
 				title = $('.custom-dataset-menu input[name="custom-name"]').val(),
 				raw_genes = $geneBox.val(),
 				genes = parseGeneInput(raw_genes);
 		let CustomObj: CustomObject = {
-			'@id': genes.join(','),
+			'@id': genes.join(', '),
 			label: title
 		}
 		$('.custom-dataset-menu').hide();
-		drawCompleteGraph(CustomObj, 'custom');
+		drawCompleteGraph(CustomObj, 'custom', () => {
+			let missing_genes = _.difference(genes, graph.getData().labels);
+			if (missing_genes.length > 0) {
+				let error = new Error()
+				error.name = "Missing Genes";
+				error.message = missing_genes.join(',');
+				errorHandler(error, 'warning', true);
+			}
+		});
 	}
 
 	function parseGeneInput(raw_genes: string): string[] {

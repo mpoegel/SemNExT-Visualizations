@@ -19,6 +19,14 @@ module Munge {
 		index: number;
 	}
 
+	interface dataCallback {
+	  (data: string[][]): any;
+	}
+
+	interface onErrorCallback {
+	  (e: Error): any;
+	}
+
 	const SemNExT_URLs = {
 		disease_matrix: 'https://semnext.tw.rpi.edu/api/v1/matrix_for_disease?disease=',
 		diseases_list: 'https://semnext.tw.rpi.edu/api/v1/list_known_diseases',
@@ -27,53 +35,71 @@ module Munge {
 		custom_matrix: 'https://semnext.tw.rpi.edu/api/v1/matrix_for_genes?symbols='
 	}
 
-	export function fetchDiseaseMatrix(diseaseId: string, callback: (data: string[][]) => any) {
-		fetchMatrix(diseaseId, callback, SemNExT_URLs.disease_matrix);
+	export function fetchDiseaseMatrix(diseaseId: string, callback: dataCallback, onError?: onErrorCallback) {
+		fetchMatrix(diseaseId, callback, SemNExT_URLs.disease_matrix, onError);
 	}
 
-	export function fetchKeggPathwaysMatrix(keggId: string, callback: (data: string[][]) => any) {
-		fetchMatrix(keggId, callback, SemNExT_URLs.kegg_matrix);
+	export function fetchKeggPathwaysMatrix(keggId: string, callback: dataCallback, onError?: onErrorCallback) {
+		fetchMatrix(keggId, callback, SemNExT_URLs.kegg_matrix, onError);
 	}
 
-	export function fetchCustomMatrix(genes: string, callback: (data: string[][]) => any) {
-		fetchMatrix(genes, callback, SemNExT_URLs.custom_matrix);
+	export function fetchCustomMatrix(genes: string, callback: dataCallback, onError?: onErrorCallback) {
+		fetchMatrix(genes, callback, SemNExT_URLs.custom_matrix, onError);
 	}
 
-	function fetchMatrix(id: string, callback: (data: string[][]) => any, url) {
+	function fetchMatrix(id: string, callback: dataCallback, url, onError?: onErrorCallback) {
 		$.get(url + id)
 			.done((raw_data: string) => {
 			 	callback(_.map(raw_data.split('\n'), (d) => {
 					return d.split(',');
 				}));
 			})
-			.fail((error) => {
-				$('.chart-status').empty();
-				$('.chart-status')
-					.append('<div class="panel panel-danger">' +
-						'<div class="panel-heading">Error</div>' +
-						'<div class="panel-body">Could not retrieve data.' +
-						'</div>');
-				throw error;
+			.fail(() => {
+				let e = new Error();
+				e.name = "SemNExT API Error"
+				e.message = "Received an invalid response from the API."
+				if (onError) {
+					onError(e);
+				}
+				else {
+					console.log(e);
+				}
 			});
 	}
 
-	export function fetchDiseaseList(callback: (data: DiseaseObject[]) => any) {
+	export function fetchDiseaseList(callback: (data: DiseaseObject[]) => any, onError?: onErrorCallback) {
 		$.get(SemNExT_URLs.diseases_list)
 			.done((raw_data: DiseaseObject[]) => {
 				callback(raw_data);
 			})
-			.fail((error) => {
-				throw error;
+			.fail(() => {
+				let e = new Error();
+				e.name = "SemNExT API Error"
+				e.message = "Failed to retrieve disease object list from the API."
+				if (onError) {
+					onError(e);
+				}
+				else {
+					console.error(e);
+				}
 			});
 	}
 
-	export function fetchKeggPathwaysList(callback: (data: KeggPathwayObject[]) => any) {
+	export function fetchKeggPathwaysList(callback: (data: KeggPathwayObject[]) => any, onError?: onErrorCallback) {
 		$.get(SemNExT_URLs.kegg_list)
 			.done((raw_data: KeggPathwayObject[]) => {
 				callback(raw_data);
 			})
 			.fail((error) => {
-				throw error;
+				let e = new Error();
+				e.name = "SemNExT API Error"
+				e.message = "Failed to retrieve KEGG object list from the API."
+				if (onError) {
+					onError(e);
+				}
+				else {
+					console.error(e);
+				}
 			});
 	}
 
