@@ -47,7 +47,7 @@ module Munge {
 		fetchMatrix(genes, callback, SemNExT_URLs.custom_matrix, onError);
 	}
 
-	function fetchMatrix(id: string, callback: dataCallback, url, onError?: onErrorCallback) {
+	export function fetchMatrix(id: string, callback: dataCallback, url, onError?: onErrorCallback) {
 		$.get(url + id)
 			.done((raw_data: string) => {
 			 	callback(_.map(raw_data.split('\n'), (d) => {
@@ -62,7 +62,7 @@ module Munge {
 					onError(e);
 				}
 				else {
-					console.log(e);
+					console.error(e);
 				}
 			});
 	}
@@ -101,6 +101,30 @@ module Munge {
 					console.error(e);
 				}
 			});
+	}
+	
+	export function fetchLocalMatrix(file_path: string, callback: dataCallback, onError ?: onErrorCallback): void {
+		try {
+			$.get(file_path)
+				.done((raw_data: string) => {
+					callback(_.map(raw_data.split('\n'), (d) => {
+						return d.split(',');
+					}));
+				})
+				.fail((error) => {
+					let e = new Error();
+					e.name = "File Error";
+					e.message = "Could not open file: " + file_path;
+					if (onError) {
+						onError(e); 
+					}
+					else {
+						console.error(e);
+					}
+				});
+		} catch (error) {
+			
+		}
 	}
 
 	export function munge(data: string[][]): chem_data {

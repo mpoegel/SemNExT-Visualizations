@@ -23,6 +23,7 @@ module CHeM {
 	}
 
 	export class Canvas {
+		private $handle: d3.Selection<any>;
 		private selector: string;
 		private svg: any;
 		private margins: margin;
@@ -31,16 +32,17 @@ module CHeM {
 		private height: number;
 		private adj_height: number;
 
-		constructor(selector: string, margins: margin, width: number,
+		constructor($handle: d3.Selection<any>, margins: margin, width: number,
 								height: number) {
-			this.selector = selector;
+			this.$handle = $handle;
+			this.selector = null;
 			this.margins = margins;
 			this.width = width;
 			this.height = height;
 			this.adj_width = width - this.margins.right - this.margins.left;
 			this.adj_height = height - this.margins.top - this.margins.bottom;
 
-			this.svg = d3.select(selector)
+			this.svg = d3.select(this.selector)
 				.append('svg')
 					.attr('height', height)
 					.attr('width', width)
@@ -59,6 +61,7 @@ module CHeM {
 		getAdjHeight(): number { return this.adj_height; }
 		getMargins(): margin { return this.margins; }
 		getSelector(): string { return this.selector; }
+		getHandle(): d3.Selection<any> { return this.$handle; }
 
 		clear(): void {
 			$(this.selector + ' svg g').empty();
@@ -157,9 +160,9 @@ module CHeM {
 						d.gene = this.data.labels[i];
 					})
 					.attr('gene', (d) => { return d.gene })
-					.on('mouseover', getFader(this.canvas.getSelector(),
+					.on('mouseover', getFader(this.canvas.getHandle(),
 						this.fade_opacity))
-					.on('mouseout', getFader(this.canvas.getSelector(), 1.00));
+					.on('mouseout', getFader(this.canvas.getHandle(), 1.00));
 			// draw the group arcs and colors them
 			g.append('svg:path')
 					.style('stroke', (d) => {
@@ -242,9 +245,9 @@ module CHeM {
 					)
 					.attr('class', 'cluster-arc')
 					.attr('fill', (d) => { return Graph.d3Cat10Colors(d.cluster); })
-					.on('mouseover', getClusterFader(this.canvas.getSelector(),
+					.on('mouseover', getClusterFader(this.canvas.getHandle(),
 						this.fade_opacity))
-					.on('mouseout', getClusterFader(this.canvas.getSelector(), 1.00));
+					.on('mouseout', getClusterFader(this.canvas.getHandle(), 1.00));
 			return this;
 		}
 
@@ -291,9 +294,9 @@ module CHeM {
 					)
 					.attr('class', 'heatmap-arc')
 					.attr('fill', (d) => { return this.heatmapColorScale(d.value); })
-					.on('mouseover', getFader(this.canvas.getSelector(),
+					.on('mouseover', getFader(this.canvas.getHandle(),
 						this.fade_opacity))
-					.on('mouseout', getFader(this.canvas.getSelector(), 1.00));
+					.on('mouseout', getFader(this.canvas.getHandle(), 1.00));
 			return this;
 		}
 
@@ -473,9 +476,9 @@ module CHeM {
 
 	} // end Graph class
 
-	export function getFader(chart: string, opacity: number): (g, i) => void {
+	export function getFader(canvasHandle: d3.Selection<any>, opacity: number): (g, i) => void {
 		return (g, i) => {
-			d3.select(chart).selectAll('.chordMask, path.chord')
+			canvasHandle.selectAll('.chordMask, path.chord')
 					.filter((d) => {
 						return d.source.index !== g.index &&
 							d.target.index !== g.index;
@@ -486,9 +489,9 @@ module CHeM {
 		};
 	}
 
-	export function getClusterFader(chart: string, opacity: number): (g, i) => void {
+	export function getClusterFader(canvasHandle: d3.Selection<any>, opacity: number): (g, i) => void {
 		return (g, i) => {
-			d3.select(chart).selectAll('.chordMask, path.chord')
+			canvasHandle.selectAll('.chordMask, path.chord')
 					.filter((d) => {
 						return d.source.cluster !== g.cluster &&
 							d.target.cluster !== g.cluster
@@ -499,9 +502,9 @@ module CHeM {
 		};
 	}
 
-	export function getToggleFader(chart: string, opacity: number): (g, i) => void {
+	export function getToggleFader(canvasHandle: d3.Selection<any>, opacity: number): (g, i) => void {
 		return (g, i) => {
-			let h = d3.select(chart).selectAll('.chordMask, path.chord')
+			let h = canvasHandle.selectAll('.chordMask, path.chord')
 						.filter((d) => { return d.source.index === g.index ||
 						 	d.target.index === g.index; });
 			if (parseInt(h.style('opacity')) === 1) {
@@ -515,10 +518,10 @@ module CHeM {
 		}
 	}
 
-	export function getToggleClusterFader(chart: string, opacity: number):
+	export function getToggleClusterFader(canvasHandle: d3.Selection<any>, opacity: number):
 																			  (g, i) => void {
 		return (g, i) => {
-			let h = d3.select(chart).selectAll('.chordMask, path.chord')
+			let h = canvasHandle.selectAll('.chordMask, path.chord')
 					.filter((d) => { return d.source.cluster === g.cluster ||
 						d.target.cluster === g.cluster; });
 			if (parseInt(h.style('opacity')) === 1) {

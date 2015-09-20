@@ -8,9 +8,9 @@ html {
 
 #floor {
 	text-align: center;
-  -ms-transform: rotate(180deg); /* IE 9 */
-  -webkit-transform: rotate(180deg); /* Chrome, Safari, Opera */
-  transform: rotate(180deg);
+  	-webkit-transform: rotate(180deg); /* Chrome, Safari, Opera */
+  		-ms-transform: rotate(180deg); /* IE 9 */
+  			transform: rotate(180deg);
 }
 
 .menu {
@@ -19,11 +19,11 @@ html {
 	display: none;
 	position: absolute;
 	overflow: hidden;
-  border: 1px solid #CCC;
-  white-space: nowrap;
-  background: #FFF;
-  color: #333;
-  border-radius: 5px;
+	border: 1px solid #CCC;
+	white-space: nowrap;
+	background: #FFF;
+	color: #333;
+	border-radius: 5px;
 }
 
 .menu li {

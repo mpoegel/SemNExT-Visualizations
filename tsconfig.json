@@ -15,6 +15,7 @@
         "!./node_modules/**/*.ts"
     ],
     "files": [
+        "./script/campfire.ts",
         "./script/graph.ts",
         "./script/main.ts",
         "./script/munge.ts",

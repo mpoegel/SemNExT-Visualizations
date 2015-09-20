@@ -260,14 +260,14 @@ namespace UI {
 		clearHighlighting();
 		btn.addClass('active');
 		canvas.getSVG().selectAll('g.group, .heatmap-arc')
-			.on('mouseover', CHeM.getFader(canvas.getSelector(),
+			.on('mouseover', CHeM.getFader(canvas.getHandle(),
 			 	fade_opacity))
-			.on('mouseout', CHeM.getFader(canvas.getSelector(),
+			.on('mouseout', CHeM.getFader(canvas.getHandle(),
 				1.00));
 		canvas.getSVG().selectAll('cluster-arc')
-			.on('mouseover', CHeM.getClusterFader(canvas.getSelector(),
+			.on('mouseover', CHeM.getClusterFader(canvas.getHandle(),
 				fade_opacity))
-			.on('mouseout', CHeM.getClusterFader(canvas.getSelector(),
+			.on('mouseout', CHeM.getClusterFader(canvas.getHandle(),
 				fade_opacity));
 	}
 
@@ -275,10 +275,10 @@ namespace UI {
 		clearHighlighting();
 		btn.addClass('active');
 		canvas.getSVG().selectAll('g.group, .heatmap-arc')
-			.on('click', CHeM.getToggleFader(canvas.getSelector(),
+			.on('click', CHeM.getToggleFader(canvas.getHandle(),
 				fade_opacity));
 		canvas.getSVG().selectAll('.cluster-arc')
-			.on('click', CHeM.getToggleClusterFader(canvas.getSelector(),
+			.on('click', CHeM.getToggleClusterFader(canvas.getHandle(),
 				fade_opacity));
 	}
 
