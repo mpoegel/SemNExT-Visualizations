@@ -1,4 +1,4 @@
-/// <reference path="../typings/tsd.d.ts"/>
+/// <reference path="../../../typings/tsd.d.ts"/>
 /// <reference path="./graph.ts"/>
 /// <reference path="./munge.ts"/>
 /// <reference path="./ui.ts"/>

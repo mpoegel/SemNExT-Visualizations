@@ -1,4 +1,4 @@
-/// <reference path="../typings/tsd.d.ts"/>
+/// <reference path="../../../typings/tsd.d.ts"/>
 /// <reference path="./graph.ts"/>
 
 namespace UI {
@@ -69,9 +69,9 @@ namespace UI {
 					source: new Bloodhound({
 						datumTokenizer: (datum) => { return [datum.label]; },
 						queryTokenizer: Bloodhound.tokenizers.whitespace,
-						local: diseaseObjs,
+						local: () => { return diseaseObjs; },
 						identify: (obj) => { return obj['@id']; },
-					})
+					}).get
 				})
 				.attr('placeholder', 'Search for a disease')
 				.off('typeahead:select')
@@ -96,9 +96,9 @@ namespace UI {
 					source: new Bloodhound({
 						datumTokenizer: (datum) => { return [datum.label]; },
 						queryTokenizer: Bloodhound.tokenizers.whitespace,
-						local: keggObjs,
+						local: () => { return keggObjs; },
 						identify: (obj) => { return obj['@id']; },
-					})
+					}).get
 				})
 				.attr('placeholder', 'Search for a Kegg Pathway')
 				.off('typeahead:select')

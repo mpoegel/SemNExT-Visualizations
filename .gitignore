@@ -1,3 +1,6 @@
-*.js
 *.csv
-!lib/*
+node_modules
+typings
+wwwroot/public/script
+wwwroot/*.js
+wwwroot/public/lib
