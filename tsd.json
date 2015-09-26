@@ -11,9 +11,6 @@
     "d3/d3.d.ts": {
       "commit": "066819c65ff561ca109955e0b725c253e243f0a2"
     },
-    "typeahead/typeahead.d.ts": {
-      "commit": "066819c65ff561ca109955e0b725c253e243f0a2"
-    },
     "bootstrap/bootstrap.d.ts": {
       "commit": "066819c65ff561ca109955e0b725c253e243f0a2"
     },
@@ -22,6 +19,21 @@
     },
     "node/node.d.ts": {
       "commit": "273a567b0a0bcc34cbf2a2470b2febc95796b644"
+    },
+    "express/express.d.ts": {
+      "commit": "68d9d43ce884e1ffb6ec0daf4ee7be9392c5b7bc"
+    },
+    "serve-static/serve-static.d.ts": {
+      "commit": "68d9d43ce884e1ffb6ec0daf4ee7be9392c5b7bc"
+    },
+    "mime/mime.d.ts": {
+      "commit": "68d9d43ce884e1ffb6ec0daf4ee7be9392c5b7bc"
+    },
+    "request/request.d.ts": {
+      "commit": "68d9d43ce884e1ffb6ec0daf4ee7be9392c5b7bc"
+    },
+    "form-data/form-data.d.ts": {
+      "commit": "68d9d43ce884e1ffb6ec0daf4ee7be9392c5b7bc"
     }
   }
 }

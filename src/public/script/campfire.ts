@@ -21,13 +21,13 @@ namespace Campfire {
 		while (wallHandle === undefined);
 		floorCanvas = new CHeM.Canvas(d3.select('#floor'), margin, width, height);
 		wallCanvas  = new CHeM.Canvas(wallHandle.d3select('#wall'), margin, width, height);
-		debug();
+		// debug();
 	}, 100);
 	
 	function errorHandler(error: Error): void {
 		console.error(error);
 	}
-	
+	/*
 	export function ignite(semnextObj: DiseaseObject|KeggPathwayObject|CustomObject,
 							data_type: string, callback ?: () => any): void {
 		try {
@@ -107,4 +107,5 @@ namespace Campfire {
 			errorHandler(e);
 		}
 	}
+	*/
 }

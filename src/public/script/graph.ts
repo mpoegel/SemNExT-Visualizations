@@ -1,5 +1,4 @@
 /// <reference path="../../../typings/tsd.d.ts"/>
-/// <reference path="./munge.ts"/>
 
 module CHeM {
 
@@ -24,7 +23,6 @@ module CHeM {
 
 	export class Canvas {
 		private $handle: d3.Selection<any>;
-		private selector: string;
 		private svg: any;
 		private margins: margin;
 		private width: number;
@@ -35,14 +33,13 @@ module CHeM {
 		constructor($handle: d3.Selection<any>, margins: margin, width: number,
 								height: number) {
 			this.$handle = $handle;
-			this.selector = null;
 			this.margins = margins;
 			this.width = width;
 			this.height = height;
 			this.adj_width = width - this.margins.right - this.margins.left;
 			this.adj_height = height - this.margins.top - this.margins.bottom;
 
-			this.svg = d3.select(this.selector)
+			this.svg = this.$handle
 				.append('svg')
 					.attr('height', height)
 					.attr('width', width)
@@ -60,11 +57,10 @@ module CHeM {
 		getHeight(): number { return this.height; }
 		getAdjHeight(): number { return this.adj_height; }
 		getMargins(): margin { return this.margins; }
-		getSelector(): string { return this.selector; }
 		getHandle(): d3.Selection<any> { return this.$handle; }
 
 		clear(): void {
-			$(this.selector + ' svg g').empty();
+			this.$handle.selectAll('svg g *').remove();
 		}
 
 	}

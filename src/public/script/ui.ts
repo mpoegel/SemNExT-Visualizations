@@ -4,16 +4,16 @@
 namespace UI {
 
 	let graph: CHeM.Graph,
-			canvas: CHeM.Canvas,
-			fade_opacity: number,
-			dom_cluster: number;
+		canvas: CHeM.Canvas,
+		fade_opacity: number,
+		dom_cluster: number;
 
 	const colors = {
-					critical: '#F77',
-					warning:  '#DC3',
-					info: 		'#3CD'
-				},
-				MIN_GRAPH_SIZE = 5;
+			critical: '#F77',
+			warning: '#DC3',
+			info: '#3CD'
+		},
+		MIN_GRAPH_SIZE = 5;
 
 
 	export function configure(c: CHeM.Canvas): void {
@@ -56,112 +56,124 @@ namespace UI {
 	}
 
 	function initDiseaseList(): void {
-		Munge.fetchDiseaseList((diseaseObjs) => {
-			$('#searchBox')
-				.typeahead('destroy')
-				.typeahead({
-					hint: true,
-					highlight: true,
-					minLength: 1
-				}, {
-					name: 'disease-list',
-					display: 'label',
-					source: new Bloodhound({
+		$.get('/api/v1/list/disease')
+			.done((diseaseStr) => {
+				let diseaseObjs = JSON.parse(diseaseStr),
+					bloodhound = new Bloodhound<DiseaseObject>({
 						datumTokenizer: (datum) => { return [datum.label]; },
 						queryTokenizer: Bloodhound.tokenizers.whitespace,
 						local: () => { return diseaseObjs; },
 						identify: (obj) => { return obj['@id']; },
-					}).get
-				})
-				.attr('placeholder', 'Search for a disease')
-				.off('typeahead:select')
-				.on('typeahead:select', (ev, diseaseObj) => {
-					drawCompleteGraph(diseaseObj, 'disease');
-				});
-			$('.totalDiseases').text( diseaseObjs.length );
-		}, (error) => { errorHandler(error, 'critical', false); });
+					});
+				$('#searchBox')
+					.typeahead('destroy')
+					.typeahead({
+						hint: true,
+						highlight: true,
+						minLength: 1
+					}, {
+							name: 'disease-list',
+							display: 'label',
+							source: bloodhound
+						})
+					.attr('placeholder', 'Search for a disease')
+					.off('typeahead:select')
+					.on('typeahead:select', (ev, diseaseObj) => {
+						drawCompleteGraph(diseaseObj, 'disease');
+					});
+				$('.totalDiseases').text(diseaseObjs.length);
+			})
+			.fail((error) => {
+				let e = new Error(error.statusText);
+				e.name = error.status;
+				errorHandler(e, 'critical', false);
+			});
 	}
 
 	function initKeggPathwayList(): void {
-		Munge.fetchKeggPathwaysList((keggObjs) => {
-			$('#searchBox')
-				.typeahead('destroy')
-				.typeahead({
-					hint: true,
-					highlight: true,
-					minLength: 1
-				}, {
-					name: 'kegg-pathways-list',
-					display: 'label',
-					source: new Bloodhound({
+		$.get('/api/v1/list/kegg_pathways')
+			.done((keggStr) => {
+				let keggObjs = JSON.parse(keggStr),
+					bloodhound = new Bloodhound<KeggPathwayObject>({
 						datumTokenizer: (datum) => { return [datum.label]; },
 						queryTokenizer: Bloodhound.tokenizers.whitespace,
 						local: () => { return keggObjs; },
 						identify: (obj) => { return obj['@id']; },
-					}).get
-				})
-				.attr('placeholder', 'Search for a Kegg Pathway')
-				.off('typeahead:select')
-				.on('typeahead:select', (ev, keggObj) => {
-					drawCompleteGraph(keggObj, 'kegg pathways');
-				});
-		}, (error) => { errorHandler(error, 'critical', false); });
+					});
+				$('#searchBox')
+					.typeahead('destroy')
+					.typeahead({
+						hint: true,
+						highlight: true,
+						minLength: 1
+					}, {
+							name: 'kegg-pathways-list',
+							display: 'label',
+							source: bloodhound
+						})
+					.attr('placeholder', 'Search for a Kegg Pathway')
+					.off('typeahead:select')
+					.on('typeahead:select', (ev, keggObj) => {
+						drawCompleteGraph(keggObj, 'kegg_pathways');
+					});
+			})
+			.fail((error) => {
+				let e = new Error(error.statusText);
+				e.name = error.status;
+				errorHandler(e, 'critical', false); 
+			});
 	}
 
-	export function drawCompleteGraph(semnextObj: DiseaseObject|KeggPathwayObject|CustomObject,
-																		data_type: string, callback ?: () => any): void {
+	export function drawCompleteGraph(semnextObj: DiseaseObject|KeggPathwayObject|CustomObject, data_type: string, callback?: () => any): void {
 		canvas.clear();
 		$('.welcome-message').hide();
 		$('.loading').show();
-		(function() {
-			if (data_type === 'disease')
-				return Munge.fetchDiseaseMatrix;
-			else if (data_type === 'kegg pathways')
-				return Munge.fetchKeggPathwaysMatrix;
-			else if (data_type === 'custom')
-				return Munge.fetchCustomMatrix;
-			else
-				return _.noop;
-		})()(semnextObj['@id'], (raw_data: string[][]) => {
-			try {
-				let data = Munge.munge(raw_data);
-				if (data.labels.length < MIN_GRAPH_SIZE) {
-					let error = new Error('Not enough data received to create CHeM.');
-					error.name = 'CHeM Error';
-					throw error;
-				}
-				data.title = semnextObj.label;
-				$('.loading').hide();
+		$.get('/api/v1/matrix/' + data_type + '/', { id: semnextObj['@id'] })
+			.done((raw_data: string[][]) => {
 				try {
-					let g = new CHeM.Graph(data, canvas)
-						.drawChords()
-						.drawClusterBands()
-						.drawTextLabels()
-						.drawCircularHeatmap()
-						.drawClusterLegend()
-						.drawHeatmapLegend()
-						.drawTitle();
-					graph = g;
+					let data = Munge.munge(raw_data);
+					if (data.labels.length < MIN_GRAPH_SIZE) {
+						let error = new Error('Not enough data received to create CHeM.');
+						error.name = 'CHeM Error';
+						throw error;
+					}
+					data.title = semnextObj.label;
+					$('.loading').hide();
+					try {
+						let g = new CHeM.Graph(data, canvas)
+							.drawChords()
+							.drawClusterBands()
+							.drawTextLabels()
+							.drawCircularHeatmap()
+							.drawClusterLegend()
+							.drawHeatmapLegend()
+							.drawTitle();
+						graph = g;
+					}
+					catch (e) {
+						let error = new Error('Creation of CHeM reached an unknown error.');
+						error.name = 'CHeM Error';
+						throw error;
+					}
+					fade_opacity = graph.getFadeOpacity();
+					dom_cluster = graph.getData().domc;
+					if (callback) callback();
 				}
-				catch (e) {
-					let error = new Error('Creation of CHeM reached an unknown error.');
-					error.name = 'CHeM Error';
-					throw error;
+				catch (error) {
+					errorHandler(error, 'critical', true);
 				}
-				fade_opacity = graph.getFadeOpacity();
-				dom_cluster = graph.getData().domc;
-				if (callback) callback();
-			}
-			catch (error) {
-				errorHandler(error, 'critical', true);
-			}
-		}, (error) => { errorHandler(error, 'critical', true); });
+			})
+			.fail((error) => {
+				let e = new Error(error.statusText);
+				e.name = error.status;
+				errorHandler(e, 'critical', true); 
+			});
 	}
 
 	function attachListener(): void {
 		$('body').off('click').on('click', '.chart-btn', (e: Event) => {
 			let $btn = $(e.target);
-			while (! $btn.hasClass('chart-btn')) {
+			while (!$btn.hasClass('chart-btn')) {
 				$btn = $btn.parent();
 			}
 			let action = $btn.attr('data-action');
@@ -235,12 +247,12 @@ namespace UI {
 			let file = $(e.target)[0].files[0];
 			if (file) {
 				let reader = new FileReader(),
-						$gene_list = $('.custom-dataset-menu textarea');
+					$gene_list = $('.custom-dataset-menu textarea');
 				reader.readAsText(file);
 				reader.onload = function() {
 					let raw_input = reader.result,
-							genes = parseGeneInput(raw_input),
-							gene_list = $gene_list.val();
+						genes = parseGeneInput(raw_input),
+						gene_list = $gene_list.val();
 					gene_list += gene_list ? '\n' + genes.join('\n') : genes.join('\n');
 					$gene_list.val(gene_list);
 				}
@@ -261,7 +273,7 @@ namespace UI {
 		btn.addClass('active');
 		canvas.getSVG().selectAll('g.group, .heatmap-arc')
 			.on('mouseover', CHeM.getFader(canvas.getHandle(),
-			 	fade_opacity))
+				fade_opacity))
 			.on('mouseout', CHeM.getFader(canvas.getHandle(),
 				1.00));
 		canvas.getSVG().selectAll('cluster-arc')
@@ -290,29 +302,29 @@ namespace UI {
 					d.target.cluster === dom_cluster;
 			})
 			.transition()
-				.style('opacity', 1.0)
-				.attr('visible', true);
+			.style('opacity', 1.0)
+			.attr('visible', true);
 	}
 
 	function displayAll(): void {
 		canvas.getSVG().selectAll('path.chord, .chordMask')
 			.transition()
-				.style('opacity', 1.0)
-				.attr('visible', true);
+			.style('opacity', 1.0)
+			.attr('visible', true);
 	}
 
 	function displayNone(): void {
 		canvas.getSVG().selectAll('path.chord, .chordMask')
 			.transition()
-				.style('opacity', fade_opacity)
-				.attr('visible', false);
+			.style('opacity', fade_opacity)
+			.attr('visible', false);
 	}
 
 	function invertDisplay(): void {
 		let hidden = canvas.getSVG()
-					.selectAll('path.chord[visible=false], .chordMask[visible=false]'),
-				visible = canvas.getSVG()
-					.selectAll('path.chord[visible=true], .chordMask[visible=true]');
+			.selectAll('path.chord[visible=false], .chordMask[visible=false]'),
+			visible = canvas.getSVG()
+				.selectAll('path.chord[visible=true], .chordMask[visible=true]');
 		hidden.transition()
 			.style('opacity', 1.0)
 			.attr('visible', true);
@@ -326,16 +338,16 @@ namespace UI {
 		if (toggle) {
 			$('.expanded-settings-bar').slideUp();
 			btn.attr('title', 'Show more settings.')
-					.removeClass('fa-minus-square-o')
-					.addClass('fa-plus-square-o');
+				.removeClass('fa-minus-square-o')
+				.addClass('fa-plus-square-o');
 		}
 		else {
 			$('.expanded-settings-bar').slideDown();
 			btn.attr('title', 'Show less settings.')
-					.removeClass('fa-plus-square-o')
-					.addClass('fa-minus-square-o');
+				.removeClass('fa-plus-square-o')
+				.addClass('fa-minus-square-o');
 		}
-		btn.attr('expanded', (! toggle) + '');
+		btn.attr('expanded', (!toggle) + '');
 	}
 
 	function getSVGSource(): string {
@@ -358,7 +370,7 @@ namespace UI {
 		canvasElem.width = canvas.getWidth();
 		canvasElem.height = canvas.getHeight();
 		let context = canvasElem.getContext('2d'),
-				image = new Image;
+			image = new Image;
 		image.src = getSVGSource();
 		image.onload = () => {
 			context.drawImage(image, 0, 0);
@@ -374,16 +386,16 @@ namespace UI {
 		canvas.getSVG().select('.heatmapLegend').remove();
 		if (btn) {
 			btn.text('Show Legends')
-					.attr('data-action', 'show-legends');
+				.attr('data-action', 'show-legends');
 		}
 	}
 
 	function showLegends(btn?: JQuery): void {
 		graph.drawClusterLegend()
-				.drawHeatmapLegend();
+			.drawHeatmapLegend();
 		if (btn) {
 			btn.text('Hide Legends')
-					.attr('data-action', 'hide-legends');
+				.attr('data-action', 'hide-legends');
 		}
 	}
 
@@ -395,9 +407,9 @@ namespace UI {
 
 	function createCustomCHeM(): void {
 		let $geneBox = $('.custom-dataset-menu textarea'),
-				title = $('.custom-dataset-menu input[name="custom-name"]').val(),
-				raw_genes = $geneBox.val(),
-				genes = parseGeneInput(raw_genes);
+			title = $('.custom-dataset-menu input[name="custom-name"]').val(),
+			raw_genes = $geneBox.val(),
+			genes = parseGeneInput(raw_genes);
 		let CustomObj: CustomObject = {
 			'@id': genes.join(', '),
 			label: title

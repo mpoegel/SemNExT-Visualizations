@@ -8,7 +8,7 @@ var gulp = require('gulp'),
 
 var ts_project = ts.createProject('./src/tsconfig.json');
 
-gulp.task('default', ['tsd', 'ts', 'browserify', 'bundle', 'watch', 'nodemon']);
+gulp.task('default', ['tsd', 'ts', 'bundle', 'watch', 'nodemon']);
 
 // download the types definitions from definitely typed
 gulp.task('tsd', function(cb) {
@@ -31,6 +31,7 @@ gulp.task('ts', function() {
 gulp.task('clean:ts', function() {
 	var files = [
 		'./wwwroot/*.js',
+		'./wwwroot/*/*.js',
 		'./wwwroot/public/script/*.js'
 	]
 	del(files);
@@ -39,20 +40,19 @@ gulp.task('clean:ts', function() {
 
 // watch typescript files for changes and recompile
 gulp.task('watch', function() {
-	gulp.watch('./src/*', ['ts']);
+	gulp.watch(
+		[
+			'./src/*.ts', 
+			'./src/*/*.ts', 
+			'./src/public/script/*.ts'
+		], 
+		['ts']
+	);
 });
 
 // start the node server
 gulp.task('nodemon', ['ts', 'watch'], function() {
 	nodemon({ script: './wwwroot/server.js' });
-});
-
-// bundle any commonjs deps using browserify
-gulp.task('browserify', function() {
-	return browserify('./node_modules/typeahead/typeahead.js')
-		.bundle()
-		.pipe(source('typeahead.bundle.js'))
-		.pipe(gulp.dest('./node_modules/typeahead'));
 });
 
 // bundle the application for deployment
@@ -79,7 +79,7 @@ gulp.task('bundle', function() {
 			dest: 'lib/jquery'
 		},
 		{
-			src: 'typeahead/typeahead.bundle.js',
+			src: 'typeahead.js/dist/typeahead.bundle.js',
 			dest: 'lib/typeahead'
 		},
 		{

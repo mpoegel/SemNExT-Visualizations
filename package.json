@@ -22,11 +22,11 @@
     "express": "^4.13.3",
     "font-awesome": "^4.4.0",
     "jquery": "^2.1.4",
-    "typeahead": "^0.2.0",
+    "request": "^2.63.0",
+    "typeahead.js": "^0.11.1",
     "underscore": "^1.8.3"
   },
   "devDependencies": {
-    "browserify": "^11.1.0",
     "del": "^2.0.2",
     "gulp": "^3.9.0",
     "gulp-exec": "^2.1.1",
