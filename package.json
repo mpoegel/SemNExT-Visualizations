@@ -1,0 +1,37 @@
+{
+  "name": "CHeM-Visualizer",
+  "version": "0.3.0",
+  "description": "SemNExT Project to create Chord Heat Map Diagrams",
+  "main": "server.js",
+  "author": "Matt Poegel",
+  "contributors": [
+    {
+      "name": "Matt Poegel",
+      "email": "poegem@rpi.edu",
+      "url": "mpoegel.github.io"
+    }
+  ],
+  "homepage": "https://semnext.tw.rpi.edu/chem",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mpoegel/SemNExT-Visualizations.git"
+  },
+  "dependencies": {
+    "bootstrap": "^3.3.5",
+    "d3": "^3.5.6",
+    "express": "^4.13.3",
+    "font-awesome": "^4.4.0",
+    "jquery": "^2.1.4",
+    "request": "^2.63.0",
+    "typeahead.js": "^0.11.1",
+    "underscore": "^1.8.3"
+  },
+  "devDependencies": {
+    "del": "^2.0.2",
+    "gulp": "^3.9.0",
+    "gulp-exec": "^2.1.1",
+    "gulp-nodemon": "^2.0.4",
+    "gulp-typescript": "^2.9.0",
+    "vinyl-source-stream": "^1.1.0"
+  }
+}
