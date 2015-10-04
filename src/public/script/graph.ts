@@ -20,6 +20,16 @@ module CHeM {
 		x: number;
 		y: number;
 	}
+	
+	interface GraphOptions {
+		onMouseOver?: (d: any, i: number) => any;
+		onMouseOut?: (d: any, i: number) => any;
+		chord_padding?: number;
+		heatmap_height?: number;
+		fade_opacity?: number;
+		cluster_band_width?: number;
+		color_gradient_precision?: number;
+	}
 
 	export class Canvas {
 		private $handle: d3.Selection<any>;
@@ -31,7 +41,7 @@ module CHeM {
 		private adj_height: number;
 
 		constructor($handle: d3.Selection<any>, margins: margin, width: number,
-								height: number) {
+					height: number, center = true) {
 			this.$handle = $handle;
 			this.margins = margins;
 			this.width = width;
@@ -46,9 +56,9 @@ module CHeM {
 					.style('font-size', '10px')
 					.style('font-family', 'Arial, Helvetica, sans-serif')
 				.append('g')
-					.attr('transform', 'translate(' +
+					.attr('transform', center ? 'translate(' +
 						(this.adj_width / 2 + this.margins.left) + ',' +
-						(this.adj_height / 2 + this.margins.top) + ')');
+						(this.adj_height / 2 + this.margins.top) + ')': '');
 		}
 
 		getSVG(): any { return this.svg; }
@@ -78,6 +88,10 @@ module CHeM {
 		private fade_opacity: number;
 		private cluster_band_width: number;
 		private color_gradient_precision: number;
+		private group_widths: number[];
+		
+		private onMouseOver: (d: any, i: number) => any;
+		private onMouseOut: (d: any, i: number) => any;
 
 		private heatmapColorScale: any; // d3.scale.linear
 		private heatmapLegendScale: any; // d3.scale.linear
@@ -96,25 +110,27 @@ module CHeM {
 		static clusterToStage = ['Pluripotency', 'Ectoderm',
 			'Neural Differentiation', 'Cortical Specification', 'Early Layers',
 			'Upper Layers'];
-
+			
 		getCanvas(): Canvas { return this.canvas; }
 		getData(): Munge.chem_data { return this.data; }
 		getFadeOpacity(): number { return this.fade_opacity; }
 
-		constructor(data: Munge.chem_data, canvas: Canvas, chord_padding = 0.02,
-								heatmap_height = 100, fade_opacity = 0.02,
-								cluster_band_width = 20, color_gradient_precision = 20) {
+		constructor(data: Munge.chem_data, canvas: Canvas, options?: GraphOptions) {
+			options = options || {};
 			this.data = data;
 			this.canvas = canvas;
 			this.svg = this.canvas.getSVG();
 			this.innerRadius = Math.min(this.canvas.getAdjWidth(),
 				this.canvas.getAdjHeight()) *	0.41;
 			this.outerRadius = this.innerRadius * 1.07;
-			this.chord_padding = chord_padding;
-			this.heatmap_height = heatmap_height;
-			this.fade_opacity = fade_opacity;
-			this.cluster_band_width = cluster_band_width;
-			this.color_gradient_precision = color_gradient_precision;
+			this.chord_padding = options.chord_padding || 0.02;
+			this.heatmap_height = options.heatmap_height || 100;
+			this.fade_opacity = options.fade_opacity || 0.02;
+			this.cluster_band_width = options.cluster_band_width || 20;
+			this.color_gradient_precision = options.color_gradient_precision || 20;
+			this.onMouseOver = options.onMouseOver || _.noop;
+			this.onMouseOut = options.onMouseOut || _.noop;
+			this.group_widths = null;
 
 			this.arc = d3.svg.arc()
 				.innerRadius(this.innerRadius)
@@ -143,6 +159,20 @@ module CHeM {
 				.rangeRoundBands([0, this.heatmap_height])
 				.domain(this.data.heatmap.map((d) => { return d.day; }));
 		}
+		
+		getGroupWidths(force = false): number[] {
+			if (! this.group_widths || force) {
+				this.group_widths = [];
+				for (var i=0; i<this.chord.groups().length; i++) {
+					let chord_obj = this.chord.groups()[i];
+					this.group_widths.push(
+						this.outerRadius * (chord_obj.endAngle - chord_obj.startAngle + 
+							this.chord_padding)
+					);
+				}
+			}
+			return this.group_widths;
+		}
 
 		drawChords(): Graph {
 			// bind the chord groups data to the canvas
@@ -156,9 +186,14 @@ module CHeM {
 						d.gene = this.data.labels[i];
 					})
 					.attr('gene', (d) => { return d.gene })
-					.on('mouseover', getFader(this.canvas.getHandle(),
-						this.fade_opacity))
-					.on('mouseout', getFader(this.canvas.getHandle(), 1.00));
+					.on('mouseover', (d, i) => {
+						getFader(this.canvas.getHandle(), this.fade_opacity)(d, i);
+						this.onMouseOver(d, i);
+					})
+					.on('mouseout', (d, i) => {
+						getFader(this.canvas.getHandle(), 1.00)(d, i);
+						this.onMouseOut(d, i);
+					});
 			// draw the group arcs and colors them
 			g.append('svg:path')
 					.style('stroke', (d) => {
@@ -247,9 +282,14 @@ module CHeM {
 					)
 					.attr('class', 'cluster-arc')
 					.attr('fill', (d) => { return Graph.d3Cat10Colors(d.cluster); })
-					.on('mouseover', getClusterFader(this.canvas.getHandle(),
-						this.fade_opacity))
-					.on('mouseout', getClusterFader(this.canvas.getHandle(), 1.00));
+					.on('mouseover', (d, i) => {
+						getClusterFader(this.canvas.getHandle(), this.fade_opacity)(d, i);
+						this.onMouseOver(d, i);
+					})
+					.on('mouseout', (d, i) => {
+						getClusterFader(this.canvas.getHandle(), 1.00)(d, i);
+						this.onMouseOut(d, i);
+					});
 			return this;
 		}
 
@@ -299,6 +339,44 @@ module CHeM {
 					.on('mouseover', getFader(this.canvas.getHandle(),
 						this.fade_opacity))
 					.on('mouseout', getFader(this.canvas.getHandle(), 1.00));
+			return this;
+		}
+		
+		drawRectangularHeatmap(group_widths = this.getGroupWidths()): Graph {
+			let sum = d3.sum(group_widths),
+				scale_factor = this.canvas.getAdjWidth() / sum,
+				run_sum = 0,
+				box_height = this.canvas.getAdjHeight() / 9,
+				x = group_widths.map((d) => {
+					let width = d * scale_factor;
+					run_sum += width;
+					return {
+						x: run_sum - width,
+						w: width
+					}
+				}),
+				y = d3.scale.ordinal()
+					.rangeRoundBands([this.canvas.getAdjHeight(), 0])
+					.domain(this.data.heatmap.map((d) => { return d.day; }));
+			this.svg.selectAll('.tile')
+					.data(this.data.heatmap)
+				.enter().append('rect')
+					.attr('class', 'tile')
+					.attr('gene', (d) => { return d.label; })
+					.attr('cluster', (d) => { return d.cluster; })
+					.attr('x', (d,i) => { return x[i/9 >> 0].x })
+					.attr('y', (d) => { return y(d.day); })
+					.attr('width', (d,i) => { return x[i/9 >> 0].w })
+					.attr('height', box_height)
+					.style('fill', (d) => { return this.heatmapColorScale(d.value); })
+					.on('mouseover', (d, i) => {
+						getHeatMapFader(this.canvas.getHandle(), this.fade_opacity)(d, i);
+						this.onMouseOver(d, i);
+					})
+					.on('mouseout', (d, i) => {
+						getHeatMapFader(this.canvas.getHandle(), 1.00)(d, i);
+						this.onMouseOut(d, i);
+					});
 			return this;
 		}
 
@@ -535,6 +613,30 @@ module CHeM {
 					.attr('visible', true);
 			}
 		}
+	}
+	
+	export function getHeatMapFader(canvasHandle: d3.Selection<any>, opacity: number): (g, i) => void {
+		return (g, i) => {
+			canvasHandle.selectAll('.tile')
+				.filter((d) => {
+					return d.index !== g.index && d.index !== g.index;
+				})
+				.transition()
+					.style('opacity', opacity)
+					.attr('visible', opacity === 1);
+		};
+	}
+	
+	export function getHeatMapClusterFader(canvasHandle: d3.Selection<any>, opacity: number): (g, i) => void {
+		return (g, i) => {
+			canvasHandle.selectAll('.tile')
+				.filter((d) => {
+					return d.cluster !== g.cluster && d.cluster !== g.cluster
+				})
+				.transition()
+					.style('opacity', opacity)
+					.attr('visible', opacity === 1);
+		};
 	}
 
 	function bezierLength(p0: point, p1: point, p2: point) {
