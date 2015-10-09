@@ -189,6 +189,7 @@ namespace UI {
 					break;
 				case 'highlight-dom':
 					highlightDominantCluster();
+					setHighlightOnClick($('.highlight-btn[data-action="highlight-click"]'));
 					break;
 				case 'display-all':
 					displayAll();

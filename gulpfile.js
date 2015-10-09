@@ -2,7 +2,6 @@ var gulp = require('gulp'),
 	del = require('del'),
 	exec = require('child_process').exec,
 	ts = require('gulp-typescript'),
-	browserify = require('browserify'),
 	source = require('vinyl-source-stream'),
 	nodemon = require('gulp-nodemon');
 
