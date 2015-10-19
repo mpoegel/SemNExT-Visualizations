@@ -5,6 +5,7 @@ namespace UI {
 
 	let graph: CHeM.Graph,
 		canvas: CHeM.Canvas,
+		root_path: string,
 		fade_opacity: number,
 		dom_cluster: number;
 
@@ -16,8 +17,9 @@ namespace UI {
 		MIN_GRAPH_SIZE = 5;
 
 
-	export function configure(c: CHeM.Canvas): void {
+	export function configure(c: CHeM.Canvas, p: string): void {
 		canvas = c;
+		root_path = p;
 		attachListener();
 		initDiseaseList();
 	}
@@ -56,7 +58,7 @@ namespace UI {
 	}
 
 	function initDiseaseList(): void {
-		$.get('/api/v1/list/disease')
+		$.get(root_path + 'api/v1/list/disease')
 			.done((diseaseStr) => {
 				let diseaseObjs = JSON.parse(diseaseStr),
 					bloodhound = new Bloodhound<DiseaseObject>({
@@ -91,7 +93,7 @@ namespace UI {
 	}
 
 	function initKeggPathwayList(): void {
-		$.get('/api/v1/list/kegg_pathways')
+		$.get(root_path + 'api/v1/list/kegg_pathways')
 			.done((keggStr) => {
 				let keggObjs = JSON.parse(keggStr),
 					bloodhound = new Bloodhound<KeggPathwayObject>({
@@ -128,7 +130,7 @@ namespace UI {
 		canvas.clear();
 		$('.welcome-message').hide();
 		$('.loading').show();
-		$.get('/api/v1/matrix/' + data_type + '/', { id: semnextObj['@id'] })
+		$.get(root_path + 'api/v1/matrix/' + data_type + '/', { id: semnextObj['@id'] })
 			.done((raw_data: string[][]) => {
 				try {
 					let data = Munge.munge(raw_data);
