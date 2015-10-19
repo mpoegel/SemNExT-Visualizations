@@ -413,7 +413,7 @@ namespace UI {
 			raw_genes = $geneBox.val(),
 			genes = parseGeneInput(raw_genes);
 		let CustomObj: CustomObject = {
-			'@id': genes.join(', '),
+			'@id': genes.join(','),
 			label: title
 		}
 		$('.custom-dataset-menu').hide();
