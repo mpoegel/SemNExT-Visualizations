@@ -1,0 +1,42 @@
+.chart {
+	background-color: #000;
+}
+
+html {
+	background-color: #000;
+}
+
+#floor {
+	text-align: center;
+  	-webkit-transform: rotate(180deg); /* Chrome, Safari, Opera */
+  		-ms-transform: rotate(180deg); /* IE 9 */
+  			transform: rotate(180deg);
+}
+
+.menu {
+	list-style-type: none;
+	z-index: 9999;
+	display: none;
+	position: absolute;
+	overflow: hidden;
+	border: 1px solid #CCC;
+	white-space: nowrap;
+	background: #FFF;
+	color: #333;
+	border-radius: 5px;
+}
+
+.menu li {
+	padding: 2px;
+	margin-left: -30px;
+	margin-right: 10px;
+}
+
+.menu li:hover {
+	background-color: #DEF;
+	cursor: pointer;
+}
+
+#data-selector li:hover {
+	cursor: pointer;
+}

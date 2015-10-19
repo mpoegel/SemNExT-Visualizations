@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<meta charset="utf-8">
+<link href="style/style.css" rel="stylesheet">
+<link href="lib/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+<link href="lib/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+
+</head>
+
+<body>
+
+	<div class="header">
+		<div class="container">
+
+			<div class="row expanded-settings-bar">
+
+				<div class="row">
+					<ul class="horizontal-list">
+						<li><a href="http://tw.rpi.edu/web/project/SemNExT">
+							Semantic Numeric Exploration Techonology (SemNExt) Project</a>
+							</li>
+						<li><a href="http://rpi.edu">
+							Rensselaer Polytechnic Institute, Troy, NY, USA</a></li>
+					</ul>
+				</div>
+
+				<div class="row">
+					<ul class="horizontal-list">
+						<!-- <li>
+							<select class="form-control disease-gene-filter-list" multiple></select>
+							<button class="btn btn-primary disease-filter-btn" data-action="setFilter">
+								Add Filter</button>
+							<button class="btn btn-danger disease-filter-btn" data-action="clearFilter">
+								Clear Filter</button>
+						</li>
+						<li>
+							Active Filters:
+							<div id="active-filters"></div>
+						</li> -->
+						<li>
+							<div class="btn-group" data-toggle="buttons">
+								<label class="btn btn-sm btn-primary active chart-btn"
+									data-action="set-search-disease"
+									title="Search for diseases">
+									<input type="radio" autocomplete="off" checked>Disease Search
+								</label>
+								<label class="btn btn-sm btn-primary chart-btn"
+									data-action="set-search-kegg-pathway"
+									title="Search for KEGG Pathways">
+									<input type="radio" autocomplete="off">KEGG Pathway Search
+								</label>
+							</div>
+						</li>
+						<li>
+							<div class="btn btn-sm btn-primary chart-btn"
+								title="Hide both legends in the diagram."
+								data-action="hide-legends">
+								Hide Legends</div>
+						</li>
+						<li>
+							<div class="btn btn-sm btn-primary chart-btn"
+								title="Recolor the chords with a gradient. WARNING: this may take a while to complete for large data sets."
+								data-action="path-color-gradient">Path Color Gradient</div>
+						</li>
+						<li>
+							<div class="btn btn-sm btn-primary chart-btn"
+								title="Define a custom set of genes."
+								data-action="custom-data">Custom Gene Set</div>
+						</li>
+						<li>
+							<div class="btn-group" data-toggle="buttons">
+								<label class="btn btn-sm btn-primary active chart-btn"
+									data-action="set-D310-colors"
+									title="Color the chords with D3 Category 10 colors.">
+									<input type="radio" autocomplete="off" checked>D3 Category 10
+										Colors
+								</label>
+								<label class="btn btn-sm btn-primary chart-btn"
+									data-action="set-matlab-colors"
+									title="Color the chords with matlab colors.">
+									<input type="radio" autocomplete="off">Matlab Colors
+								</label>
+							</div>
+						</li>
+						<li>
+							<div class="btn btn-sm btn-success chart-btn" data-action="download-svg"
+								title="Download the current diagram as an SVG.">
+								SVG
+							</div>
+							<div class="btn btn-sm btn-success chart-btn" data-action="download-png"
+								title="Download the current diagram as a PNG.">
+								PNG
+							</div>
+						</li>
+					</ul>
+				</div>
+			</div> <!-- close EXPANDED-SETTINGS-BAR -->
+
+			<div class="row settings-bar">
+				<ul class="horizontal-list">
+					<li>
+						<input type="text" name="diseaseList" id="searchBox"
+							class="form-control"  placeholder="Search for a disease">
+					</li>
+					<li>
+						<div class="btn btn-primary chart-btn"
+							data-action="highlight-dom"
+							title="Highlight the dominant cluster for protein set, if defined.">
+							Highlight Dominant Cluster
+						</div>
+					</li>
+					<li>
+						<div class="btn-group" data-toggle="buttons">
+							<label class="btn btn-primary active chart-btn highlight-btn"
+								data-action="highlight-hover"
+								title="Highlight a protein on hover.">
+								<input type="radio" autocomplete="off" checked>Hover
+							</label>
+							<label class="btn btn-primary chart-btn highlight-btn"
+								data-action="highlight-click"
+								title="Hightlight a protein on click.">
+								<input type="radio" autocomplete="off">Click
+							</label>
+							<label class="btn btn-primary chart-btn highlight-btn"
+								data-action="highlight-none"
+								title="Disable protein highlighting.">
+								<input type="radio" autocomplete="off">None
+							</label>
+						</div>
+					</li>
+					<li>
+						<div class="btn btn-primary chart-btn" data-action="display-all"
+							title="Display all protein connections.">
+							Display All</div>
+						<div class="btn btn-primary chart-btn" data-action="display-none"
+							title="Display no protein connections.">
+							Display None</div>
+						<div class="btn btn-primary chart-btn" data-action="display-invert"
+							title="Invert the highlighted protein connections.">
+							Invert Display
+						</div>
+					</li>
+					<li>
+						<i class="btn chart-btn fa fa-plus-square-o fa-2x"
+							data-action="toggle-settings" title="Show more settings."
+							expanded="false"></i>
+					</li>
+				</ul>
+			</div> <!-- close SETTINGS-BAR -->
+
+		</div> <!-- close CONTAINER -->
+		<div class="error-bar-bin"></div>
+	</div> <!-- close HEADER -->
+
+	<div class="container content">
+		<div class="welcome-message">
+			<h3>
+				Welcome to the SemNExT CHeM Visualizer.
+			</h3>
+			<p>
+				There are <span class="totalDiseases">#</span> diseases currently
+				in the database.
+			</p>
+			<p>
+				This is a visualization tool to create a Chord-Heat Map (CHeM)
+				diagram that illustrates the relationships between proteins
+				connected	to a particular disease.
+			</p>
+		</div>
+		<div class="loading">
+			<i class="fa fa-5x fa-cog fa-spin"></i>
+			<p>
+				Building the CHeM Diagram!
+			</p>
+		</div>
+		<div class="custom-dataset-menu">
+			<span class="chart-btn" data-action="custom-data">&times</span>
+			<p>
+				You can create a CHeM diagram from a user-defined list of genes.
+			</p>
+			<p>
+				Dataset Name
+				<input type="text" name="custom-name">
+			</p>
+			<p>
+				Upload genes from a file.
+				<input type="file" name="gene-file">
+			</p>
+			<p>
+				Enter genes manually.<br>
+				<textarea name="gene-list" rows="6" cols="20"></textarea>
+				<span class="chart-btn clear-genes" data-action="clear-custom-genes">
+					&times</span>
+			</p>
+			<p>
+				<div class="btn btn-success chart-btn"
+					data-action="create-custom">
+					Create CHeM
+				</div>
+			</p>
+		</div>
+		<div class="chart-status"></div>
+		<div class="chart"></div>
+		<div class="semData">
+			<dl>
+				<dt>Gene Symbol</dt><dd class="symbol"></dd>
+				<dt>Description</dt><dd class="desription"></dd>
+				<dt>Cluster</dt><dd class="cluster"></dd>
+				<dt>Present In</dt><dd class="relations"></dd>
+				<dt>Outgoing Connections</dt><dd class="outgoing"></dd>
+				<dt>Incoming Connections</dt><dd class="incoming"></dd>
+				<dt>Experimental Data</dt><dd class="days"><table class="table"></table></dd>
+			</dl>
+		</div>
+		<div class="semData-error bg-warning hidden">
+			Semantic Data is not available for the selected data set.
+		</div>
+		<div class="geneInfo"></div>
+
+
+	<script src="./lib/d3/d3.min.js" charset="utf-8"></script>
+	<script src="./lib/jquery/jquery.min.js" charset="utf-8"></script>
+	<script src="./lib/bootstrap/js/bootstrap.min.js" charset="utf-8"></script>
+	<script src="./lib/underscore/underscore-min.js" charset="utf-8"></script>
+	<script src="./lib/typeahead/typeahead.bundle.js" charset="utf-8"></script>
+
+	<script src="./script/graph.js" charset="utf-8"></script>
+	<script src="./script/munge.js" charset="utf-8"></script>
+	<script src="./script/ui.js" charset="utf-8"></script>
+	<script src="./script/main.js" charset="utf-8"></script>
+
+</body>
+
+</html>
