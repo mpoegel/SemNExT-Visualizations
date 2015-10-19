@@ -166,9 +166,8 @@ namespace UI {
 				}
 			})
 			.fail((error) => {
-				let e = new Error(error.statusText);
-				e.name = error.status;
-				errorHandler(e, 'critical', true); 
+				error = JSON.parse(error.responseText);
+				errorHandler(error, 'critical', true); 
 			});
 	}
 

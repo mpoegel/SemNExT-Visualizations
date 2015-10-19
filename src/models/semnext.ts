@@ -32,7 +32,7 @@ export function fetchCustomMatrix(genes: string, callback: dataCallback, onError
 
 export function fetchMatrix(id: string, callback: dataCallback, url, onError?: onErrorCallback) {
 	request.get(url + id, function(error, response, body: string) {
-		if (error) {
+		if (error || body.search(/500 Internal Server Error/gi) != -1) {
 			let e = new Error();
 			e.name = "SemNExT API Error"
 			e.message = "Received an invalid response from the API."
