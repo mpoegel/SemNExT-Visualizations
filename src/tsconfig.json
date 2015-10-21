@@ -8,8 +8,7 @@
         "removeComments": true,
         "noLib": false,
         "preserveConstEnums": true,
-        "suppressImplicitAnyIndexErrors": true,
-        "outDir": "./../wwwroot"
+        "suppressImplicitAnyIndexErrors": true
     },
     "files": [
         "./controllers/list.ts",

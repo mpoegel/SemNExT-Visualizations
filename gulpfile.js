@@ -23,7 +23,7 @@ gulp.task('tsd', function(cb) {
 gulp.task('ts', function() {
 	var ts_result = ts_project.src()
 		.pipe(ts(ts_project));
-	return ts_result.js.pipe(gulp.dest('./wwwroot'));
+	return ts_result.js.pipe(gulp.dest('./src'));
 });
 
 // clean up the generated javascript files
@@ -51,7 +51,7 @@ gulp.task('watch', function() {
 
 // start the node server
 gulp.task('nodemon', ['ts', 'watch'], function() {
-	nodemon({ script: './wwwroot/server.js' });
+	nodemon({ script: './src/server.js' });
 });
 
 // bundle the application for deployment
@@ -89,7 +89,7 @@ gulp.task('bundle', function() {
 	client_deps.forEach(function(dep) {
 		gulp
 			.src('./node_modules/' + dep.src)
-			.pipe(gulp.dest('./wwwroot/public/' + dep.dest));
+			.pipe(gulp.dest('./src/public/' + dep.dest));
 	}, this);
 	return gulp;
 });

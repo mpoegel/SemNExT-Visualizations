@@ -11,8 +11,4 @@ router.use((err: any, req, res, next) => {
 	res.status(500).send('something broke :(');
 });
 
-router.get('/', (req, res) => {
-	res.sendfile(__dirname + '/public/index.html');
-});
-
 export = router;

@@ -1,7 +1,5 @@
 *.csv
 node_modules
 typings
-wwwroot/*.js
-wwwroot/*/*.js
-wwwroot/*/*/*.js
-wwwroot/public/lib
+src/public/lib
+src/**/*.js
