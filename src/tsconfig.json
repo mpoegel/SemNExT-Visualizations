@@ -16,6 +16,7 @@
         "./controllers/index.ts",
         "./models/semnext.ts",
         "./public/script/campfire.ts",
+        "./public/script/demo.ts",
         "./public/script/graph.ts",
         "./public/script/main.ts",
         "./public/script/munge.ts",

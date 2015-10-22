@@ -29,9 +29,9 @@ gulp.task('ts', function() {
 // clean up the generated javascript files
 gulp.task('clean:ts', function() {
 	var files = [
-		'./wwwroot/*.js',
-		'./wwwroot/*/*.js',
-		'./wwwroot/public/script/*.js'
+		'./src/*.js',
+		'./src/*/*.js',
+		'./src/public/script/*.js'
 	]
 	del(files);
 	return gulp;
@@ -84,6 +84,10 @@ gulp.task('bundle', function() {
 		{
 			src: 'underscore/underscore-min.js',
 			dest: 'lib/underscore'
+		},
+		{
+			src: 'velocity-animate/velocity.min.js',
+			dest: 'lib/velocity'
 		}
 	];
 	client_deps.forEach(function(dep) {
