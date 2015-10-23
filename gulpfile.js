@@ -78,6 +78,10 @@ gulp.task('bundle', function() {
 			dest: 'lib/jquery'
 		},
 		{
+			src: 'jstat/dist/jstat.min.js',
+			dest: 'lib/jstat'
+		},
+		{
 			src: 'typeahead.js/dist/typeahead.bundle.js',
 			dest: 'lib/typeahead'
 		},
