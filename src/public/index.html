@@ -30,75 +30,107 @@
 				</div>
 
 				<div class="row">
-					<ul class="horizontal-list">
-						<!-- <li>
-							<select class="form-control disease-gene-filter-list" multiple></select>
-							<button class="btn btn-primary disease-filter-btn" data-action="setFilter">
-								Add Filter</button>
-							<button class="btn btn-danger disease-filter-btn" data-action="clearFilter">
-								Clear Filter</button>
-						</li>
-						<li>
-							Active Filters:
-							<div id="active-filters"></div>
-						</li> -->
-						<li>
-							<div class="btn-group" data-toggle="buttons">
-								<label class="btn btn-sm btn-primary active chart-btn"
-									data-action="set-search-disease"
-									title="Search for diseases">
-									<input type="radio" autocomplete="off" checked>Disease Search
-								</label>
-								<label class="btn btn-sm btn-primary chart-btn"
-									data-action="set-search-kegg-pathway"
-									title="Search for KEGG Pathways">
-									<input type="radio" autocomplete="off">KEGG Pathway Search
-								</label>
-							</div>
-						</li>
-						<li>
-							<div class="btn btn-sm btn-primary chart-btn"
-								title="Hide both legends in the diagram."
-								data-action="hide-legends">
-								Hide Legends</div>
-						</li>
-						<li>
-							<div class="btn btn-sm btn-primary chart-btn"
-								title="Recolor the chords with a gradient. WARNING: this may take a while to complete for large data sets."
-								data-action="path-color-gradient">Path Color Gradient</div>
-						</li>
-						<li>
-							<div class="btn btn-sm btn-primary chart-btn"
-								title="Define a custom set of genes."
-								data-action="custom-data">Custom Gene Set</div>
-						</li>
-						<li>
-							<div class="btn-group" data-toggle="buttons">
-								<label class="btn btn-sm btn-primary active chart-btn"
-									data-action="set-D310-colors"
-									title="Color the chords with D3 Category 10 colors.">
-									<input type="radio" autocomplete="off" checked>D3 Category 10
-										Colors
-								</label>
-								<label class="btn btn-sm btn-primary chart-btn"
-									data-action="set-matlab-colors"
-									title="Color the chords with matlab colors.">
-									<input type="radio" autocomplete="off">Matlab Colors
-								</label>
-							</div>
-						</li>
-						<li>
-							<div class="btn btn-sm btn-success chart-btn" data-action="download-svg"
-								title="Download the current diagram as an SVG.">
-								SVG
-							</div>
-							<div class="btn btn-sm btn-success chart-btn" data-action="download-png"
-								title="Download the current diagram as a PNG.">
-								PNG
-							</div>
-						</li>
+					<ul class="horizontal-list options-list">
+						<li class="chart-btn" data-action="change-options-bar" 
+							data-target="search-options">Search</li>
+						<li class="chart-btn" data-action="change-options-bar" 
+							data-target="graph-options">Graph</li>
+						<li class="chart-btn" data-action="change-options-bar" 
+							data-target="analysis-options">Analysis</li>
+						<li class="chart-btn" data-action="change-options-bar" 
+							data-target="download-options">Download</li>
 					</ul>
 				</div>
+				
+				<div class="row active-options-bar">
+						
+					<div class="search-options option">
+						<div class="btn-group" data-toggle="buttons">
+							<label class="btn btn-sm btn-primary active chart-btn"
+								data-action="set-search-disease"
+								title="Search for diseases">
+								<input type="radio" autocomplete="off" checked>Disease Search
+							</label>
+							<label class="btn btn-sm btn-primary chart-btn"
+								data-action="set-search-kegg-pathway"
+								title="Search for KEGG Pathways">
+								<input type="radio" autocomplete="off">KEGG Pathway Search
+							</label>
+						</div>
+						<div class="btn btn-sm btn-primary chart-btn"
+							title="Define a custom set of genes."
+							data-action="custom-data">Custom Gene Set</div>
+					</div>
+					
+					<div class="graph-options option">
+						<div class="btn-group" data-toggle="buttons">
+							<label class="btn btn-sm btn-primary active chart-btn"
+								data-action="set-D310-colors"
+								title="Color the chords with D3 Category 10 colors.">
+								<input type="radio" autocomplete="off" checked>D3 Category 10
+									Colors
+							</label>
+							<label class="btn btn-sm btn-primary chart-btn"
+								data-action="set-matlab-colors"
+								title="Color the chords with matlab colors.">
+								<input type="radio" autocomplete="off">Matlab Colors
+							</label>
+						</div>
+						<div class="btn btn-sm btn-primary chart-btn"
+							title="Hide both legends in the diagram."
+							data-action="hide-legends">
+							Hide Legends</div>
+						<div class="btn btn-sm btn-primary chart-btn"
+							title="Recolor the chords with a gradient. WARNING: this may take a while to complete for large data sets."
+							data-action="path-color-gradient">Path Color Gradient</div>
+					</div>
+					
+					<div class="analysis-options option">
+						<h4>Cluster Enrichment</h4>
+						<table class="cluster-enrichment">
+							<tr>
+								<th></th>
+								<th>Pluripotency</th>
+								<th>Ectoderm</th>
+								<th>Neural Differentiation</th>
+								<th>Cortical Specification</th>
+								<th>Early Layers</th>
+								<th>Upper Layers</th>
+							</tr>
+							<tr class="log-odds">
+								<td>log odds</td>
+								<td></td>
+								<td></td>
+								<td></td>
+								<td></td>
+								<td></td>
+								<td></td>
+							</tr>
+							<tr class="p-value">
+								<td>p value</td>
+								<td></td>
+								<td></td>
+								<td></td>
+								<td></td>
+								<td></td>
+								<td></td>
+							</tr>
+						</table>
+					</div>
+					
+					<div class="download-options option">
+						<div class="btn btn-sm btn-success chart-btn" data-action="download-svg"
+							title="Download the current diagram as an SVG.">
+							SVG
+						</div>
+						<div class="btn btn-sm btn-success chart-btn" data-action="download-png"
+							title="Download the current diagram as a PNG.">
+							PNG
+						</div>
+					</div>
+					
+				</div> <!-- close ACTIVE-OPTIONS-BAR -->
+					
 			</div> <!-- close EXPANDED-SETTINGS-BAR -->
 
 			<div class="row settings-bar">
@@ -110,7 +142,7 @@
 					<li>
 						<div class="btn btn-primary chart-btn"
 							data-action="highlight-dom"
-							title="Highlight the dominant cluster for protein set, if defined.">
+							title="Highlight the dominant cluster for gene set.">
 							Highlight Dominant Cluster
 						</div>
 					</li>
@@ -118,30 +150,30 @@
 						<div class="btn-group" data-toggle="buttons">
 							<label class="btn btn-primary active chart-btn highlight-btn"
 								data-action="highlight-hover"
-								title="Highlight a protein on hover.">
+								title="Highlight a gene on hover.">
 								<input type="radio" autocomplete="off" checked>Hover
 							</label>
 							<label class="btn btn-primary chart-btn highlight-btn"
 								data-action="highlight-click"
-								title="Hightlight a protein on click.">
+								title="Hightlight a gene on click.">
 								<input type="radio" autocomplete="off">Click
 							</label>
 							<label class="btn btn-primary chart-btn highlight-btn"
 								data-action="highlight-none"
-								title="Disable protein highlighting.">
+								title="Disable gene highlighting.">
 								<input type="radio" autocomplete="off">None
 							</label>
 						</div>
 					</li>
 					<li>
 						<div class="btn btn-primary chart-btn" data-action="display-all"
-							title="Display all protein connections.">
+							title="Display all gene connections.">
 							Display All</div>
 						<div class="btn btn-primary chart-btn" data-action="display-none"
-							title="Display no protein connections.">
+							title="Display no gene connections.">
 							Display None</div>
 						<div class="btn btn-primary chart-btn" data-action="display-invert"
-							title="Invert the highlighted protein connections.">
+							title="Invert the highlighted gene connections.">
 							Invert Display
 						</div>
 					</li>
@@ -168,8 +200,8 @@
 			</p>
 			<p>
 				This is a visualization tool to create a Chord-Heat Map (CHeM)
-				diagram that illustrates the relationships between proteins
-				connected	to a particular disease.
+				diagram that illustrates the relationships between genes
+				connected to a particular disease.
 			</p>
 		</div>
 		<div class="loading">

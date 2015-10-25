@@ -2,7 +2,20 @@
 .header {
 	margin-bottom: 20px;
 	background-color: #d3d3d3;
+	
+	.error-bar {
+		color: #FFF;
+		overflow: hidden;
+		padding: 10px;
+		
+		.text {
+			width: 50%;
+			margin-left: 25%;
+			padding: 10px;
+		}
+	}
 }
+
 .settings-bar {
 	height: 60px;
 	padding: 15px;
@@ -10,74 +23,44 @@
 
 .horizontal-list {
 	list-style-type: none;
-}
-
-.horizontal-list li {
-	float: left;
-	padding-right: 20px;
-	padding-bottom: 10px;
-}
-
-.horizontal-list li:last-child {
-	float: right;
-}
-
-.download-btn {
-	margin-top: 5px;
+	
+	li {
+		float: left;
+		padding-right: 20px;
+		padding-bottom: 10px;
+	}
 }
 
 .expanded-settings-bar {
 	display: none;
+	
+	.options-list li:hover {
+		cursor: pointer;
+	}
+	.selected {
+		font-weight: bold;
+	}
 }
 
-.disease-gene-filter-list {
-	/*width: 200px;*/
-	font-size: 12px;
-	margin-bottom: 5px;
-}
-
-#active-filters {
-	width: 200px;
-	height: 100px;
-	overflow: auto;
-}
-
-.semData {
-	display: none;
-}
-
-.semData-error {
-	padding: 10px;
-	margin-bottom: 20px;
-}
-
-.geneInfo {
-	z-index: 9999;
-	display: none;
-	position: absolute;
-	border: 1px solid #CCC;
-	background: #FFF;
-	color: #333;
-	-webkit-border-radius: 5px;
-		 -moz-border-radius: 5px;
-					border-radius: 5px;
-	max-width:200px;
-}
-
-.hr-list-item {
-	padding-right: 5px;
-}
-
-.header .error-bar {
-	color: #FFF;
-	overflow: hidden;
-	padding: 10px;
-}
-
-.header .error-bar .text {
-	width: 50%;
-	margin-left: 25%;
-	padding: 10px;
+.active-options-bar {
+	padding-left: 40px; 
+	
+	.option {
+		display: none;
+	}
+	
+	.download-btn {
+		margin-top: 5px;
+	}
+	
+	.cluster-enrichment {
+		border-spacing: 20px;
+		column-gap: 20px;
+		
+		td, th {
+			padding: 1px 8px;
+		}
+	}
 }
 
 /* CONTENT  ----------------------------------------------------------------- */
@@ -178,6 +161,28 @@ html, body {
 
 .custom-dataset-menu input {
 	margin: auto;
+}
+
+.semData {
+	display: none;
+}
+
+.semData-error {
+	padding: 10px;
+	margin-bottom: 20px;
+}
+
+.geneInfo {
+	z-index: 9999;
+	display: none;
+	position: absolute;
+	border: 1px solid #CCC;
+	background: #FFF;
+	color: #333;
+	-webkit-border-radius: 5px;
+		 -moz-border-radius: 5px;
+					border-radius: 5px;
+	max-width:200px;
 }
 
 /* TYPEAHEAD ---------------------------------------------------------------- */

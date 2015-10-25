@@ -14,6 +14,11 @@ namespace Analysis {
 	}
 	
 	/**
+	 * Number of genes in each cluster
+	 */
+	const ClusterTotals = [3504, 2612, 1641, 1889, 1724, 2695];
+	
+	/**
 	 * Calculate the enrichment of a given cluster in group compared to the 
 	 * larger group.
 	 * @param {Gene[]} Group of genes that is being checked for enrichment 
@@ -23,7 +28,7 @@ namespace Analysis {
 	 * @param {number} Number of the cluster that is thought to be enriched
 	 * @returns {number[]} [log odds, p value]
 	 */
-	export function clusterEnrichment(enrichmentGroup: Gene[], otherGroup: Gene[],
+	export function clusterEnrichment(enrichmentGroup: Gene[],
 									  enrichmentCluster: number): number[] {
 		/**
 		 * 						In Enrichment Group		Not in Enrichment Group
@@ -36,12 +41,11 @@ namespace Analysis {
 			n21 = _.filter(enrichmentGroup, (gene: Gene) => {
 				return gene.cluster !== enrichmentCluster;
 			}).length,
-			n12 = _.filter(otherGroup, (gene: Gene) => {
-				return gene.cluster === enrichmentCluster;
-			}).length,
-			n22 = _.filter(otherGroup, (gene: Gene) => {
-				return gene.cluster !== enrichmentCluster;
-			}).length;
+			n12 = ClusterTotals[enrichmentCluster-1],
+			n22 = 0;
+			ClusterTotals.forEach(function(val, index) {
+				if (index !== enrichmentCluster-1) n22 += val;
+			});
 		return enrichment(n11, n21, n12, n22);
 	}
 	

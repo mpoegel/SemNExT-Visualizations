@@ -159,6 +159,7 @@ namespace UI {
 					}
 					fade_opacity = graph.getFadeOpacity();
 					dom_cluster = graph.getData().domc;
+					runAnalytics();
 					if (callback) callback();
 				}
 				catch (error) {
@@ -170,6 +171,21 @@ namespace UI {
 				errorHandler(error, 'critical', true); 
 			});
 	}
+	
+	function runAnalytics(): void {
+		let data = graph.getData(),
+			genes = _.map(data.labels, (label, i) => {
+				return {
+					label: label,
+					cluster: data.clusters[i]
+				};
+			});
+		for (var i=1; i<=6; i++) {
+			let [log_odds, pval] = Analysis.clusterEnrichment(genes, i);
+			$($('.cluster-enrichment .log-odds td')[i]).text(log_odds);
+			$($('.cluster-enrichment .p-value td')[i]).text(pval);
+		}
+	}
 
 	function attachListener(): void {
 		$('body').off('click').on('click', '.chart-btn', (e: Event) => {
@@ -177,8 +193,10 @@ namespace UI {
 			while (!$btn.hasClass('chart-btn')) {
 				$btn = $btn.parent();
 			}
-			let action = $btn.attr('data-action');
+			let action = $btn.attr('data-action'),
+				target = $btn.attr('data-target');
 			switch (action) {
+				// Primary options bar
 				case 'highlight-none':
 					clearHighlighting();
 					break;
@@ -203,6 +221,10 @@ namespace UI {
 					break;
 				case 'toggle-settings':
 					toggleSettings($(e.target));
+					break;
+				// Options Bar
+				case 'change-options-bar':
+					updateOptionsBar(target);
 					break;
 				case 'download-svg':
 					downloadSVG();
@@ -240,6 +262,7 @@ namespace UI {
 				case 'clear-custom-genes':
 					$('.custom-dataset-menu textarea').val('');
 					break;
+				// Error messages
 				case 'close-error':
 					$btn.remove();
 					break;
@@ -350,6 +373,17 @@ namespace UI {
 				.addClass('fa-minus-square-o');
 		}
 		btn.attr('expanded', (!toggle) + '');
+	}
+	
+	function updateOptionsBar(target: string): void {
+		$('.expanded-settings-bar .options-list .selected')
+			.removeClass('selected');
+		$('.expanded-settings-bar .options-list li[data-target="' + target + '"]')
+			.addClass('selected');
+		$('.active-options-bar .active-option').hide();
+		$('.active-options-bar .' + target)
+			.show()
+			.addClass('active-option');
 	}
 
 	function getSVGSource(): string {
