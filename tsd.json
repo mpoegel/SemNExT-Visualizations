@@ -34,6 +34,12 @@
     },
     "form-data/form-data.d.ts": {
       "commit": "68d9d43ce884e1ffb6ec0daf4ee7be9392c5b7bc"
+    },
+    "less/less.d.ts": {
+      "commit": "44cbde48eecd1918ed54b3be49a9752688b6c65a"
+    },
+    "less-middleware/less-middleware.d.ts": {
+      "commit": "44cbde48eecd1918ed54b3be49a9752688b6c65a"
     }
   }
 }
