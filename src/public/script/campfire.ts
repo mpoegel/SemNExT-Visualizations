@@ -6,12 +6,17 @@
 namespace Campfire {
 	const 
 		MIN_GRAPH_SIZE = 10,
+		ROOT_PATH = (function() {
+			let path = location.pathname.split('/');
+			if (path.length > 3) return '/' + path[1] + '/';
+			else return '/';
+		})(),
 		margin = { top: 0, right: 0, bottom: 0, left: 0 },
 		floor_width = 1050,
 		floor_height = 1050,
 		wall_width = 6400,
 		wall_height = 800;
-	
+		
 	let wallHandle = window.open('wall.html'),
 		floorCanvas: CHeM.Canvas,
 		wallCanvas: CHeM.Canvas,
@@ -48,7 +53,7 @@ namespace Campfire {
 				throw new Error('Wall Handle not defined.');
 			}
 			floorCanvas.clear();
-			$.get('/api/v1/matrix/' + data_type + '/', { id: semnextObj['@id'] })
+			$.get(ROOT_PATH + 'api/v1/matrix/' + data_type + '/', { id: semnextObj['@id'] })
 				.done((raw_data: string[][]) => {
 					let data = Munge.munge(raw_data);
 
