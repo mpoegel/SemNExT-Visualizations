@@ -4,3 +4,4 @@ typings
 src/public/lib
 src/**/*.js
 *.css
+src/config.json
