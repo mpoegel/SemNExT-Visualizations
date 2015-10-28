@@ -40,6 +40,9 @@
     },
     "less-middleware/less-middleware.d.ts": {
       "commit": "44cbde48eecd1918ed54b3be49a9752688b6c65a"
+    },
+    "velocity-animate/velocity-animate.d.ts": {
+      "commit": "62eedc3121a5e28c50473d2e4a9cefbcb9c3957f"
     }
   }
 }

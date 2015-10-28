@@ -92,6 +92,10 @@ gulp.task('bundle', function() {
 		{
 			src: 'velocity-animate/velocity.min.js',
 			dest: 'lib/velocity'
+		},
+		{
+			src: 'velocity-animate/velocity.ui.min.js',
+			dest: 'lib/velocity'
 		}
 	];
 	client_deps.forEach(function(dep) {
