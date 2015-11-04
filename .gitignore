@@ -1,7 +1,9 @@
 *.csv
 node_modules
 typings
-src/public/lib
 src/**/*.js
+src/public/style/*/*
+analysis/*.js
 *.css
+*.map
 src/config.json

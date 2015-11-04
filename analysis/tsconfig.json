@@ -1,0 +1,23 @@
+{
+    "version": "1.6.2",
+    "compilerOptions": {
+        "target": "es5",
+        "module": "commonjs",
+        "declaration": false,
+        "noImplicitAny": false,
+        "removeComments": true,
+        "noLib": false,
+        "preserveConstEnums": true,
+        "suppressImplicitAnyIndexErrors": true
+    },
+    "files": [
+        "./clusterEnrichment.ts",
+        "./../src/models/semnext.ts",
+        "./../src/public/script/analysis.ts",
+        "./../src/public/script/graph.ts",
+        "./../src/public/script/munge.ts",
+        "./../definitions/jStat.d.ts",
+        "./../definitions/semnext.d.ts",
+        "./../typings/underscore/underscore.d.ts"
+    ]
+}

@@ -1,4 +1,10 @@
-/// <reference path="../../../typings/tsd.d.ts"/>
+/// <reference path="./../../../../typings/tsd.d.ts"/>
+
+import Munge = require('./../../../helpers/munge');
+
+var d3 = require('d3'),
+	_ = require('underscore'),
+	$ = require('jquery');
 
 module CHeM {
 
@@ -147,7 +153,7 @@ module CHeM {
 					sd = 0;
 			this.data.heatmap.forEach((d) => { sd += Math.pow(d.value - mu, 2); });
 			sd = Math.sqrt(sd / this.data.heatmap.length);
-			this.heatmapColorScale = d3.scale.linear<string, number>()
+			this.heatmapColorScale = d3.scale.linear()
 				.range(['#232323', 'green', 'red'])
 				.domain([mu - 2 * sd, mu, mu + 2 * sd]);
 
@@ -466,7 +472,7 @@ module CHeM {
 					return fill(this.data.clusters[d.source.index]);
 				});
 			_.each($('.chordMask'), (d) => {
-				let gradient = d3.scale.linear<string, number>()
+				let gradient = d3.scale.linear()
 					.range([fill(this.data.clusters[$(d).attr('source')]),
 									fill(this.data.clusters[$(d).attr('target')])])
 					.domain([0, $(d).children().length]);
@@ -516,7 +522,7 @@ module CHeM {
 					deltai = 0,
 					deltapi = 0,
 					mask = [],
-					colorGradient = d3.scale.linear<string, number>()
+					colorGradient = d3.scale.linear()
 						.range([Graph.d3Cat10Colors( path.source.cluster ),
 									 Graph.d3Cat10Colors( path.target.cluster )])
 						.domain([0,n]);
@@ -664,3 +670,5 @@ module CHeM {
 	}
 
 }
+
+export = CHeM;

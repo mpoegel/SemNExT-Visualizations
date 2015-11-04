@@ -1,6 +1,6 @@
-/// <reference path="../../../typings/tsd.d.ts"/>
+/// <reference path="./../../typings/tsd.d.ts"/>
 
-module Munge {
+namespace Munge {
 
 	export interface chem_data {
 		chord_matrix: number[][];
@@ -68,3 +68,5 @@ module Munge {
 	}
 
 }
+
+export = Munge;

@@ -1,5 +1,16 @@
-/// <reference path="../../../typings/tsd.d.ts"/>
-/// <reference path="./graph.ts"/>
+/// <reference path="./../../../../typings/tsd.d.ts"/>
+
+import Munge = require('./../../../helpers/munge');
+import Analysis = require('./../../../helpers/analysis');
+import CHeM = require('./graph');
+
+var $ = require('jquery'),
+	_ = require('underscore'),
+	typeahead = require('typeahead.js-browserify'),
+	Bloodhound = require("typeahead.js-browserify").Bloodhound;
+
+window.jQuery = $;
+require('bootstrap');
 
 namespace UI {
 
@@ -20,6 +31,7 @@ namespace UI {
 	export function configure(c: CHeM.Canvas, p: string): void {
 		canvas = c;
 		root_path = p;
+		typeahead.loadjQueryPlugin();
 		attachListener();
 		initDiseaseList();
 	}
@@ -61,7 +73,7 @@ namespace UI {
 		$.get(root_path + 'api/v1/list/disease')
 			.done((diseaseStr) => {
 				let diseaseObjs = JSON.parse(diseaseStr),
-					bloodhound = new Bloodhound<DiseaseObject>({
+					bloodhound = new Bloodhound({
 						datumTokenizer: (datum) => { return [datum.label]; },
 						queryTokenizer: Bloodhound.tokenizers.whitespace,
 						local: () => { return diseaseObjs; },
@@ -96,7 +108,7 @@ namespace UI {
 		$.get(root_path + 'api/v1/list/kegg_pathways')
 			.done((keggStr) => {
 				let keggObjs = JSON.parse(keggStr),
-					bloodhound = new Bloodhound<KeggPathwayObject>({
+					bloodhound = new Bloodhound({
 						datumTokenizer: (datum) => { return [datum.label]; },
 						queryTokenizer: Bloodhound.tokenizers.whitespace,
 						local: () => { return keggObjs; },
@@ -479,5 +491,7 @@ namespace UI {
 	function setKeggPathwaySearch(): void {
 		initKeggPathwayList();
 	}
-
+	
 }
+
+export = UI;

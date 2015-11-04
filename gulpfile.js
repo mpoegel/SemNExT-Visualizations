@@ -1,13 +1,25 @@
+'use strict';
+
 var gulp = require('gulp'),
+	browserify = require('browserify'),
 	del = require('del'),
 	exec = require('child_process').exec,
 	ts = require('gulp-typescript'),
 	source = require('vinyl-source-stream'),
+	uglify = require('gulp-uglify'),
+	buffer = require('vinyl-buffer'),
+	sourcemaps = require('gulp-sourcemaps'),
+	gutil = require('gulp-util'),
+	// globby = require('globby'),
+	// through = require('through2'),
+	glob = require('glob'),
+	es = require('event-stream'),
 	nodemon = require('gulp-nodemon');
 
 var ts_project = ts.createProject('./src/tsconfig.json');
 
-gulp.task('default', ['tsd', 'ts', 'bundle', 'watch', 'nodemon']);
+gulp.task('default', ['ts', 'bundle-js', 'bundle-css', 
+	'watch', 'nodemon']);
 
 // download the types definitions from definitely typed
 gulp.task('tsd', function(cb) {
@@ -31,7 +43,8 @@ gulp.task('clean:ts', function() {
 	var files = [
 		'./src/*.js',
 		'./src/*/*.js',
-		'./src/public/script/*.js'
+		'./src/public/script/*',
+		'./analysis/*.js'
 	]
 	del(files);
 	return gulp;
@@ -45,7 +58,7 @@ gulp.task('watch', function() {
 			'./src/*/*.ts', 
 			'./src/public/script/*.ts'
 		], 
-		['ts']
+		['ts', 'bundle-js']
 	);
 });
 
@@ -54,48 +67,42 @@ gulp.task('nodemon', ['ts', 'watch'], function() {
 	nodemon({ script: './src/server.js' });
 });
 
+gulp.task('bundle-js', function(done) {
+	var files = glob.sync('./src/client/script/*.js'),
+		tasks = [];
+	for (var f in files) {
+		var file_path = files[f].split('/'),
+			file = file_path[ file_path.length -1 ];
+		var b = browserify({
+			entries: './src/client/script/' + file,
+			debug: true
+		});
+		tasks.push(b.bundle()
+			.pipe(source(file))
+			.pipe(buffer())
+			.pipe(sourcemaps.init({loadMaps: true}))
+				.pipe(uglify())
+				.on('error', gutil.log)
+			.pipe(sourcemaps.write('./'))
+			.pipe(gulp.dest('./src/public/script/')));
+	}	
+	return es.merge(tasks);	
+});
+
 // bundle the application for deployment
-gulp.task('bundle', function() {
+gulp.task('bundle-css', function() {
 	var client_deps = [
 		{
 			src: 'bootstrap/dist/*/*',
-			dest: 'lib/bootstrap'
-		},
-		{
-			src: 'd3/d3.min.js',
-			dest: 'lib/d3'
+			dest: 'style/bootstrap'
 		},
 		{
 			src: 'font-awesome/css/font-awesome.min.css',
-			dest: 'lib/font-awesome/css'
+			dest: 'style/font-awesome/css'
 		},
 		{
 			src: 'font-awesome/fonts/*',
-			dest: 'lib/font-awesome/fonts'
-		},
-		{
-			src: 'jquery/dist/jquery.min.js',
-			dest: 'lib/jquery'
-		},
-		{
-			src: 'jstat/dist/jstat.min.js',
-			dest: 'lib/jstat'
-		},
-		{
-			src: 'typeahead.js/dist/typeahead.bundle.js',
-			dest: 'lib/typeahead'
-		},
-		{
-			src: 'underscore/underscore-min.js',
-			dest: 'lib/underscore'
-		},
-		{
-			src: 'velocity-animate/velocity.min.js',
-			dest: 'lib/velocity'
-		},
-		{
-			src: 'velocity-animate/velocity.ui.min.js',
-			dest: 'lib/velocity'
+			dest: 'style/font-awesome/fonts'
 		}
 	];
 	client_deps.forEach(function(dep) {

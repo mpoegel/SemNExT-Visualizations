@@ -1,4 +1,7 @@
-/// <reference path="../../../typings/tsd.d.ts" />
+/// <reference path="./../../typings/tsd.d.ts" />
+
+var _ = require('underscore'),
+	jStat = require('jstat').jStat;
 
 /**
  * Wrapper namespace for analytical functions
@@ -71,3 +74,5 @@ namespace Analysis {
 	}
 	
 }
+
+export = Analysis;
