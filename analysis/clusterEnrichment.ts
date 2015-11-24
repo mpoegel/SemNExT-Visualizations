@@ -78,8 +78,16 @@ module ClusterEnrichment {
 	 */
 	export function runDiseaseAnalysis(disease: string, callback: (x: IEnrichmentObject[]) => any): void {
 		let promises = [];
-		Semnext.findDisease(disease, (raw_response) => {
+		Semnext.findDisease(disease, (error, raw_response) => {
+			if (error) {
+				process.stdout.write(`\x1b[31m Search for ${disease} failed. \x1b[0m \n`);
+				callback([]);
+			}
 			let response = JSON.parse(raw_response);
+			if (response.length === 0) {
+				process.stdout.write(`\x1b[31m Search for ${disease} returned no results. \x1b[0m \n`);
+				callback([]);
+			} 
 			for (var i=0; i<response.length; i++) {
 				(function(self) {
 					promises.push(new Promise((resolve, reject) => {
@@ -90,7 +98,7 @@ module ClusterEnrichment {
 							resolve(enrichmentObj);
 						}, function(err) {
 							process.stdout.write(`\x1b[31m Fetch for ${self.label} failed. \x1b[0m \n`);
-							reject(err);
+							resolve([]);
 						});
 					}));
 				})(response[i]);
@@ -110,7 +118,16 @@ module ClusterEnrichment {
 	 */
 	export function runKeggAnalysis(pathway: string, callback: (IEnrichmentObject) => any): void {
 		let promises = [];
-		Semnext.findKeggPathway(pathway, (response) => {
+		Semnext.findKeggPathway(pathway, (error, raw_response) => {
+			if (error) {
+				process.stdout.write(`\x1b[31m Search for ${pathway} failed. \x1b[0m \n`);
+				callback([]);
+			}
+			let response = JSON.parse(raw_response);
+			if (response.length === 0) {
+				process.stdout.write(`\x1b[31m Search for ${pathway} returned no results. \x1b[0m \n`);
+				callback([]);
+			}
 			for (var i=0; i<response.length; i++) {
 				(function(self) {
 					promises.push(new Promise((resolve, reject) => {
@@ -121,7 +138,7 @@ module ClusterEnrichment {
 							resolve(enrichmentObj);
 						}, function(err) {
 							process.stdout.write(`\x1b[31m Fetch for ${self.label} failed. \x1b[0m \n`);
-							reject(err);
+							resolve([]);
 						});
 					}));
 				})(response[i]);

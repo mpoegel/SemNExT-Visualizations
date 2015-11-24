@@ -53,9 +53,14 @@ var yargs = require('yargs'),
 			data = data.map((d) => { return d.replace('\r', ''); }); 
 			console.log('=> Running cluster enrichment analysis...');
 			clusterEnrichment.run(data, argv.type, (result) => {
-				fs.writeFile(argv.output, JSON.stringify(result, null, 2));
-				console.log('=> Done.');
-				return;
+				fs.writeFile(argv.output, JSON.stringify(result, null, 2), (err) => {
+					if (err) {
+						process.stdout.write(`\x1b[31m => Could not write to file ${argv.output}. \x1b[0m \n`);
+					}
+					else {
+						console.log('=> Done.');
+					}
+				});
 			});
 		});
 	}

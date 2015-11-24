@@ -89,40 +89,30 @@ export function fetchKeggPathwaysList(callback: (data: KeggPathwayObject[]) => a
 	});
 }
 
-export function findDisease(disease: string, callback: (result: string) => any, onError?: onErrorCallback): void {
+export function findDisease(disease: string, callback: (e: Error, r: string) => any): void {
 	request.get(SemNExT_URLs.diseases_list + '?q=' + disease, function(error, response, body) {
-		if (error) {
+		if (error || body.search(/!DOCTYPE html/gi) != -1) {
 			let e = new Error();
 			e.name = "SemNExT API Error"
-			e.message = "Failed to retrieve disease object list from the API."
-			if (onError) {
-				onError(e);
-			}
-			else {
-				console.error(e);
-			}
+			e.message = "Received an invalid response or error from the API."
+			callback(e, null);
 		}
 		else {
-			callback(body);
+			callback(null, body);
 		}
 	});
 }
 
-export function findKeggPathway(pathway: string, callback: (result: string) => any, onError?: onErrorCallback): void {
+export function findKeggPathway(pathway: string, callback: (e: Error, r: string) => any): void {
 	request.get(SemNExT_URLs.kegg_list + '?q=' + pathway, function(error, response, body) {
-		if (error) {
+		if (error || body.search(/!DOCTYPE html/gi) != -1) {
 			let e = new Error();
 			e.name = "SemNExT API Error"
-			e.message = "Failed to retrieve Kegg object list from the API."
-			if (onError) {
-				onError(e);
-			}
-			else {
-				console.error(e);
-			}
+			e.message = "Received an invalid response or error from the API."
+			callback(e, null);
 		}
 		else {
-			callback(body);
+			callback(null, body);
 		}
 	});
 }
