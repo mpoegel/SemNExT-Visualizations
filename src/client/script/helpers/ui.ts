@@ -170,7 +170,6 @@ namespace UI {
 						throw error;
 					}
 					fade_opacity = graph.getFadeOpacity();
-					dom_cluster = graph.getData().domc;
 					runAnalytics();
 					if (callback) callback();
 				}
@@ -192,11 +191,18 @@ namespace UI {
 					cluster: data.clusters[i]
 				};
 			});
+		let lowest_pval = Infinity,
+			lowest_cluster = -1;
 		for (var i=1; i<=6; i++) {
 			let [log_odds, pval] = Analysis.clusterEnrichment(genes, i);
 			$($('.cluster-enrichment .log-odds td')[i]).text(log_odds);
 			$($('.cluster-enrichment .p-value td')[i]).text(pval);
+			if (pval < lowest_pval) {
+				lowest_pval = pval;
+				lowest_cluster = i;
+			}
 		}
+		dom_cluster = lowest_cluster;
 	}
 
 	function attachListener(): void {

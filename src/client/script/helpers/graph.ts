@@ -265,12 +265,6 @@ module CHeM {
 				startAngle: band_startAngle,
 				cluster: band_cluster
 			});
-			
-			// find the dominant cluster
-			let domc = _.max(cluster_bands, (band) => { 
-				return Math.abs(band.endAngle - band.startAngle); 
-			});
-			this.data.domc = domc.cluster;
 
 			// draw the cluster bands
 			this.svg.selectAll('.cluster-arc')
