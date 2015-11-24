@@ -195,8 +195,8 @@ namespace UI {
 			lowest_cluster = -1;
 		for (var i=1; i<=6; i++) {
 			let [log_odds, pval] = Analysis.clusterEnrichment(genes, i);
-			$($('.cluster-enrichment .log-odds td')[i]).text(log_odds);
-			$($('.cluster-enrichment .p-value td')[i]).text(pval);
+			$($('.cluster-enrichment .log-odds td')[i]).text(log_odds.toPrecision(4));
+			$($('.cluster-enrichment .p-value td')[i]).text(pval.toPrecision(4));
 			if (pval < lowest_pval) {
 				lowest_pval = pval;
 				lowest_cluster = i;
