@@ -1,7 +1,18 @@
-*.csv
+# libraries
 node_modules
 typings
-wwwroot/*.js
-wwwroot/*/*.js
-wwwroot/*/*/*.js
-wwwroot/public/lib
+
+# all build files
+src/**/*.js
+src/public/style/*/*
+analysis/*.js
+*.css
+*.map
+
+# config file
+src/config.json
+
+# data files
+*.csv
+analysis/*.in
+analysis/*.out

@@ -1,5 +1,16 @@
-/// <reference path="../../../typings/tsd.d.ts"/>
-/// <reference path="./graph.ts"/>
+/// <reference path="./../../../../typings/tsd.d.ts"/>
+
+import Munge = require('./../../../helpers/munge');
+import Analysis = require('./../../../helpers/analysis');
+import CHeM = require('./graph');
+
+var $ = require('jquery'),
+	_ = require('underscore'),
+	typeahead = require('typeahead.js-browserify'),
+	Bloodhound = require("typeahead.js-browserify").Bloodhound;
+
+window.jQuery = $;
+require('bootstrap');
 
 namespace UI {
 
@@ -20,6 +31,7 @@ namespace UI {
 	export function configure(c: CHeM.Canvas, p: string): void {
 		canvas = c;
 		root_path = p;
+		typeahead.loadjQueryPlugin();
 		attachListener();
 		initDiseaseList();
 	}
@@ -61,7 +73,7 @@ namespace UI {
 		$.get(root_path + 'api/v1/list/disease')
 			.done((diseaseStr) => {
 				let diseaseObjs = JSON.parse(diseaseStr),
-					bloodhound = new Bloodhound<DiseaseObject>({
+					bloodhound = new Bloodhound({
 						datumTokenizer: (datum) => { return [datum.label]; },
 						queryTokenizer: Bloodhound.tokenizers.whitespace,
 						local: () => { return diseaseObjs; },
@@ -96,7 +108,7 @@ namespace UI {
 		$.get(root_path + 'api/v1/list/kegg_pathways')
 			.done((keggStr) => {
 				let keggObjs = JSON.parse(keggStr),
-					bloodhound = new Bloodhound<KeggPathwayObject>({
+					bloodhound = new Bloodhound({
 						datumTokenizer: (datum) => { return [datum.label]; },
 						queryTokenizer: Bloodhound.tokenizers.whitespace,
 						local: () => { return keggObjs; },
@@ -159,6 +171,7 @@ namespace UI {
 					}
 					fade_opacity = graph.getFadeOpacity();
 					dom_cluster = graph.getData().domc;
+					runAnalytics();
 					if (callback) callback();
 				}
 				catch (error) {
@@ -170,6 +183,21 @@ namespace UI {
 				errorHandler(error, 'critical', true); 
 			});
 	}
+	
+	function runAnalytics(): void {
+		let data = graph.getData(),
+			genes = _.map(data.labels, (label, i) => {
+				return {
+					label: label,
+					cluster: data.clusters[i]
+				};
+			});
+		for (var i=1; i<=6; i++) {
+			let [log_odds, pval] = Analysis.clusterEnrichment(genes, i);
+			$($('.cluster-enrichment .log-odds td')[i]).text(log_odds);
+			$($('.cluster-enrichment .p-value td')[i]).text(pval);
+		}
+	}
 
 	function attachListener(): void {
 		$('body').off('click').on('click', '.chart-btn', (e: Event) => {
@@ -177,8 +205,10 @@ namespace UI {
 			while (!$btn.hasClass('chart-btn')) {
 				$btn = $btn.parent();
 			}
-			let action = $btn.attr('data-action');
+			let action = $btn.attr('data-action'),
+				target = $btn.attr('data-target');
 			switch (action) {
+				// Primary options bar
 				case 'highlight-none':
 					clearHighlighting();
 					break;
@@ -203,6 +233,10 @@ namespace UI {
 					break;
 				case 'toggle-settings':
 					toggleSettings($(e.target));
+					break;
+				// Options Bar
+				case 'change-options-bar':
+					updateOptionsBar(target);
 					break;
 				case 'download-svg':
 					downloadSVG();
@@ -240,6 +274,7 @@ namespace UI {
 				case 'clear-custom-genes':
 					$('.custom-dataset-menu textarea').val('');
 					break;
+				// Error messages
 				case 'close-error':
 					$btn.remove();
 					break;
@@ -351,6 +386,17 @@ namespace UI {
 		}
 		btn.attr('expanded', (!toggle) + '');
 	}
+	
+	function updateOptionsBar(target: string): void {
+		$('.expanded-settings-bar .options-list .selected')
+			.removeClass('selected');
+		$('.expanded-settings-bar .options-list li[data-target="' + target + '"]')
+			.addClass('selected');
+		$('.active-options-bar .active-option').hide();
+		$('.active-options-bar .' + target)
+			.show()
+			.addClass('active-option');
+	}
 
 	function getSVGSource(): string {
 		return 'data:image/svg+xml;base64,' +
@@ -445,5 +491,7 @@ namespace UI {
 	function setKeggPathwaySearch(): void {
 		initKeggPathwayList();
 	}
-
+	
 }
+
+export = UI;

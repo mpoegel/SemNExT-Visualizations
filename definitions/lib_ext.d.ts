@@ -27,3 +27,7 @@ interface HTMLElement {
 	 */
 	files: FileList;
 }
+
+interface Window {
+	jQuery: any;
+}
