@@ -95,6 +95,7 @@ module ClusterEnrichment {
 							let enrichmentObj = compute(raw_data);
 							enrichmentObj.label = self.label;
 							process.stdout.write(`\x1b[32m Completed ${self.label}. \x1b[0m \n`);
+							printSignificant(enrichmentObj);
 							resolve(enrichmentObj);
 						}, function(err) {
 							process.stdout.write(`\x1b[31m Fetch for ${self.label} failed. \x1b[0m \n`);
@@ -135,6 +136,7 @@ module ClusterEnrichment {
 							let enrichmentObj = compute(raw_data);
 							enrichmentObj.label = self.label;
 							process.stdout.write(`\x1b[32m Completed ${self.label}. \x1b[0m \n`);
+							printSignificant(enrichmentObj);
 							resolve(enrichmentObj);
 						}, function(err) {
 							process.stdout.write(`\x1b[31m Fetch for ${self.label} failed. \x1b[0m \n`);
@@ -173,6 +175,20 @@ module ClusterEnrichment {
 			};
 		}
 		return enrichmentObj;
+	}
+	
+	/**
+	 * Print the name of each cluster for which the input is enriched
+	 * @param enrichmentObj {IEnrichmentObject} enrichment object from analysis
+	 * @returns {void}
+	 */
+	function printSignificant(enrichmentObj): void {
+		for (var c in clusterToStage) {
+			let cluster = clusterToStage[c];
+			if (enrichmentObj[ cluster ].pval != null && enrichmentObj[ cluster ].pval <= 0.05) {
+				process.stdout.write(`\x1b[32m \t Enriched for ${cluster} \x1b[0m \n`);
+			}
+		}
 	}
 }
 
