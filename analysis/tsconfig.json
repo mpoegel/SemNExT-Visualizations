@@ -13,6 +13,7 @@
     "files": [
         "./clusterEnrichment.ts",
         "./main.ts",
+        "./utils.ts",
         "./../src/models/semnext.ts",
         "./../src/helpers/analysis.ts",
         "./../src/helpers/munge.ts",
