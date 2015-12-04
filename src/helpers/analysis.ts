@@ -49,6 +49,12 @@ namespace Analysis {
 			ClusterTotals.forEach(function(val, index) {
 				if (index !== enrichmentCluster-1) n22 += val;
 			});
+		if (n11 === 0 || n21 === 0 || n12 === 0 || n22 === 0) {
+			n11 += 0.5;
+			n21 += 0.5;
+			n12 += 0.5;
+			n22 += 0.5;
+		}
 		return enrichment(n11, n21, n12, n22);
 	}
 	

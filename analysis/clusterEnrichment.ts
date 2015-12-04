@@ -81,12 +81,12 @@ module ClusterEnrichment {
 		Semnext.findDisease(disease, (error, raw_response) => {
 			if (error) {
 				process.stdout.write(`\x1b[31m Search for ${disease} failed. \x1b[0m \n`);
-				callback([]);
+				return callback([]);
 			}
 			let response = JSON.parse(raw_response);
 			if (response.length === 0) {
 				process.stdout.write(`\x1b[31m Search for ${disease} returned no results. \x1b[0m \n`);
-				callback([]);
+				return callback([]);
 			} 
 			for (var i=0; i<response.length; i++) {
 				(function(self) {
@@ -122,12 +122,12 @@ module ClusterEnrichment {
 		Semnext.findKeggPathway(pathway, (error, raw_response) => {
 			if (error) {
 				process.stdout.write(`\x1b[31m Search for ${pathway} failed. \x1b[0m \n`);
-				callback([]);
+				return callback([]);
 			}
 			let response = JSON.parse(raw_response);
 			if (response.length === 0) {
 				process.stdout.write(`\x1b[31m Search for ${pathway} returned no results. \x1b[0m \n`);
-				callback([]);
+				return callback([]);
 			}
 			for (var i=0; i<response.length; i++) {
 				(function(self) {
