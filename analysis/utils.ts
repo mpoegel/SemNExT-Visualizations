@@ -63,6 +63,12 @@ module Utils {
 		}
 	}
 	
+	
+	export function tabulate2(list: any[]): void {
+		
+	}
+	
+	
 	/**
 	 * Sort the input array of objects by the given property (can be a 
 	 * 	deep property)
@@ -85,12 +91,30 @@ module Utils {
 	function getDeepProperty(obj: {}, key: string): any {
 		let params = key.split('.');
 		for (var p in params) {
-			if (obj[params[p]] === undefined) {
+			if (params[p].search(/[\d*]/) !== -1) {
+				let i = +params[p].match(/[\d*]/)[0],
+					list = params[p].split('[')[0];
+				obj = obj[list][i];
+			}
+			else if (obj[params[p]] === undefined) {
 				throw new Error(`Key "${key}" not found in object list`);
 			}
-			obj = obj[params[p]];
+			else {
+				obj = obj[params[p]];
+			}
 		}
 		return obj;
+	}
+	
+	/**
+	 * 
+	 */
+	function deepGroupBy(list: any[], keys: string[]): any {
+		let result = _.map(list, (obj) => {
+			let inter_res = [];
+			
+		});
+		return result;
 	}
 	
 }
