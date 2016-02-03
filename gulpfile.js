@@ -10,16 +10,13 @@ var gulp = require('gulp'),
 	buffer = require('vinyl-buffer'),
 	sourcemaps = require('gulp-sourcemaps'),
 	gutil = require('gulp-util'),
-	// globby = require('globby'),
-	// through = require('through2'),
 	glob = require('glob'),
 	es = require('event-stream'),
 	nodemon = require('gulp-nodemon');
 
 var ts_project = ts.createProject('./src/tsconfig.json');
 
-gulp.task('default', ['ts', 'bundle-js', 'bundle-css', 
-	'watch', 'nodemon']);
+gulp.task('default', ['watch', 'nodemon']);
 
 // download the types definitions from definitely typed
 gulp.task('tsd', function(cb) {
@@ -56,18 +53,18 @@ gulp.task('watch', function() {
 		[
 			'./src/*.ts', 
 			'./src/*/*.ts', 
-			'./src/public/script/*.ts'
+			'./src/client/script/*.ts'
 		], 
-		['ts', 'bundle-js']
+		['bundle-js']
 	);
 });
 
 // start the node server
-gulp.task('nodemon', ['ts', 'watch'], function() {
+gulp.task('nodemon', function() {
 	nodemon({ script: './src/server.js' });
 });
 
-gulp.task('bundle-js', function(done) {
+gulp.task('bundle-js', ['ts'], function(done) {
 	var files = glob.sync('./src/client/script/*.js'),
 		tasks = [];
 	for (var f in files) {
@@ -112,3 +109,4 @@ gulp.task('bundle-css', function() {
 	}, this);
 	return gulp;
 });
+

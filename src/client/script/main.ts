@@ -3,6 +3,8 @@
 import CHeM = require('./helpers/graph');
 import UI = require('./helpers/ui');
 
+var d3 = require('d3');
+
 let margin = {top: 180, right: 160, bottom: 160, left: 160},
 		width = 960,
 		height = 960,
