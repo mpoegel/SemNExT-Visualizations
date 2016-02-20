@@ -1,0 +1,144 @@
+#!/usr/bin/env python
+
+import sys
+import os
+import subprocess
+import glob
+
+dirs = {
+	"dev": "/var/www/chem-dev",
+	"production": "/var/www/chem"
+}
+
+repo_url = 'https://github.com/mpoegel/SemNExT-Visualizations'
+
+
+def pipeCommand(hostname, command, printResult=True):
+  ssh = subprocess.Popen(['ssh', '%s' % hostname, command],
+                         shell=False,
+                         stdout=subprocess.PIPE,
+                         stderr=subprocess.PIPE)
+  result = ssh.stdout.readlines()
+  if (result == []):
+    error = ssh.stderr.readlines()
+    if (not (len(error) == 1 and '[sudo] password for' in error[0])):
+      print('>> ERROR')
+      for line in error:
+        line = line.strip()
+        print(line)
+      print('>> Aborting!')
+      sys.exit(1)
+  for line in result:
+    line = line.strip()
+    if printResult: print(line)
+  return result
+
+def deploy(hostname, password, stategy, branch, config_file):
+  print('>> Stopping forever service...')
+  f_pid = pipeCommand(hostname, 
+    'echo "{0}" | sudo -S forever list | grep {1}/src/server.js | awk {2}'
+      .format(password, dirs[strategy], "'{print $2}'"), False)
+  if (f_pid):
+    f_pid = f_pid[0].strip()
+    f_pid = f_pid.replace('[', '').replace(']', '')
+    pipeCommand(hostname, 'echo "{0}" | sudo -S forever stop {1}'
+      .format(password, f_pid))
+    print('\t stopped old forever processes %s' % f_pid)
+  else:
+    print('\t no matching forever process found')
+  print('>> Cleaning up old files...')
+  pipeCommand(hostname, 'echo "{0}" | sudo -S rm -rf {1}'.format(password, 
+    dirs[strategy]))
+  print('>> Pulling most recent commit on branch %s...' % branch)
+  pipeCommand(hostname, 
+    'echo "{0}" | sudo -S git clone --depth=1 --branch={1} {2} {3}'
+      .format(password, branch, repo_url, dirs[strategy]))
+  print('>> Installing dependencies...')
+  pipeCommand(hostname,
+    'cd {0} && echo "{1}" | sudo -S npm install --production'
+      .format(dirs[strategy], password))
+  print('>> Downloading definitions...')
+  pipeCommand(hostname,
+    'cd {0} && echo "{1}" | sudo -S ./node_modules/tsd/build/cli.js install'
+      .format(dirs[strategy], password))
+  print('>> Compiling TypeScript...')
+  pipeCommand(hostname,
+    'cd {0} && echo "{1}" | sudo -S ./node_modules/typescript/bin/tsc -p ./src'
+      .format(dirs[strategy], password))
+  print('>> Bundling JavaScript for the client...')
+  pipeCommand(hostname,
+    'cd {0} && echo "{1}" | sudo -S mkdir -p ./src/public/script'
+      .format(dirs[strategy], password))
+  files = glob.glob('./src/client/script/*.js')
+  for file in files:
+    file = file.replace('\\', '/')
+    outfile = './src/public/script/' + file.split('/')[-1]
+    print('\t {0} -> {1}'.format(file, outfile))
+    pipeCommand(hostname,
+      ('cd {0} && echo "{1}" | sudo -S ./node_modules/browserify/bin/cmd.js ' +
+        '{2} --outfile {3}')
+        .format(dirs[strategy], password, file, outfile))
+  print('>> Bundling CSS')
+  css_deps_file = open('./src/client/style/dependencies')
+  for dep in css_deps_file:
+    dep = dep.strip()
+    dest = '../src/public/style/';
+    orig = '/'.join([ d if '*' not in d else '' for d in dep.split('/')[1:] ])
+    if (dep != ''):
+      print('\t {0} -> {1}'.format(dep, dest))
+      pipeCommand(hostname,
+        'cd {0}/node_modules && echo "{1}" | sudo -S cp -r --parents {2} {3}'
+          .format(dirs[strategy], password, orig, dest))
+  css_deps_file.close()
+  print('>> Copying config file...')
+  scp = subprocess.Popen(['scp', config_file,  
+    '{0}:~/tmp/config.json'.format(hostname, dirs[strategy])],
+                         shell=False,
+                         stdout=subprocess.PIPE,
+                         stderr=subprocess.PIPE)
+  error = scp.stderr.readlines()
+  if (len(error) > 0):
+    print('>> ERROR')
+    for line in error:
+      line = line.strip()
+      print(line)
+    print('>> Aborting!')
+    sys.exit(1)
+  pipeCommand(hostname,
+    'echo "{0}" | sudo -S mv ~/tmp/config.json {1}/src && rm ~/tmp/config.json'
+      .format(password, dirs[strategy]))
+  print('>> Starting forever process as root...')
+  pipeCommand(hostname,
+    'echo "{0}" | sudo -S forever -e {1}/stderr.log start {1}/src/server.js'
+      .format(password, dirs[strategy]))
+  uptime = pipeCommand(hostname, 
+    'echo "{0}" | sudo -S forever list | grep {1}/src/server.js | awk {2}'
+      .format(password, dirs[strategy], "'{print $9}'"), False)
+  if (not uptime or uptime[0].strip() == 'STOPPED'):
+    print('>> Failed to start process.')
+    pipeCommand(hostname, 'echo "{0}" | sudo -S cat {1}/stderr.log'
+      .format(password, dirs[strategy]))
+    print('>> Deployment failed.')
+  else:
+    print('>> Deployment successful.')
+  
+
+if (__name__ == '__main__'):
+  
+  if (len(sys.argv) < 6):
+    print 'Usage: ',
+    print sys.argv[0] + " [hostname] [password] ['dev', 'production']" \
+      + " [branch] [config file]"
+    sys.exit(1)
+
+  hostname = sys.argv[1]
+  password = sys.argv[2]
+  strategy = sys.argv[3]
+  branch   = sys.argv[4]
+  config_file     = sys.argv[5]
+
+  if (strategy not in dirs.keys()):
+      print 'Unrecognized deployment strategy: %s' %strategy
+      sys.exit(1)
+  deploy(hostname, password, strategy, branch, config_file)
+  

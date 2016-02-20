@@ -38,4 +38,10 @@ recompile and rebundle the TypeScript when any .ts file is changed.
 
 ## Deployment Instructions
 
+Use the `deploy` script to easily deploy the application. <br>
+`deploy [hostname] [password] ['dev', 'production'] [branch] [config file]` 
 
+There are two deployment strategies defined by default: `production`, which deploys to `/var/www/chem`, and `dev`, which deploys to `/var/www/chem-dev`.
+
+The only requirements to deploy are node, npm, and forever.js on the target 
+machine and python 2.7 on the host machine.

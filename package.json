@@ -1,6 +1,6 @@
 {
   "name": "CHeM-Visualizer",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "SemNExT Project to create Chord Heat Map Diagrams",
   "main": "server.js",
   "author": "Matt Poegel",
