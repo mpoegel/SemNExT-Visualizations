@@ -305,6 +305,12 @@ namespace UI {
         case 'download-png':
           downloadPNG();
           break;
+        case 'download-raw-heatmap':
+          downloadRawHeatMap();
+          break;
+        case 'download-raw-connections':
+          downloadRawConnections();
+          break;
         case 'show-legends':
           showLegends($(e.target));
           break;
@@ -650,10 +656,79 @@ namespace UI {
 
   /**
    * set the search box to search by KEGG pathway
+   * @returns {void}
    */
   function setKeggPathwaySearch(): void 
   {
     initKeggPathwayList();
+  }
+  
+  /**
+   * Download the data used to create the heat map as a CSV file
+   * @returns {void}
+   */
+  function downloadRawHeatMap(): void
+  {
+    const DAYS = 9;
+    let data = graph.getData().heatmap,
+        filestream = '',
+        gene_data = Array( graph.getData().labels.length );
+    for (let i in data) {
+      if (gene_data[ Math.floor(i / DAYS) ] === undefined) {
+        gene_data[ Math.floor(i / DAYS) ] = {
+          symbol: data[i].label,
+          values: [ data[i].value ]
+        };
+      } else {
+        gene_data[ Math.floor(i / DAYS) ].values.push( data[i].value );
+      }
+    }
+    for (let i in gene_data) {
+      filestream += i + ',' + gene_data[i].symbol;
+      for (let d in gene_data[i].values) {
+        filestream += ',' + gene_data[i].values[d];
+      }
+      filestream += '\n';
+    }
+    let filename = graph.getData().title + '_heat_map_data.csv';
+    downloadTextFile(filestream, filename);
+  }
+  
+  /**
+   * Download the gene connection data used to create the chords. The genes are
+   *  numbered clockwise around the diagram.
+   * @returns {void}
+   */
+  function downloadRawConnections(): void
+  {
+    let data = graph.getData().chord_matrix,
+        filestream = '';
+    for (var i in data) {
+      for (var k=i; k<data[i].length; k++) {
+        if (data[i][k] > 0) {
+          filestream += i + ',' + k + '\n';
+        }
+      }
+    }
+    let filename = graph.getData().title + '_connection_data.csv';
+    downloadTextFile(filestream, filename);
+  }
+  
+  /**
+   * Trigger a dowload of a text file
+   * @param text {string} content of the file to download
+   * @param filename {string} name of the file to save the download as
+   * @returns {void}
+   */
+  function downloadTextFile(text: string, filename: string): void {
+    let element = document.createElement('a');
+    element.setAttribute('href', 'data:text/plain;charset=utf-8,' 
+      + encodeURIComponent(text));
+    element.setAttribute('download', filename);
+    element.style.display = 'none';
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element);
   }
   
 } /* END UI NAMESPACE */

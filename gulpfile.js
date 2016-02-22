@@ -53,8 +53,7 @@ gulp.task('watch', function() {
   gulp.watch(
     [
       './src/*.ts', 
-      './src/*/*.ts', 
-      './src/client/script/*.ts'
+      './src/**/*.ts', 
     ], 
     ['bundle-js']
   );

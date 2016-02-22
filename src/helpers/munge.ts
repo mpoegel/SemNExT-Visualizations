@@ -26,7 +26,7 @@ namespace Munge {
 		for (let i = 0; i < header.length && header[i] !== 'Cluster';
 			labels.push(header[i++]));
 
-		let	matrix = [], 						// square matrix of gene connections
+		let	matrix = [], 				  // square matrix of gene connections
 			row = [],								// vector used to construct the matrix
 			count = 0,							// track the index of each gene
 			day_re = /[d]\d{1,2}/,  // regular expression to find heatmap data
