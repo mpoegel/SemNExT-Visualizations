@@ -1,0 +1,3 @@
+node_modules/bootstrap/dist/**/*
+node_modules/font-awesome/css/*
+node_modules/font-awesome/fonts/*

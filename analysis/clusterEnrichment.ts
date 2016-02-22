@@ -10,10 +10,11 @@ import Semnext  = require('../src/models/semnext');
 
 var _ = require('underscore');
 
-const clusterToStage = ['Pluripotency', 'Ectoderm', 'Neural Differentiation', 
-	'Cortical Specification', 'Early Layers', 'Upper Layers'];
 
 module ClusterEnrichment {
+	
+	export const clusterToStage = ['Pluripotency', 'Ectoderm', 'Neural Differentiation', 
+		'Cortical Specification', 'Early Layers', 'Upper Layers'];
 	
 	/**
 	 * Representation of the enrichment data to output for each input
@@ -21,18 +22,14 @@ module ClusterEnrichment {
 	interface IEnrichmentObject {
 		label: string,
 		num_genes: number,
-		Pluripotency: IanalysisObject,
-		Ectoderm: IanalysisObject,
-		'Neural Differentiation': IanalysisObject,
-		'Cortical Specification': IanalysisObject,
-		'Early Layers': IanalysisObject,
-		'Upper Layers': IanalysisObject
+		data: IanalysisObject[]
 	}
 	
 	/**
 	 * Representation of enrichment computations
 	 */
 	interface IanalysisObject {
+		cluster: string,
 		log_odds: number,
 		pval: number,
 	}
@@ -81,12 +78,12 @@ module ClusterEnrichment {
 		Semnext.findDisease(disease, (error, raw_response) => {
 			if (error) {
 				process.stdout.write(`\x1b[31m Search for ${disease} failed. \x1b[0m \n`);
-				callback([]);
+				return callback([]);
 			}
 			let response = JSON.parse(raw_response);
 			if (response.length === 0) {
 				process.stdout.write(`\x1b[31m Search for ${disease} returned no results. \x1b[0m \n`);
-				callback([]);
+				return callback([]);
 			} 
 			for (var i=0; i<response.length; i++) {
 				(function(self) {
@@ -95,6 +92,7 @@ module ClusterEnrichment {
 							let enrichmentObj = compute(raw_data);
 							enrichmentObj.label = self.label;
 							process.stdout.write(`\x1b[32m Completed ${self.label}. \x1b[0m \n`);
+							printSignificant(enrichmentObj);
 							resolve(enrichmentObj);
 						}, function(err) {
 							process.stdout.write(`\x1b[31m Fetch for ${self.label} failed. \x1b[0m \n`);
@@ -121,12 +119,12 @@ module ClusterEnrichment {
 		Semnext.findKeggPathway(pathway, (error, raw_response) => {
 			if (error) {
 				process.stdout.write(`\x1b[31m Search for ${pathway} failed. \x1b[0m \n`);
-				callback([]);
+				return callback([]);
 			}
 			let response = JSON.parse(raw_response);
 			if (response.length === 0) {
 				process.stdout.write(`\x1b[31m Search for ${pathway} returned no results. \x1b[0m \n`);
-				callback([]);
+				return callback([]);
 			}
 			for (var i=0; i<response.length; i++) {
 				(function(self) {
@@ -135,6 +133,7 @@ module ClusterEnrichment {
 							let enrichmentObj = compute(raw_data);
 							enrichmentObj.label = self.label;
 							process.stdout.write(`\x1b[32m Completed ${self.label}. \x1b[0m \n`);
+							printSignificant(enrichmentObj);
 							resolve(enrichmentObj);
 						}, function(err) {
 							process.stdout.write(`\x1b[31m Fetch for ${self.label} failed. \x1b[0m \n`);
@@ -153,11 +152,12 @@ module ClusterEnrichment {
 	 * @param raw_data {string[][]} raw data return from the Semnext API
 	 * @returns {IEnrichmentObject}
 	 */
-	function compute(raw_data: string[][]) {
+	function compute(raw_data: string[][]): IEnrichmentObject {
 		var data = Munge.munge(raw_data),
 			enrichmentObj = {
 				label: null,
-				num_genes: data.labels.length
+				num_genes: data.labels.length,
+				data: []
 			},
 			genes = data.labels.map(function(label, i) {
 				return {
@@ -167,12 +167,27 @@ module ClusterEnrichment {
 			});
 		for (var i=1; i<=6; i++) {
 			let [log_odds, pval] = Analysis.clusterEnrichment(genes, i);
-			enrichmentObj[ clusterToStage[i-1] ] = {
+			enrichmentObj.data.push({
+				cluster: clusterToStage[i-1],
 				log_odds: log_odds,
 				pval: pval
-			};
+			});
 		}
 		return enrichmentObj;
+	}
+	
+	/**
+	 * Print the name of each cluster for which the input is enriched
+	 * @param enrichmentObj {IEnrichmentObject} enrichment object from analysis
+	 * @returns {void}
+	 */
+	function printSignificant(enrichmentObj): void {
+		for (var d in enrichmentObj.data) {
+			let cluster = enrichmentObj.data[d].cluster;
+			if (enrichmentObj.data[d].pval != null && enrichmentObj.data[d].pval <= 0.05) {
+				process.stdout.write(`\x1b[32m \t Enriched for ${cluster} \x1b[0m \n`);
+			}
+		}
 	}
 }
 

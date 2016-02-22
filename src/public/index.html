@@ -7,7 +7,7 @@
 	
 	<meta charset="utf-8">
 	<link href="style/style.css" rel="stylesheet">
-	<link href="style/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+	<link href="style/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
 	<link href="style/font-awesome/css/font-awesome.min.css" rel="stylesheet">
 
 </head>
@@ -119,14 +119,26 @@
 					</div>
 					
 					<div class="download-options option">
-						<div class="btn btn-sm btn-success chart-btn" data-action="download-svg"
+						<div class="btn btn-sm btn-success chart-btn" 
+              data-action="download-svg"
 							title="Download the current diagram as an SVG.">
 							SVG
 						</div>
-						<div class="btn btn-sm btn-success chart-btn" data-action="download-png"
+						<div class="btn btn-sm btn-success chart-btn" 
+              data-action="download-png"
 							title="Download the current diagram as a PNG.">
 							PNG
 						</div>
+            <div class="btn btn-sm btn-success chart-btn" 
+              data-action="download-raw-heatmap"
+              title="Download the raw data for the heat map.">
+              Raw Heat Map Data
+            </div>
+            <div class="btn btn-sm btn-success chart-btn"
+              data-action="download-raw-connections"
+              title="Download the raw data for the gene connections.">
+              Raw Connection Data
+            </div>
 					</div>
 					
 				</div> <!-- close ACTIVE-OPTIONS-BAR -->

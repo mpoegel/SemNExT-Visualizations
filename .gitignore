@@ -16,3 +16,4 @@ src/config.json
 *.csv
 analysis/*.in
 analysis/*.out
+analysis/*.log
