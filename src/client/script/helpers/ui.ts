@@ -322,9 +322,15 @@ namespace UI {
           break;
         case 'set-D310-colors':
           graph.recolor(CHeM.Graph.d3Cat10Colors);
+          graph.recolorHeatMap(CHeM.Graph.defaultHeatMapColors);
           break;
         case 'set-matlab-colors':
           graph.recolor(CHeM.Graph.matlabColors);
+          graph.recolorHeatMap(CHeM.Graph.defaultHeatMapColors);
+          break;
+        case 'set-colorblind-colors':
+          graph.recolor(CHeM.Graph.colorblindSafeColors);
+          graph.recolorHeatMap(CHeM.Graph.colorblindSafeHeatMapColors);
           break;
         case 'path-color-gradient':
           graph.drawGradientPaths();
@@ -673,7 +679,7 @@ namespace UI {
     let data = graph.getData().heatmap,
         filestream = '',
         gene_data = Array( graph.getData().labels.length );
-    for (let i in data) {
+    for (var i=0; i<data.length; i++) {
       if (gene_data[ Math.floor(i / DAYS) ] === undefined) {
         gene_data[ Math.floor(i / DAYS) ] = {
           symbol: data[i].label,
@@ -703,7 +709,7 @@ namespace UI {
   {
     let data = graph.getData().chord_matrix,
         filestream = '';
-    for (var i in data) {
+    for (var i=0; i<data.length; i++) {
       for (var k=i; k<data[i].length; k++) {
         if (data[i][k] > 0) {
           filestream += i + ',' + k + '\n';

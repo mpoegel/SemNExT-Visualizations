@@ -149,7 +149,14 @@ module CHeM {
     static d3Cat10Colors = function(i): string {
       return (['#D62728', '#FF7F0E', '#2CA02C', '#1F77B4', '#9467BD',
         '#8C564B'])[(i-1)%6];
+    }    
+    static colorblindSafeColors = function(i): string {
+      return (['#d73027', '#fc8d59', '#fee090', '#e0f3f8', '#91bfdb',
+        '#4575b4'])[(i-1)%6];
     }
+    
+    static defaultHeatMapColors = ['#232323', 'green', 'red'];
+    static colorblindSafeHeatMapColors = ['#232323', 'blue', 'yellow'];
 
     static clusterToStage = ['Pluripotency', 'Ectoderm',
       'Neural Differentiation', 'Cortical Specification', 'Early Layers',
@@ -204,7 +211,7 @@ module CHeM {
       this.data.heatmap.forEach((d) => { sd += Math.pow(d.value - mu, 2); });
       sd = Math.sqrt(sd / this.data.heatmap.length);
       this.heatmapColorScale = d3.scale.linear()
-        .range(['#232323', 'green', 'red'])
+        .range(Graph.defaultHeatMapColors)
         .domain([mu - 2 * sd, mu, mu + 2 * sd]);
 
       // initialize more scales
@@ -586,6 +593,22 @@ module CHeM {
         .style('fill', (d) => { return fill(d.cluster); });
       d3.selectAll('.clusterLegend g rect')
         .style('fill', (d) => { return fill(d); });
+      return this;
+    }
+    
+    /**
+     * Recolor the heatmap with a different color scheme
+     * @param fill {string[]} array of hex color strings
+     * @returns {Graph} this
+     */
+    recolorHeatMap(fill: string[]): Graph
+    {
+      this.heatmapColorScale.range(fill);
+      d3.selectAll('.heatmap-arc')
+        .style('fill', (d) => { return this.heatmapColorScale(d.value); });
+      d3.selectAll('.heatmapLegend g rect')
+        .style('fill', (d) => { 
+          return this.heatmapColorScale(this.heatmapLegendScale(d)); });
       return this;
     }
 
