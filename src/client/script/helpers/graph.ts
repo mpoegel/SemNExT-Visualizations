@@ -47,6 +47,7 @@ module CHeM {
     fade_opacity?: number;
     cluster_band_width?: number;
     color_gradient_precision?: number;
+    chord_fill?: (i) => string;
   }
   
   /**
@@ -136,7 +137,8 @@ module CHeM {
     
     private onMouseOver: (d: any, i: number) => any;
     private onMouseOut: (d: any, i: number) => any;
-
+    
+    private chord_fill: (i) => string;
     private heatmapColorScale: any; // d3.scale.linear
     private heatmapLegendScale: any; // d3.scale.linear
     private heatmapYScale: any; // d3.scale.ordinal
@@ -193,6 +195,7 @@ module CHeM {
       this.color_gradient_precision = options.color_gradient_precision || 20;
       this.onMouseOver = options.onMouseOver || _.noop;
       this.onMouseOut = options.onMouseOut || _.noop;
+      this.chord_fill = options.chord_fill || Graph.d3Cat10Colors;
       this.group_widths = null;
 
       this.arc = d3.svg.arc()
@@ -272,10 +275,10 @@ module CHeM {
       // draw the group arcs and colors them
       g.append('svg:path')
           .style('stroke', (d) => {
-            return Graph.d3Cat10Colors(this.data.clusters[d.index]);
+            return this.chord_fill(this.data.clusters[d.index]);
           })
           .style('fill', (d) => {
-            return Graph.d3Cat10Colors(this.data.clusters[d.index]);
+            return this.chord_fill(this.data.clusters[d.index]);
           })
           .attr('d', this.arc);
 
@@ -295,11 +298,11 @@ module CHeM {
             d.pathString = d3.svg.chord().radius(this.innerRadius);
           })
           .style('stroke', (d) => {
-            return d3.rgb(Graph.d3Cat10Colors(this.data.clusters[d.source.index]))
+            return d3.rgb(this.chord_fill(this.data.clusters[d.source.index]))
               .darker();
           })
           .style('fill', (d) => {
-            return Graph.d3Cat10Colors(this.data.clusters[d.source.index]);
+            return this.chord_fill(this.data.clusters[d.source.index]);
           })
           .attr('d', d3.svg.chord().radius(this.innerRadius));
         return this;
@@ -355,7 +358,7 @@ module CHeM {
             })
           )
           .attr('class', 'cluster-arc')
-          .attr('fill', (d) => { return Graph.d3Cat10Colors(d.cluster); })
+          .attr('fill', (d) => { return this.chord_fill(d.cluster); })
           .on('mouseover', (d, i) => {
             getClusterFader(this.canvas.getHandle(), this.fade_opacity)(d, i);
             this.onMouseOver(d, i);
@@ -477,13 +480,14 @@ module CHeM {
     drawClusterLegend(): Graph 
     {
       let legend = this.svg.append("g")
-          .attr("class", "clusterLegend")
-          .attr("transform", "translate(" + (this.canvas.getAdjWidth() / 2 +
-            this.canvas.getMargins().top * 0.30) + "," +
-            (- this.canvas.getAdjHeight() / 2 - this.canvas.getMargins().right *
-            0.90) + ")")
-          .attr("height", 100)
-          .attr("width", 100)
+            .attr("class", "clusterLegend")
+            .attr("transform", "translate(" + (this.canvas.getAdjWidth() / 2 +
+              this.canvas.getMargins().top * 0.30) + "," +
+              (- this.canvas.getAdjHeight() / 2 - 
+                this.canvas.getMargins().right * 0.90) + ")")
+            .attr("height", 100)
+            .attr("width", 100),
+          self = this;
       legend.selectAll("g")
           .data(d3.range(1, Graph.clusterToStage.length+1))
         .enter().append("g")
@@ -494,7 +498,7 @@ module CHeM {
               .attr("y", i*20)
               .attr("width", 10)
               .attr("height", 10)
-              .style("fill", Graph.d3Cat10Colors(d));
+              .style("fill", self.chord_fill(d));
             g.append("text")
               .attr("x", 40)
               .attr("y", i*20 + 10)
@@ -569,17 +573,18 @@ module CHeM {
      */
     recolor(fill: (i) => string): Graph 
     {
+      this.chord_fill = fill;
       d3.selectAll('path.chord')
         .style('fill', (d) => {
-          return fill(this.data.clusters[d.source.index]);
+          return this.chord_fill(this.data.clusters[d.source.index]);
         })
         .style('stroke', (d) => {
-          return fill(this.data.clusters[d.source.index]);
+          return this.chord_fill(this.data.clusters[d.source.index]);
         });
       _.each($('.chordMask'), (d) => {
         let gradient = d3.scale.linear()
-          .range([fill(this.data.clusters[$(d).attr('source')]),
-                  fill(this.data.clusters[$(d).attr('target')])])
+          .range([this.chord_fill(this.data.clusters[$(d).attr('source')]),
+                  this.chord_fill(this.data.clusters[$(d).attr('target')])])
           .domain([0, $(d).children().length]);
         $(d).children().each((i) => {
           $(i).css('fill', gradient(i))
@@ -587,12 +592,14 @@ module CHeM {
         });
       });
       d3.selectAll('g.group path')
-        .style('fill', (d) => { return fill(this.data.clusters[d.index]); })
-        .style('stroke', (d) => { return fill(this.data.clusters[d.index]); })
+        .style('fill', (d) => { 
+          return this.chord_fill(this.data.clusters[d.index]); })
+        .style('stroke', (d) => { 
+          return this.chord_fill(this.data.clusters[d.index]); })
       d3.selectAll('.cluster-arc')
-        .style('fill', (d) => { return fill(d.cluster); });
+        .style('fill', (d) => { return this.chord_fill(d.cluster); });
       d3.selectAll('.clusterLegend g rect')
-        .style('fill', (d) => { return fill(d); });
+        .style('fill', (d) => { return this.chord_fill(d); });
       return this;
     }
     
@@ -661,8 +668,8 @@ module CHeM {
           deltapi = 0,
           mask = [],
           colorGradient = d3.scale.linear()
-            .range([Graph.d3Cat10Colors( path.source.cluster ),
-                   Graph.d3Cat10Colors( path.target.cluster )])
+            .range([this.chord_fill( path.source.cluster ),
+                   this.chord_fill( path.target.cluster )])
             .domain([0,n]);
       for (let i = 1; i < n; i++) {
         deltai = pathSVG.getPointAtLength(arc_len1 + epsilon1*i);

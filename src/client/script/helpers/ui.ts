@@ -332,6 +332,12 @@ namespace UI {
           graph.recolor(CHeM.Graph.colorblindSafeColors);
           graph.recolorHeatMap(CHeM.Graph.colorblindSafeHeatMapColors);
           break;
+        case 'set-light-theme':
+          toggleTheme( $(e.target), '#FFF', '#000' );
+          break;
+        case 'set-dark-theme':
+          toggleTheme( $(e.target), '#000', '#FFF' );
+          break;
         case 'path-color-gradient':
           graph.drawGradientPaths();
           break;
@@ -735,6 +741,17 @@ namespace UI {
     document.body.appendChild(element);
     element.click();
     document.body.removeChild(element);
+  }
+  
+  /**
+   * 
+   */
+  function toggleTheme($btn: JQuery, bgColor: string, fgColor: string): void {
+    $('theme-btn').removeClass('active');
+    $btn.addClass('active');
+    $('body').css({ 'background-color': bgColor });
+    canvas.getHandle().style({ 'background-color': bgColor });
+    canvas.getSVG().selectAll('text').style({ 'fill': fgColor });
   }
   
 } /* END UI NAMESPACE */
