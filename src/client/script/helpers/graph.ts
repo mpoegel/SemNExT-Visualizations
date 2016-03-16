@@ -159,7 +159,7 @@ module CHeM {
     static colorblindSafeHeatMapColors = ['#232323', 'blue', 'yellow'];
 
     static clusterToStage = ['Pluripotency', 'Ectoderm',
-      'Neural Differentiation', 'Cortical Specification', 'Early Layers',
+      'Neural Differentiation', 'Cortical Specification', 'Deep Layers',
       'Upper Layers'];
     
     /**
