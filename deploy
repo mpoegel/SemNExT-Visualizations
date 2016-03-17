@@ -43,7 +43,7 @@ def deploy(hostname, password, stategy, branch, config_file):
     f_pid = f_pid.replace('[', '').replace(']', '')
     pipeCommand(hostname, 'echo "{0}" | sudo -S forever stop {1}'
       .format(password, f_pid))
-    print('\t stopped old forever processes %s' % f_pid)
+    print('\t stopped old forever process %s' % f_pid)
   else:
     print('\t no matching forever process found')
   print('>> Cleaning up old files...')
