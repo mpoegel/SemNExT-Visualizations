@@ -253,6 +253,14 @@ module CHeM {
      */
     drawChords(): Graph 
     {
+      // draw a background beneath the chords
+      let bg = this.svg.append('circle')
+            .attr('class', 'chord-bg')
+            .attr('cx', 0)
+            .attr('cy', 0)
+            .attr('r',  this.outerRadius)
+            .attr('fill', 'none')
+            .attr('stroke', 'none');
       // bind the chord groups data to the canvas
       let g = this.svg.selectAll('g.group')
           .data(this.chord.groups)
@@ -616,6 +624,18 @@ module CHeM {
       d3.selectAll('.heatmapLegend g rect')
         .style('fill', (d) => { 
           return this.heatmapColorScale(this.heatmapLegendScale(d)); });
+      return this;
+    }
+    
+    /**
+     * Change the color of the chord background
+     * @param fill {string} valid color property value
+     * @returns {Graph} this
+     */
+    chordBackground(fill: string): Graph
+    {
+      this.svg.select('circle.chord-bg')
+        .attr('fill', fill);      
       return this;
     }
 

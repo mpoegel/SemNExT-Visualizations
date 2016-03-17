@@ -323,14 +323,17 @@ namespace UI {
         case 'set-D310-colors':
           graph.recolor(CHeM.Graph.d3Cat10Colors);
           graph.recolorHeatMap(CHeM.Graph.defaultHeatMapColors);
+          graph.chordBackground('none');          
           break;
         case 'set-matlab-colors':
           graph.recolor(CHeM.Graph.matlabColors);
           graph.recolorHeatMap(CHeM.Graph.defaultHeatMapColors);
+          graph.chordBackground('none');          
           break;
         case 'set-colorblind-colors':
           graph.recolor(CHeM.Graph.colorblindSafeColors);
           graph.recolorHeatMap(CHeM.Graph.colorblindSafeHeatMapColors);
+          graph.chordBackground('#000');
           break;
         case 'set-light-theme':
           toggleTheme( $(e.target), '#FFF', '#000' );
