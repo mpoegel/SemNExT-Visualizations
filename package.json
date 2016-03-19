@@ -32,7 +32,7 @@
     "typeahead.js-browserify": "^1.0.7",
     "typescript": "^1.7.5",
     "underscore": "^1.8.3",
-    "velocity-animate": "^1.2.3",
+    "velocity-commonjs": "^1.0.1",
     "yargs": "^3.30.0"
   },
   "devDependencies": {
