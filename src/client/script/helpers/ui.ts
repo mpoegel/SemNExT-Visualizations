@@ -185,7 +185,9 @@ namespace UI {
     canvas.clear();
     $('.welcome-message').hide();
     $('.loading').show();
-    $.get(root_path + 'api/v1/matrix/' + data_type + '/', { id: semnextObj['@id'] })
+    $.post(root_path + 'api/v1/matrix/' + data_type, {
+       id: semnextObj['@id']
+    })
       .done((raw_data: string[][]) => {
         try {
           let data = Munge.munge(raw_data);

@@ -2,26 +2,29 @@
 
 import express = require('express');
 import semnext = require('../models/semnext');
-var router = express.Router();
+import bodyParser = require('body-parser');
+var router = express.Router(),
+    jsonParser = bodyParser.json(),
+    urlencodedParser = bodyParser.urlencoded({ extended: false });
 
-router.get(RegExp('/disease/(.*)'), (req, res) => {
-	semnext.fetchDiseaseMatrix(req.query.id, (data) => {
+router.post(RegExp('/disease'), urlencodedParser, (req, res) => {
+	semnext.fetchDiseaseMatrix(req.body.id, (data) => {
 		res.send(data);
 	}, (error) => {
 		res.status(500).send(error);
 	});
 });
 
-router.get(RegExp('/kegg_pathways/(.*)'), (req, res) => {
-	semnext.fetchKeggPathwaysMatrix(req.query.id, (data) => {
+router.post(RegExp('/kegg_pathways'), urlencodedParser, (req, res) => {
+	semnext.fetchKeggPathwaysMatrix(req.body.id, (data) => {
 		res.send(data);
 	}, (error) => {
 		res.status(500).send(error);
 	});
 });
 
-router.get(RegExp('/custom/(.*)'), (req, res) => {
-	semnext.fetchCustomMatrix(req.query.id, (data) => {
+router.post(RegExp('/custom'), urlencodedParser, (req, res) => {
+	semnext.fetchCustomMatrix(req.body.id, (data) => {
 		res.send(data);
 	}, (error) => {
 		res.status(500).send(error);

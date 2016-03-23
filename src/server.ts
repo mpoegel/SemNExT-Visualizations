@@ -9,6 +9,7 @@
 import express = require('express');
 import controllers = require('./controllers/index');
 import lessMiddleware = require('less-middleware');
+import bodyParser = require('body-parser');
 var app = express();
 
 var config = require('./config.json');
@@ -18,6 +19,7 @@ app.use(lessMiddleware(
   __dirname + '/public',
   { force: true }
 ));
+app.use(bodyParser.json());
 // serve the contents of the /public directory at the root
 app.use('/', express.static(__dirname + '/public'));
 // load the route controllers
