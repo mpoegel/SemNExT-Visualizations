@@ -3,7 +3,7 @@
 
 <head>
 	
-	<title>SemNExT CHeM Visualizer</title>
+	<title>SWOT Clock</title>
 	
 	<meta charset="utf-8">
 	<link href="style/style.css" rel="stylesheet">
@@ -21,11 +21,15 @@
 
 				<div class="row">
 					<ul class="horizontal-list">
-						<li><a href="http://tw.rpi.edu/web/project/SemNExT">
+						<li><a href="http://tw.rpi.edu/web/project/SemNExT" target="_blank">
 							Semantic Numeric Exploration Techonology (SemNExt) Project</a>
 							</li>
-						<li><a href="http://rpi.edu">
+						<li><a href="http://rpi.edu" target="_blank">
 							Rensselaer Polytechnic Institute, Troy, NY, USA</a></li>
+            <li><a href="https://github.com/mpoegel/SemNExT-Visualizations"
+              target="_blank">
+              Open Source on Github</a>             
+            </li>
 					</ul>
 				</div>
 
@@ -58,8 +62,8 @@
 							</label>
 						</div>
 						<div class="btn btn-sm btn-primary chart-btn"
-							title="Define a custom set of genes."
-							data-action="custom-data">Custom Gene Set</div>
+							title="Define a custom set of transcriptomes."
+							data-action="custom-data">Custom Transcriptome Set</div>
 					</div>
 					
 					<div class="graph-options option">
@@ -220,40 +224,43 @@
 
 	<div class="container content">
 		<div class="welcome-message">
-			<h3>
-				Welcome to the SemNExT CHeM Visualizer.
-			</h3>
+			<h2>
+				Welcome to the SWOT Clock
+			</h2>
+      <p class="subtitle">Suceptibility Windows Ontological Transcriptome 
+        Clock</p>
 			<p>
 				There are <span class="totalDiseases">#</span> diseases currently
 				in the database.
 			</p>
 			<p>
-				This is a visualization tool to create a Chord-Heat Map (CHeM)
-				diagram that illustrates the relationships between genes
-				connected to a particular disease.
+				This is a visualization tool to create a SWOT Clock	that illustrates
+        the relationships between transcriptomes in a reference set. You can 
+        search our database of diseases or KEGG Pathways or upload your own
+        reference set.
 			</p>
 		</div>
 		<div class="loading">
 			<i class="fa fa-5x fa-cog fa-spin"></i>
 			<p>
-				Building the CHeM Diagram!
+				Building the SWOT Clock!
 			</p>
 		</div>
 		<div class="custom-dataset-menu">
 			<span class="chart-btn" data-action="custom-data">&times</span>
 			<p>
-				You can create a CHeM diagram from a user-defined list of genes.
+				You can create a SWOT Clock from a user-defined list of transcriptomes.
 			</p>
 			<p>
-				Dataset Name
+				Data set name
 				<input type="text" name="custom-name">
 			</p>
 			<p>
-				Upload genes from a file.
+				Upload transcriptomes from a file.
 				<input type="file" name="gene-file">
 			</p>
 			<p>
-				Enter genes manually.<br>
+				Enter transcriptomes manually.<br>
 				<textarea name="gene-list" rows="6" cols="20"></textarea>
 				<span class="chart-btn clear-genes" data-action="clear-custom-genes">
 					&times</span>
@@ -261,7 +268,7 @@
 			<p>
 				<div class="btn btn-success chart-btn"
 					data-action="create-custom">
-					Create CHeM
+					Create Clock
 				</div>
 			</p>
 		</div>

@@ -195,6 +195,7 @@ namespace UI {
   {
     canvas.clear();
     $('.welcome-message').hide();
+    $('.chart').show();
     $('.loading').show();
     $.post(root_path + 'api/v1/matrix/' + data_type, {
        id: semnextObj['@id']
