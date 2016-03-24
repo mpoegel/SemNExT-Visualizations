@@ -46,7 +46,11 @@ namespace UI {
     root_path = p;
     typeahead.loadjQueryPlugin();
     attachListener();
-    initDiseaseList();
+    initDiseaseList($('#searchBox'), (ev, diseaseObj) => {
+      drawCompleteGraph(diseaseObj, 'disease');
+    }, (diseaseObjs) => {
+      $('.totalDiseases').text(diseaseObjs.length);
+    });
   }
   
   /**
@@ -93,9 +97,14 @@ namespace UI {
   
   /**
    * Initialize the list of diseases using Typeahead for autocomplete.
+   * @param $input {JQuery} input field to initialize typeahead
+   * @param onSelect {(event, obj) => any} function to call when a typeahead
+   *  selection is made
+   * @param cd {(diseaseObjs) => any} callback function
    * @returns {void}
    */
-  function initDiseaseList(): void 
+  function initDiseaseList($input: JQuery, onSelect: (event, obj) => any,
+    cb: (diseaseObjs) => any): void 
   {
     $.get(root_path + 'api/v1/list/disease')
       .done((diseaseStr) => {
@@ -106,7 +115,7 @@ namespace UI {
             local: () => { return diseaseObjs; },
             identify: (obj) => { return obj['@id']; },
           });
-        $('#searchBox')
+        $input
           .typeahead('destroy')
           .typeahead({
             hint: true,
@@ -119,10 +128,8 @@ namespace UI {
             })
           .attr('placeholder', 'Search for a disease')
           .off('typeahead:select')
-          .on('typeahead:select', (ev, diseaseObj) => {
-            drawCompleteGraph(diseaseObj, 'disease');
-          });
-        $('.totalDiseases').text(diseaseObjs.length);
+          .on('typeahead:select', onSelect);
+        cb(diseaseObjs);
       })
       .fail((error) => {
         let e = new Error(error.statusText);
@@ -133,9 +140,14 @@ namespace UI {
   
   /** 
    * Initialize the list of KEGG Pathways using Typeahead for autocomplete.
+   * @param $input {JQuery} input field to initialize typeahead
+   * @param onSelect {(event, obj) => any} function to call when a typeahead
+   *  selection is made
+   * @param cd {(diseaseObjs) => any} callback function
    * @returns {void} 
    */
-  function initKeggPathwayList(): void 
+  function initKeggPathwayList($input: JQuery, onSelect: (event, obj) => any,
+    cb: (keggObjs) => any): void 
   {
     $.get(root_path + 'api/v1/list/kegg_pathways')
       .done((keggStr) => {
@@ -146,7 +158,7 @@ namespace UI {
             local: () => { return keggObjs; },
             identify: (obj) => { return obj['@id']; },
           });
-        $('#searchBox')
+        $input
           .typeahead('destroy')
           .typeahead({
             hint: true,
@@ -159,9 +171,8 @@ namespace UI {
             })
           .attr('placeholder', 'Search for a Kegg Pathway')
           .off('typeahead:select')
-          .on('typeahead:select', (ev, keggObj) => {
-            drawCompleteGraph(keggObj, 'kegg_pathways');
-          });
+          .on('typeahead:select', onSelect);
+        cb(keggObjs);
       })
       .fail((error) => {
         let e = new Error(error.statusText);
@@ -668,7 +679,9 @@ namespace UI {
    */
   function setDiseaseSearch(): void 
   {
-    initDiseaseList();
+    initDiseaseList($('#searchBox'), (event, diseaseObj) => {
+      drawCompleteGraph(diseaseObj, 'disease');
+    }, _.noop);
   }
 
   /**
@@ -677,7 +690,9 @@ namespace UI {
    */
   function setKeggPathwaySearch(): void 
   {
-    initKeggPathwayList();
+    initKeggPathwayList($('#searchBox'), (event, keggObj) => {
+      drawCompleteGraph(keggObj, 'kegg_pathways');
+    }, _.noop);
   }
   
   /**
