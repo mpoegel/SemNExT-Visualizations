@@ -8,12 +8,14 @@
 /// <reference path="../typings/tsd.d.ts" />
 
 import clusterEnrichment = require('./clusterEnrichment');
+import Filter = require('./filter');
 import utils = require('./utils');
 
 var yargs = require('yargs'),
 	argv = yargs
 		.usage('Usage: $0 <command> [options]')
 		.command('enrichment', 'Run enrichment analysis')
+    .command('filter', 'Filter an input list of genes')
 		.option('type', {
 			alias: 't',
 			demand: false,
@@ -133,6 +135,39 @@ var yargs = require('yargs'),
 			console.log(yargs.help());
 		}
 	}
+  else if (command === 'filter') {
+    if (argv.input === undefined) {
+      process.stderr.write(`Input file required.`);
+      return;
+    }
+    if (argv.output === undefined) {
+      process.stderr.write(`Output file required.`);
+      return;
+    }
+    fs.readFile(argv.input, 'utf8', function (err, raw_data) {
+      if (err) {
+        process.stderr.write(`Could not open file: ${argv.input}\n`);
+        return;
+      }
+      console.log('=> Running filter...');
+      let input_list = raw_data.split('\n');
+      input_list = input_list.map((d) => { return d.replace('\r', ''); });
+      Filter.valid(input_list, (result) => {
+        result = result.filter((d) => { return d; });
+        console.log(`Filtered ${input_list.length-result.length}/${input_list.length} input genes`);
+        let res_string = result.join('\n');
+        fs.writeFile(argv.output, res_string, (err) => {
+          if (err) {
+            process.stdout.write(`\x1b[31m=> Could not write to file ${argv.output}. \x1b[0m \n`);
+          }
+          else {
+            console.log('=> Output written to file.');
+          }
+          console.log('=> Done.');
+        });
+      });
+    });
+  }
 	else {
 		console.log(yargs.help());
 	}

@@ -18,16 +18,16 @@
       "commit": "066819c65ff561ca109955e0b725c253e243f0a2"
     },
     "node/node.d.ts": {
-      "commit": "273a567b0a0bcc34cbf2a2470b2febc95796b644"
+      "commit": "a44529fcb1e1cdc0355e71c42a6048de99b57c34"
     },
     "express/express.d.ts": {
-      "commit": "68d9d43ce884e1ffb6ec0daf4ee7be9392c5b7bc"
+      "commit": "a44529fcb1e1cdc0355e71c42a6048de99b57c34"
     },
     "serve-static/serve-static.d.ts": {
-      "commit": "68d9d43ce884e1ffb6ec0daf4ee7be9392c5b7bc"
+      "commit": "a44529fcb1e1cdc0355e71c42a6048de99b57c34"
     },
     "mime/mime.d.ts": {
-      "commit": "68d9d43ce884e1ffb6ec0daf4ee7be9392c5b7bc"
+      "commit": "a44529fcb1e1cdc0355e71c42a6048de99b57c34"
     },
     "request/request.d.ts": {
       "commit": "68d9d43ce884e1ffb6ec0daf4ee7be9392c5b7bc"
@@ -46,6 +46,12 @@
     },
     "es6-promise/es6-promise.d.ts": {
       "commit": "961b76f37bdfcff459cab9ed9fd3f204f0633d5e"
+    },
+    "body-parser/body-parser.d.ts": {
+      "commit": "a44529fcb1e1cdc0355e71c42a6048de99b57c34"
+    },
+    "express-serve-static-core/express-serve-static-core.d.ts": {
+      "commit": "a44529fcb1e1cdc0355e71c42a6048de99b57c34"
     }
   }
 }
