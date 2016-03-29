@@ -6,6 +6,3 @@ before_script:
   - gulp tsd
   - node ./node_modules/typescript/bin/tsc -p ./src
   - gulp bundle-css
-after_success:
-  - sudo apt-get install python
-  - sudo ./deploy.sh

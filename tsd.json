@@ -6,52 +6,52 @@
   "bundle": "typings/tsd.d.ts",
   "installed": {
     "jquery/jquery.d.ts": {
-      "commit": "066819c65ff561ca109955e0b725c253e243f0a2"
+      "commit": "d99f6bb17b9b8a30551da3a387b0ca4c28f5cb06"
     },
     "d3/d3.d.ts": {
-      "commit": "066819c65ff561ca109955e0b725c253e243f0a2"
+      "commit": "d99f6bb17b9b8a30551da3a387b0ca4c28f5cb06"
     },
     "bootstrap/bootstrap.d.ts": {
-      "commit": "066819c65ff561ca109955e0b725c253e243f0a2"
+      "commit": "d99f6bb17b9b8a30551da3a387b0ca4c28f5cb06"
     },
     "underscore/underscore.d.ts": {
-      "commit": "066819c65ff561ca109955e0b725c253e243f0a2"
+      "commit": "d99f6bb17b9b8a30551da3a387b0ca4c28f5cb06"
     },
     "node/node.d.ts": {
-      "commit": "a44529fcb1e1cdc0355e71c42a6048de99b57c34"
+      "commit": "d99f6bb17b9b8a30551da3a387b0ca4c28f5cb06"
     },
     "express/express.d.ts": {
-      "commit": "a44529fcb1e1cdc0355e71c42a6048de99b57c34"
+      "commit": "d99f6bb17b9b8a30551da3a387b0ca4c28f5cb06"
     },
     "serve-static/serve-static.d.ts": {
-      "commit": "a44529fcb1e1cdc0355e71c42a6048de99b57c34"
+      "commit": "d99f6bb17b9b8a30551da3a387b0ca4c28f5cb06"
     },
     "mime/mime.d.ts": {
-      "commit": "a44529fcb1e1cdc0355e71c42a6048de99b57c34"
+      "commit": "d99f6bb17b9b8a30551da3a387b0ca4c28f5cb06"
     },
     "request/request.d.ts": {
-      "commit": "68d9d43ce884e1ffb6ec0daf4ee7be9392c5b7bc"
+      "commit": "d99f6bb17b9b8a30551da3a387b0ca4c28f5cb06"
     },
     "form-data/form-data.d.ts": {
-      "commit": "68d9d43ce884e1ffb6ec0daf4ee7be9392c5b7bc"
+      "commit": "d99f6bb17b9b8a30551da3a387b0ca4c28f5cb06"
     },
     "less/less.d.ts": {
-      "commit": "44cbde48eecd1918ed54b3be49a9752688b6c65a"
+      "commit": "d99f6bb17b9b8a30551da3a387b0ca4c28f5cb06"
     },
     "less-middleware/less-middleware.d.ts": {
-      "commit": "44cbde48eecd1918ed54b3be49a9752688b6c65a"
+      "commit": "d99f6bb17b9b8a30551da3a387b0ca4c28f5cb06"
     },
     "velocity-animate/velocity-animate.d.ts": {
-      "commit": "62eedc3121a5e28c50473d2e4a9cefbcb9c3957f"
+      "commit": "d99f6bb17b9b8a30551da3a387b0ca4c28f5cb06"
     },
     "es6-promise/es6-promise.d.ts": {
-      "commit": "961b76f37bdfcff459cab9ed9fd3f204f0633d5e"
+      "commit": "d99f6bb17b9b8a30551da3a387b0ca4c28f5cb06"
     },
     "body-parser/body-parser.d.ts": {
-      "commit": "a44529fcb1e1cdc0355e71c42a6048de99b57c34"
+      "commit": "d99f6bb17b9b8a30551da3a387b0ca4c28f5cb06"
     },
     "express-serve-static-core/express-serve-static-core.d.ts": {
-      "commit": "a44529fcb1e1cdc0355e71c42a6048de99b57c34"
+      "commit": "d99f6bb17b9b8a30551da3a387b0ca4c28f5cb06"
     }
   }
 }

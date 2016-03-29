@@ -24,6 +24,7 @@
         "./client/script/helpers/graph.ts",
         "./client/script/helpers/ui.ts",
         "./server.ts",
+        "./../definitions/campfire.d.ts",
         "./../definitions/jStat.d.ts",
         "./../definitions/lib_ext.d.ts",
         "./../definitions/semnext.d.ts",

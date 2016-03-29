@@ -136,7 +136,7 @@ if (__name__ == '__main__'):
   strategy = sys.argv[3]
   branch   = sys.argv[4]
   config_file     = sys.argv[5]
-
+  
   if (strategy not in dirs.keys()):
       print 'Unrecognized deployment strategy: %s' %strategy
       sys.exit(1)
