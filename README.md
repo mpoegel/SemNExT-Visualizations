@@ -1,10 +1,10 @@
 # SemNExt-Visualizations
 
-This is a visualization tool to create Chord-Heat Map (CHeM) diagrams that
-illustrate the connections between genes for several thousand diseases and KEGG
-Pathways.
+This is a visualization tool to create Suceptibility Windows Ontological 
+Transcriptome (SWOT) Clocks that illustrate the connections between transcriptomes for several thousand available resource sets or user-defined
+lists of transcriptomes.
 
-![Autism Example](http://i.imgur.com/jCgAYV6.png?1 "CHeM Diagram generated for
+![Autism Example](http://i.imgur.com/jCgAYV6.png?1 "SWOT Clock generated for
 Autism")
 
 ## Development Instructions

@@ -1,8 +1,12 @@
 {
-  "name": "CHeM-Visualizer",
-  "version": "0.3.2",
-  "description": "SemNExT Project to create Chord Heat Map Diagrams",
-  "main": "server.js",
+  "name": "swot-clock",
+  "version": "0.3.3",
+  "description": "A SemNExT Project to create Suceptibility Windows Ontological Transcriptome (SWOT) Clocks",
+  "main": "./src/server.js",
+  "scripts": {
+    "start": "node ./src/server.js",
+    "test": "node ./node_modules/mocha/bin/mocha"
+  },
   "author": "Matt Poegel",
   "contributors": [
     {
@@ -12,7 +16,7 @@
     }
   ],
   "license": "MIT",
-  "homepage": "https://semnext.tw.rpi.edu/chem",
+  "homepage": "https://semnext.tw.rpi.edu/swotclock",
   "repository": {
     "type": "git",
     "url": "https://github.com/mpoegel/SemNExT-Visualizations.git"
@@ -47,6 +51,7 @@
     "gulp-typescript": "^2.9.0",
     "gulp-uglify": "^1.4.2",
     "gulp-util": "^3.0.7",
+    "mocha": "^2.4.5",
     "vinyl-buffer": "^1.0.0",
     "vinyl-source-stream": "^1.1.0"
   }
