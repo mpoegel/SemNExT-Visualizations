@@ -563,7 +563,10 @@ namespace UI {
     let a = document.createElement('a');
     a.download = graph.getData().title + '.svg';
     a.href = getSVGSource();
+    a.style.display = 'none';
+    document.body.appendChild(a);
     a.click();
+    document.body.removeChild(a);
   }
   
   /**
@@ -576,14 +579,17 @@ namespace UI {
     canvasElem.width = canvas.getWidth();
     canvasElem.height = canvas.getHeight();
     let context = canvasElem.getContext('2d'),
-      image = new Image;
+        image = new Image;
     image.src = getSVGSource();
     image.onload = () => {
       context.drawImage(image, 0, 0);
       let a = document.createElement('a');
       a.download = $('svg .title').text() + '.png';
       a.href = canvasElem.toDataURL('image/png');
+      a.style.display = 'none';
+      document.body.appendChild(a);
       a.click();
+      document.body.removeChild(a);
     }
   }
   
