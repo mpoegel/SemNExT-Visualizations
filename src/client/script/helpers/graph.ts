@@ -157,8 +157,8 @@ module CHeM {
         '#4575b4'])[(i-1)%6];
     }
     
-    static defaultHeatMapColors = ['#232323', 'green', 'red'];
-    static colorblindSafeHeatMapColors = ['#232323', 'blue', 'yellow'];
+    static defaultHeatMapColors = ['green', '#232323', 'red'];
+    static colorblindSafeHeatMapColors = ['blue', '#232323', 'yellow'];
 
     static clusterToStage = ['Pluripotency', 'Neuroectoderm',
       'Neural Differentiation', 'Cortical Specification', 'Deep Layers',
@@ -215,7 +215,7 @@ module CHeM {
       sd = Math.sqrt(sd / this.data.heatmap.length);
       this.heatmapColorScale = d3.scale.linear()
         .range(Graph.defaultHeatMapColors)
-        .domain([mu - 2 * sd, mu, mu + 2 * sd]);
+        .domain([mu - 3 * sd, mu, mu + 3 * sd]);
 
       // initialize more scales
       this.heatmapLegendScale = d3.scale.linear()
