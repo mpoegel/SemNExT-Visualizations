@@ -542,16 +542,22 @@ namespace UI {
   }
   
   /**
-   * Get the source of the current graph as an SVG base64-encoded string
+   * Generate a blob url for the current clock
+   * @param contentType {string} content-type for the blob data
    * @returns {string}
    */
-  function getSVGSource(): string 
+  function getBlobClock(contentType): Blob
   {
-    return 'data:image/svg+xml;base64,' +
-      btoa($('svg')
-        .attr('version', 1.1)
-        .attr('xmlns', 'http://www.w3.org/2000/svg')
-        .parent().html());
+    var byteCharacters = $('svg')
+            .attr('version', 1.1)
+            .attr('xmlns', 'http://www.w3.org/2000/svg')
+            .parent().html(),
+        byteNumbers = new Array(byteCharacters.length);
+    for (var i=0; i<byteCharacters.length; i++) {
+      byteNumbers[i] = byteCharacters.charCodeAt(i);
+    }
+    var byteArray = new Uint8Array(byteNumbers);
+    return new Blob([byteArray], {type: contentType});
   }
 
   /**
@@ -560,13 +566,19 @@ namespace UI {
    */
   function downloadSVG(): void 
   {
-    let a = document.createElement('a');
-    a.download = graph.getData().title + '.svg';
-    a.href = getSVGSource();
-    a.style.display = 'none';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+    var blob = getBlobClock('image/svg+xml');    
+    var ua = window.navigator.userAgent;
+    if ( ua.indexOf('MSIE') > 0 || !! ua.match(/Trident.*rv\:11\./) ) {
+      window.navigator.msSaveBlob(blob, graph.getData().title + '.svg');
+    } else {
+      let a = document.createElement('a');
+      a.download = graph.getData().title + '.svg';
+      a.href = URL.createObjectURL(blob);
+      a.style.display = 'none';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
   }
   
   /**
@@ -580,16 +592,23 @@ namespace UI {
     canvasElem.height = canvas.getHeight();
     let context = canvasElem.getContext('2d'),
         image = new Image;
-    image.src = getSVGSource();
+    var blob = getBlobClock('image/svg+xml');
+    image.src = URL.createObjectURL(blob);
     image.onload = () => {
       context.drawImage(image, 0, 0);
-      let a = document.createElement('a');
-      a.download = $('svg .title').text() + '.png';
-      a.href = canvasElem.toDataURL('image/png');
-      a.style.display = 'none';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
+      var dataurl = canvasElem.toDataURL('image/png');
+      var ua = window.navigator.userAgent;
+      if ( ua.indexOf('MSIE') > 0 || !! ua.match(/Trident.*rv\:11\./) ) {
+        window.open(dataurl);
+      } else {
+        let a = document.createElement('a');
+        a.download = graph.getData().title + '.png';
+        a.href = dataurl;
+        a.style.display = 'none';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      }
     }
   }
   
@@ -760,14 +779,25 @@ namespace UI {
    * @returns {void}
    */
   function downloadTextFile(text: string, filename: string): void {
-    let element = document.createElement('a');
-    element.setAttribute('href', 'data:text/plain;charset=utf-8,' 
-      + encodeURIComponent(text));
-    element.setAttribute('download', filename);
-    element.style.display = 'none';
-    document.body.appendChild(element);
-    element.click();
-    document.body.removeChild(element);
+    var byteNumbers = new Array(text.length);
+    for (var i=0; i<text.length; i++) {
+      byteNumbers[i] = text.charCodeAt(i);
+    }
+    var byteArray = new Uint8Array(byteNumbers),
+        blob = new Blob([byteArray], {type: 'text/plain'}),
+        dataurl = URL.createObjectURL(blob);
+    var ua = window.navigator.userAgent;
+    if ( ua.indexOf('MSIE') > 0 || !! ua.match(/Trident.*rv\:11\./) ) {
+      window.navigator.msSaveBlob(blob, filename);
+    } else {
+      let element = document.createElement('a');
+      element.setAttribute('href', dataurl);
+      element.setAttribute('download', filename);
+      element.style.display = 'none';
+      document.body.appendChild(element);
+      element.click();
+      document.body.removeChild(element);
+    }
   }
   
   /**
