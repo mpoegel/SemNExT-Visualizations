@@ -51,6 +51,22 @@ namespace UI {
     }, (diseaseObjs) => {
       $('.totalDiseases').text(diseaseObjs.length);
     });
+    var ua = window.navigator.userAgent,
+        IE = ua.indexOf('MSIE') > 0 || !! ua.match(/Trident.*rv\:11\./),
+        Edge = ua.indexOf('Edge') > 0;
+    /* Disable features that don't yet work in IE or Edge */
+    if ( IE || Edge ) {
+      var broken = [
+        '.chart-btn[data-action="download-png"]',
+        '.chart-btn[data-action="path-color-gradient"]'
+      ];
+      for (var i=0; i<broken.length; i++) {
+        $(broken[i])
+          .removeClass('chart-btn')
+          .addClass('disabled')
+          .attr('title', 'Feature not available in IE or Edge.');
+      }
+    }
   }
   
   /**
@@ -279,7 +295,7 @@ namespace UI {
         $btn = $btn.parent();
       }
       let action = $btn.attr('data-action'),
-        target = $btn.attr('data-target');
+          target = $btn.attr('data-target');
       switch (action) {
         // Primary options bar
         case 'highlight-none':
@@ -598,8 +614,9 @@ namespace UI {
       context.drawImage(image, 0, 0);
       var dataurl = canvasElem.toDataURL('image/png');
       var ua = window.navigator.userAgent;
-      if ( ua.indexOf('MSIE') > 0 || !! ua.match(/Trident.*rv\:11\./) ) {
-        window.open(dataurl);
+      if ( ua.indexOf('MSIE') > 0 || !! ua.match(/Trident.*rv\:11\./) ||
+           ua.indexOf('Edge') > 0 ) {
+        return;
       } else {
         let a = document.createElement('a');
         a.download = graph.getData().title + '.png';
