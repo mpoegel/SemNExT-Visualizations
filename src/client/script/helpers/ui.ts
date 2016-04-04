@@ -243,6 +243,9 @@ namespace UI {
             throw error;
           }
           fade_opacity = graph.getFadeOpacity();
+          updateHighlighting();
+          updateColorScheme();
+          updateTheme();
           runAnalytics();
           if (callback) callback();
         }
@@ -299,13 +302,16 @@ namespace UI {
       switch (action) {
         // Primary options bar
         case 'highlight-none':
-          clearHighlighting();
+          updateHighlighting(() => { 
+            clearHighlighting();
+            $(e.target).addClass('active'); 
+          });
           break;
         case 'highlight-hover':
-          setHighlightOnHover($(e.target));
+          updateHighlighting(() => { setHighlightOnHover($(e.target)); });
           break;
         case 'highlight-click':
-          setHighlightOnClick($(e.target));
+          updateHighlighting(() => { setHighlightOnClick($(e.target)); });
           break;
         case 'highlight-dom':
           highlightDominantCluster();
@@ -351,25 +357,19 @@ namespace UI {
           openCustomCHeMMenu();
           break;
         case 'set-D310-colors':
-          graph.recolor(CHeM.Graph.d3Cat10Colors);
-          graph.recolorHeatMap(CHeM.Graph.defaultHeatMapColors);
-          graph.chordBackground('none');          
+          updateColorScheme('D310');      
           break;
         case 'set-matlab-colors':
-          graph.recolor(CHeM.Graph.matlabColors);
-          graph.recolorHeatMap(CHeM.Graph.defaultHeatMapColors);
-          graph.chordBackground('none');          
+          updateColorScheme('matlab');       
           break;
         case 'set-colorblind-colors':
-          graph.recolor(CHeM.Graph.colorblindSafeColors);
-          graph.recolorHeatMap(CHeM.Graph.colorblindSafeHeatMapColors);
-          graph.chordBackground('#000');
+          updateColorScheme('colorblind-safe');
           break;
         case 'set-light-theme':
-          toggleTheme( $(e.target), '#FFF', '#000' );
+          updateTheme( $(e.target), '#FFF', '#000' );
           break;
         case 'set-dark-theme':
-          toggleTheme( $(e.target), '#000', '#FFF' );
+          updateTheme( $(e.target), '#000', '#FFF' );
           break;
         case 'path-color-gradient':
           graph.drawGradientPaths();
@@ -410,6 +410,22 @@ namespace UI {
       }
       });
   }
+  
+  /**
+   * Update the highlight setting. If no highlight function is given, then the
+   *  previous input is used.
+   * @param highlightFunc {() => void} Default = current. Function to update
+   *  the highlighting setting
+   * @returns {void}
+   */
+  var updateHighlighting = (() => {
+    let current = _.noop;
+    return function(highlightFunc = current)
+    {
+      highlightFunc();
+      current = highlightFunc;
+    }
+  })();
 
   /**
    * Clear the current highlighting for the active graph
@@ -795,7 +811,8 @@ namespace UI {
    * @param filename {string} name of the file to save the download as
    * @returns {void}
    */
-  function downloadTextFile(text: string, filename: string): void {
+  function downloadTextFile(text: string, filename: string): void 
+  {
     var byteNumbers = new Array(text.length);
     for (var i=0; i<text.length; i++) {
       byteNumbers[i] = text.charCodeAt(i);
@@ -818,15 +835,66 @@ namespace UI {
   }
   
   /**
-   * 
+   * Update the theme for the UI. Arguments default to the colors that were last
+   *  used.
+   * @param $btn {jQuery} Default = undefined. The button that triggered the
+   *  update
+   * @param bgColor {string} Default = currentBgColor. Valid CSS color string
+   *  for the UI background
+   * @param fgColor {string} Default = currentFgColor. Valid CSS color string
+   *  for the UI foreground
+   * @returns {void}
    */
-  function toggleTheme($btn: JQuery, bgColor: string, fgColor: string): void {
-    $('theme-btn').removeClass('active');
-    $btn.addClass('active');
-    $('body').css({ 'background-color': bgColor });
-    canvas.getHandle().style({ 'background-color': bgColor });
-    canvas.getSVG().selectAll('text').style({ 'fill': fgColor });
-  }
+  var updateTheme = (() => {
+    let currentBgColor: string = undefined,
+        currentFgColor: string = undefined;
+    return function($btn = undefined, bgColor = currentBgColor, fgColor = 
+      currentFgColor): void
+    {
+      if ($btn) {
+        $('theme-btn').removeClass('active');
+        $btn.addClass('active');
+      }
+      $('body').css({ 'background-color': bgColor });
+      canvas.getHandle().style({ 'background-color': bgColor });
+      canvas.getSVG().selectAll('text').style({ 'fill': fgColor });
+      currentBgColor = bgColor;
+      currentFgColor = fgColor;
+    }
+  })();
+  
+  /**
+   * Update the color scheme for the active graph. If no color scheme is given,
+   *  then the previous color scheme is used
+   * @param scheme {string} Default = current. Can be one of 'D310', 'matlab',
+   *  or 'colorblind-safe'
+   * @returns {void}
+   */
+  var updateColorScheme = (() => {
+    let current: string = undefined;
+    return function(scheme = current): void 
+    {
+      switch (scheme) {
+        case 'D310':
+          graph.recolor(CHeM.Graph.d3Cat10Colors);
+          graph.recolorHeatMap(CHeM.Graph.defaultHeatMapColors);
+          graph.chordBackground('none');          
+          break;
+        case 'matlab':
+          graph.recolor(CHeM.Graph.matlabColors);
+          graph.recolorHeatMap(CHeM.Graph.defaultHeatMapColors);
+          graph.chordBackground('none');          
+          break;
+        case 'colorblind-safe':
+          graph.recolor(CHeM.Graph.colorblindSafeColors);
+          graph.recolorHeatMap(CHeM.Graph.colorblindSafeHeatMapColors);
+          graph.chordBackground('#000');
+          break;
+        default: return;
+      }
+      current = scheme;
+    }
+  })();
   
 } /* END UI NAMESPACE */
 
