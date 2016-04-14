@@ -164,6 +164,8 @@ module CHeM {
       'Neural Differentiation', 'Cortical Specification', 'Deep Layers',
       'Upper Layers'];
     
+    static heatMapDayNumbers = [0, 7, 12, 19, 26, 33, 49, 63, 77];
+    
     /**
      * ACCESSORS
      */

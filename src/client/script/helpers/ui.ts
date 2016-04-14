@@ -768,14 +768,20 @@ namespace UI {
       if (gene_data[ Math.floor(i / DAYS) ] === undefined) {
         gene_data[ Math.floor(i / DAYS) ] = {
           symbol: data[i].label,
+          cluster: data[i].cluster,
           values: [ data[i].value ]
         };
       } else {
         gene_data[ Math.floor(i / DAYS) ].values.push( data[i].value );
       }
     }
+    filestream += 'index,symbol,cluster';
+    for (let i in CHeM.Graph.heatMapDayNumbers) {
+      filestream += ',d' + CHeM.Graph.heatMapDayNumbers[i];
+    }
+    filestream += '\n';
     for (let i in gene_data) {
-      filestream += i + ',' + gene_data[i].symbol;
+      filestream += i + ',' + gene_data[i].symbol + ',' + gene_data[i].cluster
       for (let d in gene_data[i].values) {
         filestream += ',' + gene_data[i].values[d];
       }
