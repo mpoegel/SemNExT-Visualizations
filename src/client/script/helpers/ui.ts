@@ -452,9 +452,9 @@ namespace UI {
     canvas.getSVG().selectAll('g.group, .heatmap-arc')
       .on('mouseover', CHeM.getFader(canvas.getHandle(), fade_opacity))
       .on('mouseout', CHeM.getFader(canvas.getHandle(), 1.00));
-    canvas.getSVG().selectAll('cluster-arc')
+    canvas.getSVG().selectAll('.cluster-arc')
       .on('mouseover', CHeM.getClusterFader(canvas.getHandle(), fade_opacity))
-      .on('mouseout', CHeM.getClusterFader(canvas.getHandle(), fade_opacity));
+      .on('mouseout', CHeM.getClusterFader(canvas.getHandle(), 1.00));
   }
 
   /**
