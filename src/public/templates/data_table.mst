@@ -1,0 +1,20 @@
+<table class="data-table">
+  <thead>
+    <th>Symbol</th>
+    <th>Cluster</th>
+  </thead>
+  <tbody>
+    {{# data }}
+      <tr>
+        <td>{{ symbol }}</td>
+        <td>{{ cluster }}</td>
+      </tr>
+    {{/ data }}
+    <tr>
+      <td>Total</td>
+      <td>{{ total }} / {{ minimum }}</td>
+    </tr>
+  </tbody>
+</table>
+
+

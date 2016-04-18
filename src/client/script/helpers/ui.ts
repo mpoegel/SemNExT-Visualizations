@@ -8,10 +8,11 @@ import Munge = require('./../../../helpers/munge');
 import Analysis = require('./../../../helpers/analysis');
 import CHeM = require('./graph');
 
-var $ = require('jquery'),
+let $ = require('jquery'),
     _ = require('underscore'),
    typeahead = require('typeahead.js-browserify'),
-   Bloodhound = require("typeahead.js-browserify").Bloodhound;
+   Bloodhound = require("typeahead.js-browserify").Bloodhound,
+   Mustache = require('mustache');
 
 window.jQuery = $;
 require('bootstrap');
@@ -210,9 +211,13 @@ namespace UI {
     callback?: () => any): void 
   {
     canvas.clear();
-    $('.welcome-message').hide();
-    $('.chart').show();
-    $('.loading').show();
+    $('.content .messages').empty();
+    $('.error-bar-bin').empty();
+    $('.chart').hide();
+    $.get(root_path + 'templates/loading.mst', function(template) {
+      $('.content .messages').html( template );
+    });
+    
     $.post(root_path + 'api/v1/matrix/' + data_type, {
        id: semnextObj['@id']
     })
@@ -220,12 +225,31 @@ namespace UI {
         try {
           let data = Munge.munge(raw_data);
           if (data.labels.length < MIN_GRAPH_SIZE) {
+            let view = {
+              data: [],
+              total: 0,
+              minimum: MIN_GRAPH_SIZE
+            };
+            for (var i in data.labels) {
+              view.data.push({
+                symbol: data.labels[i],
+                cluster: data.clusters[i]
+              });
+            }
+            view.total = view.data.length;
+            $.get(root_path + 'templates/data_table.mst', function(template) {
+              let rendered = Mustache.render(template, view);
+              $('.content .messages')
+                .empty()
+                .html( rendered );
+            });
             let error = new Error('Not enough data received to create CHeM.');
             error.name = 'CHeM Error';
             throw error;
           }
           data.title = semnextObj.label;
-          $('.loading').hide();
+          $('.content .messages').empty();
+          $('.chart').show();
           try {
             let g = new CHeM.Graph(data, canvas)
               .drawChords()
@@ -683,9 +707,11 @@ namespace UI {
    */
   function openCustomCHeMMenu(): void 
   {
-    $('.chart-status').hide();
-    $('.welcome-message').hide();
-    $('.custom-dataset-menu').toggle();
+    $('.content .messages').empty();
+    $('.chart').hide();
+    $.get(root_path + 'templates/custom_menu.mst', function(template) {
+      $('.content .messages').html( template );
+    });
   }
 
   /**
@@ -696,9 +722,9 @@ namespace UI {
   function createCustomCHeM(): void 
   {
     let $geneBox = $('.custom-dataset-menu textarea'),
-      title = $('.custom-dataset-menu input[name="custom-name"]').val(),
-      raw_genes = $geneBox.val(),
-      genes = parseGeneInput(raw_genes);
+        title = $('.custom-dataset-menu input[name="custom-name"]').val(),
+        raw_genes = $geneBox.val(),
+        genes = parseGeneInput(raw_genes);
     let CustomObj: CustomObject = {
       '@id': genes.join(','),
       label: title
