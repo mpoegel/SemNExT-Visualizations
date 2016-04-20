@@ -51,6 +51,7 @@ namespace UI {
       drawCompleteGraph(diseaseObj, 'disease');
     }, (diseaseObjs) => {
       $('.totalDiseases').text(diseaseObjs.length);
+      $('#searchBox').focus();
     });
     var ua = window.navigator.userAgent,
         IE = ua.indexOf('MSIE') > 0 || !! ua.match(/Trident.*rv\:11\./),

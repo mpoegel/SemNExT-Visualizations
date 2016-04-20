@@ -596,10 +596,12 @@ module CHeM {
           .range([this.chord_fill(this.data.clusters[$(d).attr('source')]),
                   this.chord_fill(this.data.clusters[$(d).attr('target')])])
           .domain([0, $(d).children().length]);
-        $(d).children().each((i) => {
-          $(i).css('fill', gradient(i))
-              .css('stroke', gradient(i));
+        _.each($(d).children(), (dd,i) => {
+          d3.select(dd)
+            .style('fill', gradient(i))
+            .style('stroke', gradient(i));
         });
+        return;
       });
       d3.selectAll('g.group path')
         .style('fill', (d) => { 
