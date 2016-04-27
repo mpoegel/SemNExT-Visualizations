@@ -19,7 +19,9 @@ app.use(lessMiddleware(
   __dirname + '/public',
   { force: true }
 ));
-app.use(bodyParser.json());
+app.use(bodyParser.json({
+  strict: false
+}));
 // serve the contents of the /public directory at the root
 app.use('/', express.static(__dirname + '/public'));
 // load the route controllers

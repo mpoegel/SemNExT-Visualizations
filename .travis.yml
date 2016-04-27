@@ -5,4 +5,5 @@ before_script:
   - npm install gulp -g
   - gulp tsd
   - node ./node_modules/typescript/bin/tsc -p ./src
+  - node ./node_modules/typescript/bin/tsc -p ./analysis
   - gulp bundle-css

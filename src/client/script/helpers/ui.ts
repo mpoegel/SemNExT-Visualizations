@@ -125,14 +125,13 @@ namespace UI {
     cb: (diseaseObjs) => any): void 
   {
     $.get(root_path + 'api/v1/list/disease')
-      .done((diseaseStr) => {
-        let diseaseObjs = JSON.parse(diseaseStr),
-          bloodhound = new Bloodhound({
-            datumTokenizer: (datum) => { return [datum.label]; },
-            queryTokenizer: Bloodhound.tokenizers.whitespace,
-            local: () => { return diseaseObjs; },
-            identify: (obj) => { return obj['@id']; },
-          });
+      .done((diseaseObjs) => {
+        let bloodhound = new Bloodhound({
+              datumTokenizer: (datum) => { return [datum.label]; },
+              queryTokenizer: Bloodhound.tokenizers.whitespace,
+              local: () => { return diseaseObjs; },
+              identify: (obj) => { return obj['@id']; },
+            });
         $input
           .typeahead('destroy')
           .typeahead({
@@ -168,14 +167,13 @@ namespace UI {
     cb: (keggObjs) => any): void 
   {
     $.get(root_path + 'api/v1/list/kegg_pathways')
-      .done((keggStr) => {
-        let keggObjs = JSON.parse(keggStr),
-          bloodhound = new Bloodhound({
-            datumTokenizer: (datum) => { return [datum.label]; },
-            queryTokenizer: Bloodhound.tokenizers.whitespace,
-            local: () => { return keggObjs; },
-            identify: (obj) => { return obj['@id']; },
-          });
+      .done((keggObjs) => {
+        let bloodhound = new Bloodhound({
+              datumTokenizer: (datum) => { return [datum.label]; },
+              queryTokenizer: Bloodhound.tokenizers.whitespace,
+              local: () => { return keggObjs; },
+              identify: (obj) => { return obj['@id']; },
+            });
         $input
           .typeahead('destroy')
           .typeahead({
