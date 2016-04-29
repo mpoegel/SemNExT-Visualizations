@@ -19,15 +19,19 @@ interface IListCallback {
   (error: IErrorObj, data: DiseaseObject[] | KeggPathwayObject[]): any;
 }
 
-const SemNExT_URLs = {
-  disease_matrix: 'https://semnext.tw.rpi.edu/api/v1/matrix_for_disease?disease=',
-  diseases_list: 'https://semnext.tw.rpi.edu/api/v1/list_known_diseases',
-  kegg_matrix: 'https://semnext.tw.rpi.edu/api/v1/matrix_for_kegg_pathway?pathway=',
-  kegg_list: 'https://semnext.tw.rpi.edu/api/v1/list_known_kegg_pathways',
-  custom_matrix: 'https://semnext.tw.rpi.edu/api/v1/matrix_for_genes?symbols='
+interface IFormData {
+  disease?: string;
+  pathway?: string;
+  symbols?: string;
 }
 
-const MAX_URI_SIZE = 8203;
+const SemNExT_URLs = {
+  disease_matrix: 'https://semnext.tw.rpi.edu/api/v1/matrix_for_disease',
+  diseases_list: 'https://semnext.tw.rpi.edu/api/v1/list_known_diseases',
+  kegg_matrix: 'https://semnext.tw.rpi.edu/api/v1/matrix_for_kegg_pathway',
+  kegg_list: 'https://semnext.tw.rpi.edu/api/v1/list_known_kegg_pathways',
+  custom_matrix: 'https://semnext.tw.rpi.edu/api/v1/matrix_for_genes'
+}
 
 /**
  * Fetch the matrix of data for the given disease. Wrapper for fetchMatrix.
@@ -39,7 +43,7 @@ const MAX_URI_SIZE = 8203;
 export function fetchDiseaseMatrix(diseaseId: string, callback: IMatrixCallback)
   :  void 
 {
-  fetchMatrix(SemNExT_URLs.disease_matrix, diseaseId, callback);
+  fetchMatrix(SemNExT_URLs.disease_matrix, { disease: diseaseId }, callback);
 }
 
 /**
@@ -52,7 +56,7 @@ export function fetchDiseaseMatrix(diseaseId: string, callback: IMatrixCallback)
 export function fetchKeggPathwaysMatrix(keggId: string, callback: 
   IMatrixCallback):  void
 {
-  fetchMatrix(SemNExT_URLs.kegg_matrix, keggId, callback);
+  fetchMatrix(SemNExT_URLs.kegg_matrix, { pathway: keggId }, callback);
 }
 
 /**
@@ -66,36 +70,22 @@ export function fetchKeggPathwaysMatrix(keggId: string, callback:
 export function fetchCustomMatrix(inputs: string, callback: IMatrixCallback): 
   void 
 {
-  fetchMatrix(SemNExT_URLs.custom_matrix, inputs, callback);
+  fetchMatrix(SemNExT_URLs.custom_matrix, { symbols: inputs }, callback);
 }
 
 /**
  * Fetch the matrix of data at the given location for the given object
  * @param url {string} path from which to retrieve the matrix
- * @param id {string} matrix identifier
+ * @param data {IFormData} object that contains the matrix identifier 
+ *  information
  * @param callback {IMatrixCallback} function to call upon completion with the 
  *  data on success or an error on failure
  * @returns {void}
  */
-function fetchMatrix(url: string, id: string, callback: IMatrixCallback): void 
+function fetchMatrix(url: string, data: IFormData, callback: IMatrixCallback):
+  void 
 {
-  /* There apears to be a bug in nginx where it does not attach all the 
-     necessary headers when it returns 414 error for the URI being too long.
-     Since the Request module is very strict, it always expects a properly
-     formed response header, otherwise it will throw an HPE_INVALID_CONSTANT 
-     error. Therefore we must catch this error before it happens. */
-  let uri = url + id;
-  let uri_size = Buffer.Buffer.byteLength(uri, 'utf8');
-  if (uri_size > MAX_URI_SIZE) {
-    let err: IErrorObj = {
-      name: 'URI Too Long',
-      message: 'The length of the requested URI exceeds the buffer size.',
-      code: 414
-    }
-    callback(err, null);
-    return;
-  }
-  request.get(uri, function(error, response, body: string) {
+  request.post(url, { form: data }, function(error, response, body: string) {
     if (error || response.statusCode >= 400) {
       let err: IErrorObj = {
         name: 'Internal Error',
