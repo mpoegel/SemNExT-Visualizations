@@ -67,18 +67,18 @@ namespace Campfire {
 						floorGraph = new CHeM.Graph(data, floorCanvas, {
 								onMouseOver: (d, i) => {
 									if (d.genes !== undefined) {
-										CHeM.getHeatMapClusterFader(wallHandle.d3.select('#wall'), 0.02)(d, i);
+										CHeM.getHeatMapClusterFader(wallHandle.d3select('#wall'), 0.02)(d, i);
 									}
 									else {
-										CHeM.getHeatMapFader(wallHandle.d3.select('#wall'), 0.02)(d, i);
+										CHeM.getHeatMapFader(wallHandle.d3select('#wall'), 0.02)(d, i);
 									}
 								},
 								onMouseOut: (d, i) => {
 									if (d.genes !== undefined) {
-										CHeM.getHeatMapClusterFader(wallHandle.d3.select('#wall'), 1.00)(d, i);
+										CHeM.getHeatMapClusterFader(wallHandle.d3select('#wall'), 1.00)(d, i);
 									}
 									else {
-										CHeM.getHeatMapFader(wallHandle.d3.select('#wall'), 1.00)(d, i);
+										CHeM.getHeatMapFader(wallHandle.d3select('#wall'), 1.00)(d, i);
 									}
 								}
 							})

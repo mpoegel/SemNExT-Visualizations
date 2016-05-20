@@ -8,10 +8,11 @@ import Munge = require('./../../../helpers/munge');
 import Analysis = require('./../../../helpers/analysis');
 import CHeM = require('./graph');
 
-var $ = require('jquery'),
+let $ = require('jquery'),
     _ = require('underscore'),
    typeahead = require('typeahead.js-browserify'),
-   Bloodhound = require("typeahead.js-browserify").Bloodhound;
+   Bloodhound = require("typeahead.js-browserify").Bloodhound,
+   Mustache = require('mustache');
 
 window.jQuery = $;
 require('bootstrap');
@@ -50,7 +51,24 @@ namespace UI {
       drawCompleteGraph(diseaseObj, 'disease');
     }, (diseaseObjs) => {
       $('.totalDiseases').text(diseaseObjs.length);
+      $('#searchBox').focus();
     });
+    var ua = window.navigator.userAgent,
+        IE = ua.indexOf('MSIE') > 0 || !! ua.match(/Trident.*rv\:11\./),
+        Edge = ua.indexOf('Edge') > 0;
+    /* Disable features that don't yet work in IE or Edge */
+    if ( IE || Edge ) {
+      var broken = [
+        '.chart-btn[data-action="download-png"]',
+        '.chart-btn[data-action="path-color-gradient"]'
+      ];
+      for (var i=0; i<broken.length; i++) {
+        $(broken[i])
+          .removeClass('chart-btn')
+          .addClass('disabled')
+          .attr('title', 'Feature not available in IE or Edge.');
+      }
+    }
   }
   
   /**
@@ -107,14 +125,13 @@ namespace UI {
     cb: (diseaseObjs) => any): void 
   {
     $.get(root_path + 'api/v1/list/disease')
-      .done((diseaseStr) => {
-        let diseaseObjs = JSON.parse(diseaseStr),
-          bloodhound = new Bloodhound({
-            datumTokenizer: (datum) => { return [datum.label]; },
-            queryTokenizer: Bloodhound.tokenizers.whitespace,
-            local: () => { return diseaseObjs; },
-            identify: (obj) => { return obj['@id']; },
-          });
+      .done((diseaseObjs) => {
+        let bloodhound = new Bloodhound({
+              datumTokenizer: (datum) => { return [datum.label]; },
+              queryTokenizer: Bloodhound.tokenizers.whitespace,
+              local: () => { return diseaseObjs; },
+              identify: (obj) => { return obj['@id']; },
+            });
         $input
           .typeahead('destroy')
           .typeahead({
@@ -150,14 +167,13 @@ namespace UI {
     cb: (keggObjs) => any): void 
   {
     $.get(root_path + 'api/v1/list/kegg_pathways')
-      .done((keggStr) => {
-        let keggObjs = JSON.parse(keggStr),
-          bloodhound = new Bloodhound({
-            datumTokenizer: (datum) => { return [datum.label]; },
-            queryTokenizer: Bloodhound.tokenizers.whitespace,
-            local: () => { return keggObjs; },
-            identify: (obj) => { return obj['@id']; },
-          });
+      .done((keggObjs) => {
+        let bloodhound = new Bloodhound({
+              datumTokenizer: (datum) => { return [datum.label]; },
+              queryTokenizer: Bloodhound.tokenizers.whitespace,
+              local: () => { return keggObjs; },
+              identify: (obj) => { return obj['@id']; },
+            });
         $input
           .typeahead('destroy')
           .typeahead({
@@ -194,9 +210,13 @@ namespace UI {
     callback?: () => any): void 
   {
     canvas.clear();
-    $('.welcome-message').hide();
-    $('.chart').show();
-    $('.loading').show();
+    $('.content .messages').empty();
+    $('.error-bar-bin').empty();
+    $('.chart').hide();
+    $.get(root_path + 'templates/loading.mst', function(template) {
+      $('.content .messages').html( template );
+    });
+    
     $.post(root_path + 'api/v1/matrix/' + data_type, {
        id: semnextObj['@id']
     })
@@ -204,12 +224,31 @@ namespace UI {
         try {
           let data = Munge.munge(raw_data);
           if (data.labels.length < MIN_GRAPH_SIZE) {
+            let view = {
+              data: [],
+              total: 0,
+              minimum: MIN_GRAPH_SIZE
+            };
+            for (var i in data.labels) {
+              view.data.push({
+                symbol: data.labels[i],
+                cluster: data.clusters[i]
+              });
+            }
+            view.total = view.data.length;
+            $.get(root_path + 'templates/data_table.mst', function(template) {
+              let rendered = Mustache.render(template, view);
+              $('.content .messages')
+                .empty()
+                .html( rendered );
+            });
             let error = new Error('Not enough data received to create CHeM.');
             error.name = 'CHeM Error';
             throw error;
           }
           data.title = semnextObj.label;
-          $('.loading').hide();
+          $('.content .messages').empty();
+          $('.chart').show();
           try {
             let g = new CHeM.Graph(data, canvas)
               .drawChords()
@@ -227,6 +266,9 @@ namespace UI {
             throw error;
           }
           fade_opacity = graph.getFadeOpacity();
+          updateHighlighting();
+          updateColorScheme();
+          updateTheme();
           runAnalytics();
           if (callback) callback();
         }
@@ -279,17 +321,20 @@ namespace UI {
         $btn = $btn.parent();
       }
       let action = $btn.attr('data-action'),
-        target = $btn.attr('data-target');
+          target = $btn.attr('data-target');
       switch (action) {
         // Primary options bar
         case 'highlight-none':
-          clearHighlighting();
+          updateHighlighting(() => { 
+            clearHighlighting();
+            $(e.target).addClass('active'); 
+          });
           break;
         case 'highlight-hover':
-          setHighlightOnHover($(e.target));
+          updateHighlighting(() => { setHighlightOnHover($(e.target)); });
           break;
         case 'highlight-click':
-          setHighlightOnClick($(e.target));
+          updateHighlighting(() => { setHighlightOnClick($(e.target)); });
           break;
         case 'highlight-dom':
           highlightDominantCluster();
@@ -335,25 +380,19 @@ namespace UI {
           openCustomCHeMMenu();
           break;
         case 'set-D310-colors':
-          graph.recolor(CHeM.Graph.d3Cat10Colors);
-          graph.recolorHeatMap(CHeM.Graph.defaultHeatMapColors);
-          graph.chordBackground('none');          
+          updateColorScheme('D310');      
           break;
         case 'set-matlab-colors':
-          graph.recolor(CHeM.Graph.matlabColors);
-          graph.recolorHeatMap(CHeM.Graph.defaultHeatMapColors);
-          graph.chordBackground('none');          
+          updateColorScheme('matlab');       
           break;
         case 'set-colorblind-colors':
-          graph.recolor(CHeM.Graph.colorblindSafeColors);
-          graph.recolorHeatMap(CHeM.Graph.colorblindSafeHeatMapColors);
-          graph.chordBackground('#000');
+          updateColorScheme('colorblind-safe');
           break;
         case 'set-light-theme':
-          toggleTheme( $(e.target), '#FFF', '#000' );
+          updateTheme( $(e.target), '#FFF', '#000' );
           break;
         case 'set-dark-theme':
-          toggleTheme( $(e.target), '#000', '#FFF' );
+          updateTheme( $(e.target), '#000', '#FFF' );
           break;
         case 'path-color-gradient':
           graph.drawGradientPaths();
@@ -394,6 +433,22 @@ namespace UI {
       }
       });
   }
+  
+  /**
+   * Update the highlight setting. If no highlight function is given, then the
+   *  previous input is used.
+   * @param highlightFunc {() => void} Default = current. Function to update
+   *  the highlighting setting
+   * @returns {void}
+   */
+  var updateHighlighting = (() => {
+    let current = _.noop;
+    return function(highlightFunc = current)
+    {
+      highlightFunc();
+      current = highlightFunc;
+    }
+  })();
 
   /**
    * Clear the current highlighting for the active graph
@@ -420,9 +475,9 @@ namespace UI {
     canvas.getSVG().selectAll('g.group, .heatmap-arc')
       .on('mouseover', CHeM.getFader(canvas.getHandle(), fade_opacity))
       .on('mouseout', CHeM.getFader(canvas.getHandle(), 1.00));
-    canvas.getSVG().selectAll('cluster-arc')
+    canvas.getSVG().selectAll('.cluster-arc')
       .on('mouseover', CHeM.getClusterFader(canvas.getHandle(), fade_opacity))
-      .on('mouseout', CHeM.getClusterFader(canvas.getHandle(), fade_opacity));
+      .on('mouseout', CHeM.getClusterFader(canvas.getHandle(), 1.00));
   }
 
   /**
@@ -542,16 +597,22 @@ namespace UI {
   }
   
   /**
-   * Get the source of the current graph as an SVG base64-encoded string
+   * Generate a blob url for the current clock
+   * @param contentType {string} content-type for the blob data
    * @returns {string}
    */
-  function getSVGSource(): string 
+  function getBlobClock(contentType): Blob
   {
-    return 'data:image/svg+xml;base64,' +
-      btoa($('svg')
-        .attr('version', 1.1)
-        .attr('xmlns', 'http://www.w3.org/2000/svg')
-        .parent().html());
+    var byteCharacters = $('svg')
+            .attr('version', 1.1)
+            .attr('xmlns', 'http://www.w3.org/2000/svg')
+            .parent().html(),
+        byteNumbers = new Array(byteCharacters.length);
+    for (var i=0; i<byteCharacters.length; i++) {
+      byteNumbers[i] = byteCharacters.charCodeAt(i);
+    }
+    var byteArray = new Uint8Array(byteNumbers);
+    return new Blob([byteArray], {type: contentType});
   }
 
   /**
@@ -560,10 +621,19 @@ namespace UI {
    */
   function downloadSVG(): void 
   {
-    let a = document.createElement('a');
-    a.download = graph.getData().title + '.svg';
-    a.href = getSVGSource();
-    a.click();
+    var blob = getBlobClock('image/svg+xml');    
+    var ua = window.navigator.userAgent;
+    if ( ua.indexOf('MSIE') > 0 || !! ua.match(/Trident.*rv\:11\./) ) {
+      window.navigator.msSaveBlob(blob, graph.getData().title + '.svg');
+    } else {
+      let a = document.createElement('a');
+      a.download = graph.getData().title + '.svg';
+      a.href = URL.createObjectURL(blob);
+      a.style.display = 'none';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
   }
   
   /**
@@ -576,14 +646,25 @@ namespace UI {
     canvasElem.width = canvas.getWidth();
     canvasElem.height = canvas.getHeight();
     let context = canvasElem.getContext('2d'),
-      image = new Image;
-    image.src = getSVGSource();
+        image = new Image;
+    var blob = getBlobClock('image/svg+xml');
+    image.src = URL.createObjectURL(blob);
     image.onload = () => {
       context.drawImage(image, 0, 0);
-      let a = document.createElement('a');
-      a.download = $('svg .title').text() + '.png';
-      a.href = canvasElem.toDataURL('image/png');
-      a.click();
+      var dataurl = canvasElem.toDataURL('image/png');
+      var ua = window.navigator.userAgent;
+      if ( ua.indexOf('MSIE') > 0 || !! ua.match(/Trident.*rv\:11\./) ||
+           ua.indexOf('Edge') > 0 ) {
+        return;
+      } else {
+        let a = document.createElement('a');
+        a.download = graph.getData().title + '.png';
+        a.href = dataurl;
+        a.style.display = 'none';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      }
     }
   }
   
@@ -625,9 +706,11 @@ namespace UI {
    */
   function openCustomCHeMMenu(): void 
   {
-    $('.chart-status').hide();
-    $('.welcome-message').hide();
-    $('.custom-dataset-menu').toggle();
+    $('.content .messages').empty();
+    $('.chart').hide();
+    $.get(root_path + 'templates/custom_menu.mst', function(template) {
+      $('.content .messages').html( template );
+    });
   }
 
   /**
@@ -638,9 +721,9 @@ namespace UI {
   function createCustomCHeM(): void 
   {
     let $geneBox = $('.custom-dataset-menu textarea'),
-      title = $('.custom-dataset-menu input[name="custom-name"]').val(),
-      raw_genes = $geneBox.val(),
-      genes = parseGeneInput(raw_genes);
+        title = $('.custom-dataset-menu input[name="custom-name"]').val(),
+        raw_genes = $geneBox.val(),
+        genes = parseGeneInput(raw_genes);
     let CustomObj: CustomObject = {
       '@id': genes.join(','),
       label: title
@@ -710,14 +793,20 @@ namespace UI {
       if (gene_data[ Math.floor(i / DAYS) ] === undefined) {
         gene_data[ Math.floor(i / DAYS) ] = {
           symbol: data[i].label,
+          cluster: data[i].cluster,
           values: [ data[i].value ]
         };
       } else {
         gene_data[ Math.floor(i / DAYS) ].values.push( data[i].value );
       }
     }
+    filestream += 'index,symbol,cluster';
+    for (let i in CHeM.Graph.heatMapDayNumbers) {
+      filestream += ',d' + CHeM.Graph.heatMapDayNumbers[i];
+    }
+    filestream += '\n';
     for (let i in gene_data) {
-      filestream += i + ',' + gene_data[i].symbol;
+      filestream += i + ',' + gene_data[i].symbol + ',' + gene_data[i].cluster
       for (let d in gene_data[i].values) {
         filestream += ',' + gene_data[i].values[d];
       }
@@ -753,27 +842,90 @@ namespace UI {
    * @param filename {string} name of the file to save the download as
    * @returns {void}
    */
-  function downloadTextFile(text: string, filename: string): void {
-    let element = document.createElement('a');
-    element.setAttribute('href', 'data:text/plain;charset=utf-8,' 
-      + encodeURIComponent(text));
-    element.setAttribute('download', filename);
-    element.style.display = 'none';
-    document.body.appendChild(element);
-    element.click();
-    document.body.removeChild(element);
+  function downloadTextFile(text: string, filename: string): void 
+  {
+    var byteNumbers = new Array(text.length);
+    for (var i=0; i<text.length; i++) {
+      byteNumbers[i] = text.charCodeAt(i);
+    }
+    var byteArray = new Uint8Array(byteNumbers),
+        blob = new Blob([byteArray], {type: 'text/plain'}),
+        dataurl = URL.createObjectURL(blob);
+    var ua = window.navigator.userAgent;
+    if ( ua.indexOf('MSIE') > 0 || !! ua.match(/Trident.*rv\:11\./) ) {
+      window.navigator.msSaveBlob(blob, filename);
+    } else {
+      let element = document.createElement('a');
+      element.setAttribute('href', dataurl);
+      element.setAttribute('download', filename);
+      element.style.display = 'none';
+      document.body.appendChild(element);
+      element.click();
+      document.body.removeChild(element);
+    }
   }
   
   /**
-   * 
+   * Update the theme for the UI. Arguments default to the colors that were last
+   *  used.
+   * @param $btn {jQuery} Default = undefined. The button that triggered the
+   *  update
+   * @param bgColor {string} Default = currentBgColor. Valid CSS color string
+   *  for the UI background
+   * @param fgColor {string} Default = currentFgColor. Valid CSS color string
+   *  for the UI foreground
+   * @returns {void}
    */
-  function toggleTheme($btn: JQuery, bgColor: string, fgColor: string): void {
-    $('theme-btn').removeClass('active');
-    $btn.addClass('active');
-    $('body').css({ 'background-color': bgColor });
-    canvas.getHandle().style({ 'background-color': bgColor });
-    canvas.getSVG().selectAll('text').style({ 'fill': fgColor });
-  }
+  var updateTheme = (() => {
+    let currentBgColor: string = undefined,
+        currentFgColor: string = undefined;
+    return function($btn = undefined, bgColor = currentBgColor, fgColor = 
+      currentFgColor): void
+    {
+      if ($btn) {
+        $('theme-btn').removeClass('active');
+        $btn.addClass('active');
+      }
+      $('body').css({ 'background-color': bgColor });
+      canvas.getHandle().style({ 'background-color': bgColor });
+      canvas.getSVG().selectAll('text').style({ 'fill': fgColor });
+      currentBgColor = bgColor;
+      currentFgColor = fgColor;
+    }
+  })();
+  
+  /**
+   * Update the color scheme for the active graph. If no color scheme is given,
+   *  then the previous color scheme is used
+   * @param scheme {string} Default = current. Can be one of 'D310', 'matlab',
+   *  or 'colorblind-safe'
+   * @returns {void}
+   */
+  var updateColorScheme = (() => {
+    let current: string = undefined;
+    return function(scheme = current): void 
+    {
+      switch (scheme) {
+        case 'D310':
+          graph.recolor(CHeM.Graph.d3Cat10Colors);
+          graph.recolorHeatMap(CHeM.Graph.defaultHeatMapColors);
+          graph.chordBackground('none');          
+          break;
+        case 'matlab':
+          graph.recolor(CHeM.Graph.matlabColors);
+          graph.recolorHeatMap(CHeM.Graph.defaultHeatMapColors);
+          graph.chordBackground('none');          
+          break;
+        case 'colorblind-safe':
+          graph.recolor(CHeM.Graph.colorblindSafeColors);
+          graph.recolorHeatMap(CHeM.Graph.colorblindSafeHeatMapColors);
+          graph.chordBackground('#000');
+          break;
+        default: return;
+      }
+      current = scheme;
+    }
+  })();
   
 } /* END UI NAMESPACE */
 

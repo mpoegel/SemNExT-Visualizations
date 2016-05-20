@@ -18,22 +18,8 @@
 		<div class="container">
 
 			<div class="row expanded-settings-bar">
-
-				<div class="row">
-					<ul class="horizontal-list">
-						<li><a href="http://tw.rpi.edu/web/project/SemNExT" target="_blank">
-							Semantic Numeric Exploration Techonology (SemNExt) Project</a>
-							</li>
-						<li><a href="http://rpi.edu" target="_blank">
-							Rensselaer Polytechnic Institute, Troy, NY, USA</a></li>
-            <li><a href="https://github.com/mpoegel/SemNExT-Visualizations"
-              target="_blank">
-              Open Source on Github</a>             
-            </li>
-					</ul>
-				</div>
-
-				<div class="row">
+				
+        <div class="row">
 					<ul class="horizontal-list options-list">
 						<li class="chart-btn" data-action="change-options-bar" 
 							data-target="search-options">Search</li>
@@ -223,76 +209,48 @@
 	</div> <!-- close HEADER -->
 
 	<div class="container content">
-		<div class="welcome-message">
-			<h2>
-				Welcome to the SWOT Clock
-			</h2>
-      <p class="subtitle">Suceptibility Windows Ontological Transcriptome 
-        Clock</p>
-			<p>
-				There are <span class="totalDiseases">#</span> diseases currently
-				in the database.
-			</p>
-			<p>
-				This is a visualization tool to create a SWOT Clock	that illustrates
-        the relationships between transcriptomes in a reference set. You can 
-        search our database of diseases or KEGG Pathways or upload your own
-        reference set.
-			</p>
+		
+		<div class="messages">
+			<div class="welcome-message">
+				<h2>
+					Welcome to the SWOT Clock
+				</h2>
+				<p class="subtitle">Suceptibility Windows Ontological Transcriptome 
+					Clock</p>
+				<p>
+					There are <span class="totalDiseases">#</span> diseases currently
+					in the database.
+				</p>
+				<p>
+					This is a visualization tool to create a SWOT Clock	that illustrates
+					the relationships between transcriptomes in a reference set. You can 
+					search our database of diseases or KEGG Pathways or upload your own
+					reference set.
+				</p>
+			</div>			
 		</div>
-		<div class="loading">
-			<i class="fa fa-5x fa-cog fa-spin"></i>
-			<p>
-				Building the SWOT Clock!
-			</p>
-		</div>
-		<div class="custom-dataset-menu">
-			<span class="chart-btn" data-action="custom-data">&times</span>
-			<p>
-				You can create a SWOT Clock from a user-defined list of transcriptomes.
-			</p>
-			<p>
-				Data set name
-				<input type="text" name="custom-name">
-			</p>
-			<p>
-				Upload transcriptomes from a file.
-				<input type="file" name="gene-file">
-			</p>
-			<p>
-				Enter transcriptomes manually.<br>
-				<textarea name="gene-list" rows="6" cols="20"></textarea>
-				<span class="chart-btn clear-genes" data-action="clear-custom-genes">
-					&times</span>
-			</p>
-			<p>
-				<div class="btn btn-success chart-btn"
-					data-action="create-custom">
-					Create Clock
-				</div>
-			</p>
-		</div>
-		<div class="chart-status"></div>
+		
 		<div class="chart"></div>
-		<div class="semData">
-			<dl>
-				<dt>Gene Symbol</dt><dd class="symbol"></dd>
-				<dt>Description</dt><dd class="desription"></dd>
-				<dt>Cluster</dt><dd class="cluster"></dd>
-				<dt>Present In</dt><dd class="relations"></dd>
-				<dt>Outgoing Connections</dt><dd class="outgoing"></dd>
-				<dt>Incoming Connections</dt><dd class="incoming"></dd>
-				<dt>Experimental Data</dt><dd class="days"><table class="table"></table></dd>
-			</dl>
-		</div>
-		<div class="semData-error bg-warning hidden">
-			Semantic Data is not available for the selected data set.
-		</div>
-		<div class="geneInfo"></div>
-
-
+		
+	</div>
+  
+  <div class="footer">
+    <div>
+      <a href="http://rpi.edu" target="_blank">
+				Rensselaer Polytechnic Institute, Troy, NY, USA</a>
+    </div>
+    <div>
+      <a href="http://tw.rpi.edu/web/project/SemNExT" target="_blank">
+			  A Semantic Numeric Exploration Techonology Project</a>
+    </div>
+    <div>
+      <a href="https://github.com/mpoegel/SemNExT-Visualizations" 
+        target="_blank">Open Source on Github</a>
+    </div>
+  </div>
+  
 	<script src="./script/main.js" charset="utf-8"></script>
-
+  
 </body>
 
 </html>

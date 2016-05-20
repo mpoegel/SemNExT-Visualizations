@@ -157,12 +157,14 @@ module CHeM {
         '#4575b4'])[(i-1)%6];
     }
     
-    static defaultHeatMapColors = ['#232323', 'green', 'red'];
-    static colorblindSafeHeatMapColors = ['#232323', 'blue', 'yellow'];
+    static defaultHeatMapColors = ['green', '#232323', 'red'];
+    static colorblindSafeHeatMapColors = ['blue', '#232323', 'yellow'];
 
     static clusterToStage = ['Pluripotency', 'Neuroectoderm',
       'Neural Differentiation', 'Cortical Specification', 'Deep Layers',
       'Upper Layers'];
+    
+    static heatMapDayNumbers = [0, 7, 12, 19, 26, 33, 49, 63, 77];
     
     /**
      * ACCESSORS
@@ -215,7 +217,7 @@ module CHeM {
       sd = Math.sqrt(sd / this.data.heatmap.length);
       this.heatmapColorScale = d3.scale.linear()
         .range(Graph.defaultHeatMapColors)
-        .domain([mu - 2 * sd, mu, mu + 2 * sd]);
+        .domain([mu - 3 * sd, mu, mu + 3 * sd]);
 
       // initialize more scales
       this.heatmapLegendScale = d3.scale.linear()
@@ -594,10 +596,12 @@ module CHeM {
           .range([this.chord_fill(this.data.clusters[$(d).attr('source')]),
                   this.chord_fill(this.data.clusters[$(d).attr('target')])])
           .domain([0, $(d).children().length]);
-        $(d).children().each((i) => {
-          $(i).css('fill', gradient(i))
-              .css('stroke', gradient(i));
+        _.each($(d).children(), (dd,i) => {
+          d3.select(dd)
+            .style('fill', gradient(i))
+            .style('stroke', gradient(i));
         });
+        return;
       });
       d3.selectAll('g.group path')
         .style('fill', (d) => { 

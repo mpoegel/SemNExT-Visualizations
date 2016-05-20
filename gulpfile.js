@@ -31,18 +31,15 @@ gulp.task('tsd', function(cb) {
 
 // compile the typescript source
 gulp.task('ts', function() {
-  var ts_result = ts_project.src()
-    .pipe(ts(ts_project));
-  return ts_result.js.pipe(gulp.dest('./src'));
+  var ts_result = ts_project.src().pipe( ts(ts_project) );
+  return ts_result.js.pipe(gulp.dest('./'));
 });
 
 // clean up the generated javascript files
 gulp.task('clean:ts', function() {
   var files = [
-    './src/*.js',
-    './src/*/*.js',
-    './src/public/script/*',
-    './analysis/*.js'
+    './src/**/*.js',
+    './analysis/**/*.js'
   ]
   del(files);
   return gulp;
@@ -65,13 +62,13 @@ gulp.task('nodemon', function() {
 });
 
 gulp.task('bundle-js', ['ts'], function(done) {
-  var files = glob.sync('./src/client/script/*.js'),
+  var files = glob.sync('./src/client/script/**/*.js'),
       tasks = [];
   for (var f in files) {
     var file_path = files[f].split('/'),
         file = file_path[ file_path.length -1 ];
     var b = browserify({
-      entries: './src/client/script/' + file,
+      entries: file_path.slice(0, file_path.length-1).join('/') + '/' + file,
       debug: true
     });
     tasks.push(b.bundle()

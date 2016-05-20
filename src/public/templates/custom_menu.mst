@@ -1,0 +1,25 @@
+<div class="custom-dataset-menu">
+  <p>
+    You can create a SWOT Clock from a user-defined list of transcriptomes.
+  </p>
+  <p>
+    Data set name
+    <input type="text" name="custom-name">
+  </p>
+  <p>
+    Upload transcriptomes from a file.
+    <input type="file" name="gene-file">
+  </p>
+  <p>
+    Enter transcriptomes manually.<br>
+    <textarea name="gene-list" rows="6" cols="20"></textarea>
+    <span class="chart-btn clear-genes" data-action="clear-custom-genes">
+      &times;</span>
+  </p>
+  <p>
+    <div class="btn btn-success chart-btn"
+      data-action="create-custom">
+      Create Clock
+    </div>
+  </p>
+</div>

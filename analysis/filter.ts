@@ -14,10 +14,12 @@ module Filter {
     for (var i in input) {
       (function(gene) {
         promises.push(new Promise((resolve, reject) => {
-          Semnext.fetchCustomMatrix(input[i], () => {
-            resolve( gene );
-          }, () => {
-            resolve();
+          Semnext.fetchCustomMatrix(input[i], (error, data) => {
+            if (error) {
+              resolve();
+            } else {
+              resolve( gene );
+            }
           });
         }));
       })(input[i]);
