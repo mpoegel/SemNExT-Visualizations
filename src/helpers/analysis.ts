@@ -55,7 +55,7 @@ namespace Analysis {
 			n12 += 0.5;
 			n22 += 0.5;
 		}
-		return enrichment(n11, n21, n12, n22);
+		return enrichment(n11, n12, n21, n22);
 	}
 	
 	
