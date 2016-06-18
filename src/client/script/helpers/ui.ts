@@ -283,7 +283,8 @@ namespace UI {
   }
   
   /**
-   * Run the analysis of semnext data for this input.
+   * Run the analysis of semnext data for this input. Calculates the dominant
+   * cluster.
    * @returns {void}
    */
   function runAnalytics(): void 
@@ -301,7 +302,9 @@ namespace UI {
       let [log_odds, pval] = Analysis.clusterEnrichment(genes, i);
       $($('.cluster-enrichment .log-odds td')[i]).text(log_odds.toPrecision(4));
       $($('.cluster-enrichment .p-value td')[i]).text(pval.toPrecision(4));
-      if (pval < lowest_pval) {
+      // dominant cluster is the cluster with a positive log odds ratio and the
+      // lowest p-value
+      if (log_odds > 0 && pval < lowest_pval) {
         lowest_pval = pval;
         lowest_cluster = i;
       }
