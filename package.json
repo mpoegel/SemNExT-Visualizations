@@ -1,6 +1,6 @@
 {
   "name": "swot-clock",
-  "version": "0.3.5",
+  "version": "0.3.6",
   "description": "A SemNExT Project to create Suceptibility Windows Ontological Transcriptome (SWOT) Clocks",
   "main": "./src/server.js",
   "scripts": {
@@ -32,6 +32,7 @@
     "jstat": "^1.1.5",
     "less-middleware": "^2.0.1",
     "mustache": "^2.2.1",
+    "r-script": "0.0.3",
     "request": "^2.63.0",
     "tsd": "^0.6.5",
     "typeahead.js": "^0.11.1",

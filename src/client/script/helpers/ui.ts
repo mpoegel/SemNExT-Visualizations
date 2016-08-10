@@ -290,26 +290,40 @@ namespace UI {
   function runAnalytics(): void 
   {
     let data = graph.getData(),
-      genes = _.map(data.labels, (label, i) => {
-        return {
-          label: label,
-          cluster: data.clusters[i]
-        };
-      });
+        genes = _.map(data.labels, (label, i) => {
+          return {
+            label: label,
+            cluster: data.clusters[i]
+          };
+        });
     let lowest_pval = Infinity,
-      lowest_cluster = -1;
+        lowest_cluster = -1;
     for (var i=1; i<=6; i++) {
-      let [log_odds, pval] = Analysis.clusterEnrichment(genes, i);
-      $($('.cluster-enrichment .log-odds td')[i]).text(log_odds.toPrecision(4));
-      $($('.cluster-enrichment .p-value td')[i]).text(pval.toPrecision(4));
-      // dominant cluster is the cluster with a positive log odds ratio and the
-      // lowest p-value
-      if (log_odds > 0 && pval < lowest_pval) {
-        lowest_pval = pval;
-        lowest_cluster = i;
-      }
+      let [n11, n12, n21, n22] = Analysis.contingencyTable(genes, i);
+      // closure!
+      ((i) => {
+        $.post('/api/v1/analysis/fisher_exact',
+               {
+                 n11: n11,
+                 n12: n12,
+                 n21: n21,
+                 n22: n22
+               },
+               (pval) => {
+                  pval = parseFloat(pval).toPrecision(4);
+                  $($('.cluster-enrichment .p-value td')[i]).text(pval);
+                  // $($('.cluster-enrichment .log-odds td')[i]).text(log_odds.toPrecision(4));
+                  // dominant cluster is the cluster with a positive log odds ratio and the
+                  // lowest p-value
+                  if (pval < lowest_pval) {
+                    lowest_pval = pval;
+                    lowest_cluster = i;
+                  }
+                  dom_cluster = lowest_cluster;
+               }
+              );
+      })(i);
     }
-    dom_cluster = lowest_cluster;
   }
 
   /**

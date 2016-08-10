@@ -1,7 +1,8 @@
 /// <reference path="./../../typings/tsd.d.ts" />
 
 var _ = require('underscore'),
-    jStat = require('jstat').jStat;
+    jStat = require('jstat').jStat,
+    R = require('r-script');
 
 /**
  * Wrapper namespace for analytical functions
@@ -22,16 +23,16 @@ namespace Analysis {
   const ClusterTotals = [3504, 2612, 1641, 1889, 1724, 2695];
   
   /**
-   * Calculate the enrichment of a given cluster in group compared to the 
-   * larger group.
+   * Calculate the contingency table of a given cluster in group compared to
+   * the larger group.
    * @param {Gene[]} Group of genes that is being checked for enrichment 
    * (response variable 1)
    * @param {Gene[]} Group of genes that is being checked against (response
    * variable 2)
    * @param {number} Number of the cluster that is thought to be enriched
-   * @returns {number[]} [log odds, p value]
+   * @returns {number[]} [n11, n12, n21, n22]
    */
-  export function clusterEnrichment(enrichmentGroup: Gene[],
+  export function contingencyTable(enrichmentGroup: Gene[],
     enrichmentCluster: number): number[] 
   {
     /**
@@ -56,7 +57,7 @@ namespace Analysis {
       n12 += 0.5;
       n22 += 0.5;
     }
-    return enrichment(n11, n12, n21, n22);
+    return [n11, n12, n21, n22];
   }
   
   
@@ -79,6 +80,17 @@ namespace Analysis {
       sigma = 1,
       pval = 2 * (1 - jStat.normal.cdf(Math.abs(z_score), mu, sigma));
     return [log_odds, pval];
+  }
+
+
+  /**
+   * Calculate the p-value of the contingency table using fisher's exact test
+   */
+  export function fisherExact(n11: number, n12: number, n21: number, n22: number): void {
+    let res = R('./src/helpers/fishers_exact_enrichment_test.R')
+      .data(n11, n21, n12, n22)
+      .callSync();
+    return res;
   }
   
 }

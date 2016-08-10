@@ -11,6 +11,7 @@
         "suppressImplicitAnyIndexErrors": true
     },
     "files": [
+        "./controllers/analysis.ts",
         "./controllers/list.ts",
         "./controllers/matrix.ts",
         "./controllers/index.ts",
