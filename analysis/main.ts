@@ -126,7 +126,9 @@ var yargs = require('yargs'),
 					});
 				}
 				else {
-					utils.tabulate(result, clusterEnrichment.clusterToStage.map(function(stage) { return 'data[' }), console.log);
+					utils.tabulate(result,
+												 clusterEnrichment.clusterToStage.map(function(stage) {return 'data[' }),
+												 console.log);
 					console.log('=> Done.');
 				}				
 			});

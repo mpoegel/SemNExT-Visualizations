@@ -174,7 +174,8 @@ module ClusterEnrichment {
         };
       });
     for (var i=1; i<=6; i++) {
-      let [log_odds, pval] = Analysis.clusterEnrichment(genes, i);
+      let [n11, n12, n21, n22] = Analysis.contingencyTable(genes, i);
+      let [log_odds, pval] = Analysis.enrichment(n11, n12, n21, n22);
       enrichmentObj.data.push({
         cluster: clusterToStage[i-1],
         log_odds: log_odds,
