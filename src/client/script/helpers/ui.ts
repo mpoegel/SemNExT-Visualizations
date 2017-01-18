@@ -127,8 +127,8 @@ namespace UI {
     $.get(root_path + 'api/v1/list/disease')
       .done((diseaseObjs) => {
         let bloodhound = new Bloodhound({
-              datumTokenizer: (datum) => { return [datum.label]; },
-              queryTokenizer: Bloodhound.tokenizers.whitespace,
+              datumTokenizer: (datum) => { return [datum.label.replace(/\s+/gi, '_')]; },
+              queryTokenizer: (query) => { return [query.trim().replace(/\s+/gi, '_')] },
               local: () => { return diseaseObjs; },
               identify: (obj) => { return obj['@id']; },
             });
@@ -141,7 +141,8 @@ namespace UI {
           }, {
               name: 'disease-list',
               display: 'label',
-              source: bloodhound
+              source: bloodhound,
+              limit: 5
             })
           .attr('placeholder', 'Search for a disease')
           .off('typeahead:select')
