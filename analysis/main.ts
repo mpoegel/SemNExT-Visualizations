@@ -88,7 +88,8 @@ var yargs = require('yargs'),
         let data = raw_data.split('\n');
         data = data.map((d) => { return d.replace('\r', ''); }); 
         console.log('=> Running cluster enrichment analysis...');
-        clusterEnrichment.run(data, argv.type, (result) => {
+        let enricher = new clusterEnrichment.Enricher(argv.enrichment_type);
+        enricher.run(data, argv.type, (result) => {
           if (argv.output) {
             let file_output = '';
             if (argv.out_format === 'csv') {
@@ -123,14 +124,15 @@ var yargs = require('yargs'),
           }
           
           console.log('=> Done.');
-        });			
+        });
       });
     }
     else if (argv.disease || argv.kegg) {
       console.log('=> Running cluster enrichment analysis...');
       let input = [argv.disease || argv.kegg],
           type = (argv.disease ? 'disease' : 'kegg');
-      clusterEnrichment.run(input, type, (result) => {
+      let enricher = new clusterEnrichment.Enricher(argv.enrichment_type);
+      enricher.run(input, type, (result) => {
         if (result.length == 0) {
           console.log('=> Done.');
           return;
