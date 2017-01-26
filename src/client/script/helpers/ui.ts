@@ -310,7 +310,7 @@ namespace UI {
         // closure!
         $('.cluster-enrichment .log-odds').hide();
         ((i) => {
-          $.post('/api/v1/analysis/fisher_exact',
+          $.post(root_path + 'api/v1/analysis/fisher_exact',
                 {
                   n11: n11,
                   n12: n12,

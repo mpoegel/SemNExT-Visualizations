@@ -1,8 +1,9 @@
 /// <reference path="./../../typings/tsd.d.ts" />
 
-var _ = require('underscore'),
-    jStat = require('jstat').jStat,
-    R = require('r-script');
+let _ = require('underscore');
+let jStat = require('jstat').jStat;
+let R = require('r-script');
+let path = require('path');
 
 /**
  * Wrapper namespace for analytical functions
@@ -87,7 +88,7 @@ namespace Analysis {
    * Calculate the p-value of the contingency table using fisher's exact test
    */
   export function fisherExact(n11: number, n12: number, n21: number, n22: number): void {
-    let res = R('./src/helpers/fishers_exact_enrichment_test.R')
+    let res = R(path.join(__dirname, 'fishers_exact_enrichment_test.R'))
       .data(n11, n21, n12, n22)
       .callSync();
     return res;
