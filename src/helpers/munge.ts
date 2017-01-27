@@ -1,5 +1,3 @@
-/// <reference path="./../../typings/tsd.d.ts"/>
-
 namespace Munge {
 
 	export interface chem_data {

@@ -1,9 +1,7 @@
-/// <reference path="./../../typings/tsd.d.ts" />
-
-let _ = require('underscore');
-let jStat = require('jstat').jStat;
-let R = require('r-script');
-let path = require('path');
+import * as _ from 'underscore';
+import {jStat} from 'jstat';
+import * as R from 'r-script';
+import path = require('path');
 
 /**
  * Wrapper namespace for analytical functions

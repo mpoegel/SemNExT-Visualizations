@@ -3,9 +3,9 @@
 // Definitions by: Ivaylo Gochkov <https://github.com/igochkov/>, Gidon Junge <https://github.com/gjunge/>, Nathan Pitman <https://github.com/Seltzer/>
 // Definitions: https://github.com/borisyankov/DefinitelyTyped
 
-/// <reference path="../typings/jquery/jquery.d.ts"/>
+import * as $ from 'jquery';
 
-interface JQuery {
+declare interface JQuery {
 	/**
 	 * Removes typeahead functionality and reverts the input element back to its original state.
 	 */

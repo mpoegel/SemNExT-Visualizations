@@ -1,10 +1,8 @@
-/// <reference path="../typings/tsd.d.ts" />
 import Analysis = require('../src/helpers/analysis');
 import Munge    = require('../src/helpers/munge');
 import Semnext  = require('../src/models/semnext');
 
-
-var _ = require('underscore');
+import * as _ from 'underscore';
 
 /**
  * Utility module that contains abstracted helper functions

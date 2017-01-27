@@ -1,4 +1,3 @@
-/// <reference path="../../../typings/tsd.d.ts"/>
 /**
  * main.ts
  * 
@@ -9,7 +8,7 @@
 import CHeM = require('./helpers/graph');
 import UI = require('./helpers/ui');
 
-var d3 = require('d3');
+import * as d3 from 'd3';
 
 let margin = {top: 180, right: 160, bottom: 160, left: 160},
     width = 960,

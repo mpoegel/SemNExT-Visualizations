@@ -5,8 +5,6 @@
  * for usage options.
  */
 
-/// <reference path="../typings/tsd.d.ts" />
-
 import clusterEnrichment = require('./clusterEnrichment');
 import Filter = require('./filter');
 import utils = require('./utils');

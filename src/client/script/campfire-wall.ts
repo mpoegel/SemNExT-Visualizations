@@ -1,7 +1,5 @@
-/// <reference path="./../../../typings/tsd.d.ts"/>
-
-var d3 = require('d3'),
-	$  = require('jquery');
+import * as d3 from 'd3';
+import * as $ from 'jquery';
 
 namespace campfire_wall {
 	

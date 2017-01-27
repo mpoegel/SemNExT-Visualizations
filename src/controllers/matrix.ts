@@ -1,12 +1,10 @@
-/// <reference path="../../typings/tsd.d.ts" />
-
 import express = require('express');
 import semnext = require('../models/semnext');
 import bodyParser = require('body-parser');
 
-let router = express.Router(),
-    jsonParser = bodyParser.json(),
-    urlencodedParser = bodyParser.urlencoded({ extended: false });
+let router = express.Router();
+let jsonParser = bodyParser.json();
+let urlencodedParser = bodyParser.urlencoded({ extended: false });
 
 /**
  * Endpoint to request the data matrix for the given disease ID

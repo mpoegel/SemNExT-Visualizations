@@ -1,4 +1,3 @@
-/// <reference path="../typings/tsd.d.ts" />
 /**
  * server.ts
  * 
@@ -12,7 +11,7 @@ import lessMiddleware = require('less-middleware');
 import bodyParser = require('body-parser');
 var app = express();
 
-var config = require('./config.json');
+let config = require('./config.json');
 
 // Configure Less to compile the .less files in the /public directory 
 app.use(lessMiddleware(

@@ -1,9 +1,10 @@
-/// <reference path="./../../../typings/tsd.d.ts"/>
+/// <reference path="./../../../definitions/index.d.ts"/>
 
 import Munge = require('./../../../src/helpers/munge');
 import CHeM = require('./helpers/graph');
 
-var $ = require('jquery');
+import * as $ from 'jquery';
+import * as d3 from 'd3';
 
 namespace Campfire {
 	const 

@@ -1,9 +1,7 @@
-/// <reference path="../../typings/tsd.d.ts" />
-
 import express = require('express');
 import _ = require('underscore');
 import semnext = require('../models/semnext');
-var router = express.Router();
+let router = express.Router();
 
 /**
  * Endpoint to get the list of either diseases or KEGG Pathways that are in the

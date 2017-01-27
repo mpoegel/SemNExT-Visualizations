@@ -1,12 +1,10 @@
-/// <reference path="../../typings/tsd.d.ts" />
-
 import express = require('express');
 import analysis = require('../helpers/analysis');
 import bodyParser = require('body-parser');
 
-let router = express.Router(),
-    jsonParser = bodyParser.json(),
-    urlencodedParser = bodyParser.urlencoded({ extended: false });
+let router = express.Router();
+let jsonParser = bodyParser.json();
+let urlencodedParser = bodyParser.urlencoded({ extended: false });
 
 /**
  * Return the p-value obtained from fisher's exact test using the given contingency table

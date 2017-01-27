@@ -1,4 +1,5 @@
-/// <reference path="./../../../../typings/tsd.d.ts"/>
+/// <reference path="../../../../definitions/index.d.ts" />
+
 /**
  * ui.ts
  * 
@@ -8,14 +9,15 @@ import Munge = require('./../../../helpers/munge');
 import Analysis = require('./../../../helpers/analysis');
 import CHeM = require('./graph');
 
-let $ = require('jquery'),
-    _ = require('underscore'),
-   typeahead = require('typeahead.js-browserify'),
-   Bloodhound = require("typeahead.js-browserify").Bloodhound,
-   Mustache = require('mustache');
+import * as $ from 'jquery';
+import * as _ from 'underscore';
 
-window.jQuery = $;
-require('bootstrap');
+import {typeahead} from 'typeahead.js-browserify';
+import {Bloodhound} from 'typeahead.js-browserify';
+import {Mustache} from 'mustache';
+
+// window.jQuery = $;
+import 'bootstrap';
 
 /**
  * The namespace that contains all functions related to the user interface.

@@ -1,5 +1,5 @@
 {
-    "version": "1.6.2",
+    "version": "2.1.5",
     "compilerOptions": {
         "target": "es5",
         "module": "commonjs",
@@ -9,31 +9,5 @@
         "noLib": false,
         "preserveConstEnums": true,
         "suppressImplicitAnyIndexErrors": true
-    },
-    "files": [
-        "./controllers/analysis.ts",
-        "./controllers/list.ts",
-        "./controllers/matrix.ts",
-        "./controllers/index.ts",
-        "./models/semnext.ts",
-        "./helpers/analysis.ts",
-        "./helpers/munge.ts",
-        "./client/script/campfire.ts",
-        "./client/script/campfire-wall.ts",
-        "./client/script/demo.ts",
-        "./client/script/main.ts",
-        "./client/script/helpers/graph.ts",
-        "./client/script/helpers/ui.ts",
-        "./server.ts",
-        "./../definitions/campfire.d.ts",
-        "./../definitions/jStat.d.ts",
-        "./../definitions/lib_ext.d.ts",
-        "./../definitions/semnext.d.ts",
-        "./../definitions/typeahead.d.ts",
-        "./../typings/bootstrap/bootstrap.d.ts",
-        "./../typings/d3/d3.d.ts",
-        "./../typings/jquery/jquery.d.ts",
-        "./../typings/tsd.d.ts",
-        "./../typings/underscore/underscore.d.ts"
-    ]
+    }
 }
