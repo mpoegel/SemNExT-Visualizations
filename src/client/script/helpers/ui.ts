@@ -127,8 +127,8 @@ namespace UI {
     $.get(root_path + 'api/v1/list/disease')
       .done((diseaseObjs) => {
         let bloodhound = new Bloodhound({
-              datumTokenizer: (datum) => { return [datum.label]; },
-              queryTokenizer: Bloodhound.tokenizers.whitespace,
+              datumTokenizer: (datum) => { return [datum.label.replace(/\s+/gi, '_')]; },
+              queryTokenizer: (query) => { return [query.trim().replace(/\s+/gi, '_')] },
               local: () => { return diseaseObjs; },
               identify: (obj) => { return obj['@id']; },
             });
@@ -141,7 +141,8 @@ namespace UI {
           }, {
               name: 'disease-list',
               display: 'label',
-              source: bloodhound
+              source: bloodhound,
+              limit: 5
             })
           .attr('placeholder', 'Search for a disease')
           .off('typeahead:select')
@@ -269,7 +270,7 @@ namespace UI {
           updateHighlighting();
           updateColorScheme();
           updateTheme();
-          runAnalytics();
+          runAnalytics($('.analysis-btn.active').attr('data-target'));
           if (callback) callback();
         }
         catch (error) {
@@ -287,29 +288,60 @@ namespace UI {
    * cluster.
    * @returns {void}
    */
-  function runAnalytics(): void 
+  function runAnalytics(method: string): void 
   {
-    let data = graph.getData(),
-      genes = _.map(data.labels, (label, i) => {
-        return {
-          label: label,
-          cluster: data.clusters[i]
-        };
-      });
+    if (!graph) {
+      return;
+    }
+    let data = graph.getData();
+    let genes = _.map(data.labels, (label, i) => {
+          return {
+            label: label,
+            cluster: data.clusters[i]
+          };
+        });
     let lowest_pval = Infinity,
-      lowest_cluster = -1;
+        lowest_cluster = -1;
+    $('.cluster-enrichment .log-odds td:not(:first)').text('');
+    $('.cluster-enrichment .p-value td:not(:first)').text('');
     for (var i=1; i<=6; i++) {
-      let [log_odds, pval] = Analysis.clusterEnrichment(genes, i);
-      $($('.cluster-enrichment .log-odds td')[i]).text(log_odds.toPrecision(4));
-      $($('.cluster-enrichment .p-value td')[i]).text(pval.toPrecision(4));
-      // dominant cluster is the cluster with a positive log odds ratio and the
-      // lowest p-value
-      if (log_odds > 0 && pval < lowest_pval) {
-        lowest_pval = pval;
-        lowest_cluster = i;
+      let [n11, n12, n21, n22] = Analysis.contingencyTable(genes, i);
+      if (method == 'fishers-exact') {
+        // closure!
+        $('.cluster-enrichment .log-odds').hide();
+        ((i) => {
+          $.post(root_path + 'api/v1/analysis/fisher_exact',
+                {
+                  n11: n11,
+                  n12: n12,
+                  n21: n21,
+                  n22: n22
+                },
+                (pval) => {
+                    pval = parseFloat(pval).toPrecision(4);
+                    $($('.cluster-enrichment .p-value td')[i]).text(pval);
+                    // dominant cluster is the cluster with a positive log odds ratio and the
+                    // lowest p-value
+                    if (pval < lowest_pval) {
+                      lowest_pval = pval;
+                      lowest_cluster = i;
+                    }
+                    dom_cluster = lowest_cluster;
+                }
+                );
+        })(i);
+      } else {
+        let [log_odds, pval] = Analysis.enrichment(n11, n12, n21, n22);
+        $('.cluster-enrichment .log-odds').show();
+        $($('.cluster-enrichment .p-value td')[i]).text(pval.toPrecision(4));        
+        $($('.cluster-enrichment .log-odds td')[i]).text(log_odds.toPrecision(4));
+        if (log_odds > 0 && pval < lowest_pval) {
+          lowest_pval = pval;
+          lowest_cluster = i;
+        }
+        dom_cluster = lowest_cluster;
       }
     }
-    dom_cluster = lowest_cluster;
   }
 
   /**
@@ -411,6 +443,9 @@ namespace UI {
           break;
         case 'clear-custom-genes':
           $('.custom-dataset-menu textarea').val('');
+          break;
+        case 'analysis':
+          runAnalytics($(e.target).attr('data-target'));
           break;
         // Error messages
         case 'close-error':

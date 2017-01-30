@@ -3,7 +3,10 @@
     You can create a SWOT Clock from a user-defined list of transcriptomes.
   </p>
   <p>
-    Data set name
+    Note: this data set should only contain gene symbols.
+  </p>
+  <p>
+    Data set name:
     <input type="text" name="custom-name">
   </p>
   <p>
@@ -11,8 +14,8 @@
     <input type="file" name="gene-file">
   </p>
   <p>
-    Enter transcriptomes manually.<br>
-    <textarea name="gene-list" rows="6" cols="20"></textarea>
+    Enter transcriptomes manually. Each gene symbol should be separated by line.<br>
+    <textarea name="gene-list" rows="6" cols="27"></textarea>
     <span class="chart-btn clear-genes" data-action="clear-custom-genes">
       &times;</span>
   </p>
