@@ -32,7 +32,7 @@ gulp.task('tsd', function(cb) {
 // compile the typescript source
 gulp.task('ts', function() {
   var ts_result = ts_project.src().pipe( ts(ts_project) );
-  return ts_result.js.pipe(gulp.dest('./'));
+  return ts_result.js.pipe(gulp.dest('./src'));
 });
 
 // clean up the generated javascript files
