@@ -12,11 +12,11 @@ import CHeM = require('./graph');
 import * as $ from 'jquery';
 import * as _ from 'underscore';
 
-import {typeahead} from 'typeahead.js-browserify';
-import {Bloodhound} from 'typeahead.js-browserify';
+import {loadjQueryPlugin, Bloodhound} from 'typeahead.js-browserify';
+// import {Bloodhound} from 'typeahead.js-browserify';
 import {Mustache} from 'mustache';
 
-// window.jQuery = $;
+window.jQuery = $;
 import 'bootstrap';
 
 /**
@@ -47,7 +47,7 @@ namespace UI {
   {
     canvas = c;
     root_path = p;
-    typeahead.loadjQueryPlugin();
+    loadjQueryPlugin();
     attachListener();
     initDiseaseList($('#searchBox'), (ev, diseaseObj) => {
       drawCompleteGraph(diseaseObj, 'disease');
