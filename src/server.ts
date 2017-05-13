@@ -13,8 +13,6 @@ import path = require('path');
 
 var app = express();
 
-let config = require('./config.json');
-
 // Configure Less to compile the .less files in the /public directory 
 app.use(lessMiddleware(
   path.join(__dirname + '/../public'),
@@ -29,7 +27,7 @@ app.use('/', express.static(path.join(__dirname + '/../public')));
 // load the route controllers
 app.use('/', controllers);
 // start up the server 
-let server = app.listen(config.port, () => {
+let server = app.listen(8000, () => {
   let host = server.address().address,
       port = server.address().port;
   console.log('App running at http://%s:%s', host, port);
