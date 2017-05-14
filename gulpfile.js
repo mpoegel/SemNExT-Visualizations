@@ -12,14 +12,16 @@ var gulp = require('gulp'),
     glob = require('glob'),
     es = require('event-stream'),
     fs = require('fs'),
+    path = require('path'),
     nodemon = require('gulp-nodemon');
 
 
 gulp.task('default', ['watch', 'nodemon']);
+gulp.task('build', ['bundle-js', 'bundle-css']);
 
 // compile the typescript source
 gulp.task('ts', function(cb) {
-  exec('tsc -p src', function(err, stdout, stderr) {
+  exec(path.normalize('node_modules/.bin/tsc') + ' -p src', function(err, stdout, stderr) {
     if (stdout) {
       console.log(stdout);
     }

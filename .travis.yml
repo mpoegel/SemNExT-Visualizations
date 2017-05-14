@@ -1,9 +1,6 @@
 language: node_js
 node_js:
-  - '0.12'
+  - '7'
 before_script:
-  - npm install gulp -g
-  - gulp tsd
-  - node ./node_modules/typescript/bin/tsc -p ./src
-  - node ./node_modules/typescript/bin/tsc -p ./analysis
-  - gulp bundle-css
+  - npm install
+  - node_modules/.bin/gulp build
