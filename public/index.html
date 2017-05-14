@@ -95,12 +95,12 @@
 					<div class="analysis-options option">
 						<h4>Cluster Enrichment</h4>
 						<div class="btn-group" data-toggle="buttons">
-							<label class="btn btn-sm btn-primary active chart-btn analysis-btn"
-								data-action="analysis" data-target="log-odds"
-								title="Compute the significance values using Log Odds.">
-								<input type="radio" autocomplete="off" checked>Log Odds
-							</label>
 							<label class="btn btn-sm btn-primary chart-btn analysis-btn"
+								data-action="analysis" data-target="z-test"
+								title="Compute the significance values using the Z-test.">
+								<input type="radio" autocomplete="off" checked>Z-test
+							</label>
+							<label class="btn btn-sm btn-primary active chart-btn analysis-btn"
 								data-action="analysis" data-target="fishers-exact"
 								title="Compute the significance values using Fisher's Exact Test.">
 								<input type="radio" autocomplete="off">Fisher's Exact
@@ -126,7 +126,7 @@
 								<td></td>
 							</tr>
 							<tr class="p-value">
-								<td>p value</td>
+								<td>p-value</td>
 								<td></td>
 								<td></td>
 								<td></td>

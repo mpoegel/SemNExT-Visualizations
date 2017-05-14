@@ -31,8 +31,7 @@ namespace Analysis {
    * @param {number} Number of the cluster that is thought to be enriched
    * @returns {number[]} [n11, n12, n21, n22]
    */
-  export function contingencyTable(enrichmentGroup: Gene[],
-    enrichmentCluster: number): number[] 
+  export function contingencyTable(enrichmentGroup: Gene[], enrichmentCluster: number): number[] 
   {
     /**
      * 						  In Enrichment Group		Not in Enrichment Group
@@ -61,6 +60,7 @@ namespace Analysis {
   
   
   /**
+   * @deprecated See LogOdds and zTest. The analysis CLI still uses this function.
    * Calculate the enrichment of a subgroup using log odds.
    * @param {number} n11 in two-way contingency table
    * @param {number} n12 in two-way contingency table
@@ -68,24 +68,50 @@ namespace Analysis {
    * @param {number} n22 in two-way contingency table
    * @returns {number[]} [log odds, p value]
    */
-  export function enrichment(n11: number, n12: number, n21: number, 
-    n22: number): number[] 
+  export function enrichment(n11: number, n12: number, n21: number, n22: number): number[] 
   {
     let odds_ratio = (n11 * n22) / (n12 * n21),
-      log_odds = Math.log(odds_ratio),
-      std_error = Math.sqrt(1/n11 + 1/n12 + 1/n21 + 1/n22),
-      z_score = log_odds / std_error;
+        log_odds = Math.log(odds_ratio),
+        std_error = Math.sqrt(1/n11 + 1/n12 + 1/n21 + 1/n22),
+        z_score = log_odds / std_error;
     let mu = 0,
-      sigma = 1,
-      pval = 2 * (1 - jStat.normal.cdf(Math.abs(z_score), mu, sigma));
+        sigma = 1,
+        pval = 2 * (1 - jStat.normal.cdf(Math.abs(z_score), mu, sigma));
     return [log_odds, pval];
+  }
+
+
+  /**
+   * Calculate the logs odds of the contingency table
+   */
+  export function logOdds(n11: number, n12: number, n21: number, n22: number): number
+  {
+    let odds_ratio = (n11 * n22) / (n12 * n21);
+    let log_odds = Math.log(odds_ratio);
+    return log_odds;
+  }
+
+  
+  /**
+   * Calculate the p-value using the z-test
+   */
+  export function zTest(n11: number, n12: number, n21: number, n22: number): number
+  {
+    let log_odds = logOdds(n11, n12, n21, n22);
+    let std_error = Math.sqrt(1/n11 + 1/n12 + 1/n21 + 1/n22);
+    let z_score = log_odds / std_error;
+    let mu = 0;
+    let sigma = 1;
+    let p_value = 2 * (1 - jStat.normal.cdf(Math.abs(z_score), mu, sigma));
+    return p_value;
   }
 
 
   /**
    * Calculate the p-value of the contingency table using fisher's exact test
    */
-  export function fisherExact(n11: number, n12: number, n21: number, n22: number): void {
+  export function fisherExact(n11: number, n12: number, n21: number, n22: number): void
+  {
     let res = R(path.join(__dirname, 'fishers_exact_enrichment_test.R'))
       .data(n11, n21, n12, n22)
       .callSync();
