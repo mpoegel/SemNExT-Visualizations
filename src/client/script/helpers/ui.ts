@@ -13,7 +13,6 @@ import * as $ from 'jquery';
 import * as _ from 'underscore';
 
 import {loadjQueryPlugin, Bloodhound} from 'typeahead.js-browserify';
-// import {Bloodhound} from 'typeahead.js-browserify';
 import {Mustache} from 'mustache';
 
 window.jQuery = $;
@@ -733,7 +732,8 @@ namespace UI {
   function showLegends(btn?: JQuery): void 
   {
     graph.drawClusterLegend()
-      .drawHeatmapLegend();
+         .drawHeatmapLegend();
+    updateTheme();
     if (btn) {
       btn.text('Hide Legends')
         .attr('data-action', 'hide-legends');
@@ -942,7 +942,7 @@ namespace UI {
    * @returns {void}
    */
   var updateColorScheme = (() => {
-    let current: string = undefined;
+    let current: string = 'colorblind-safe';
     return function(scheme = current): void 
     {
       switch (scheme) {
