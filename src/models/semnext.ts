@@ -1,4 +1,5 @@
-/// <reference path="../../typings/tsd.d.ts"/>
+/// <reference path="../../definitions/index.d.ts" />
+
 import request = require('request');
 import _ = require('underscore');
 import Buffer = require('buffer');

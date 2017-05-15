@@ -1,11 +1,12 @@
 {
   "name": "swot-clock",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "A SemNExT Project to create Suceptibility Windows Ontological Transcriptome (SWOT) Clocks",
   "main": "./src/server.js",
   "scripts": {
-    "start": "node ./src/server.js",
-    "test": "node ./node_modules/mocha/bin/mocha"
+    "prestart": "node_modules/.bin/gulp build",
+    "start": "node_modules/.bin/gulp",
+    "test": "node_modules/.bin/mocha"
   },
   "author": "Matt Poegel",
   "contributors": [
@@ -22,6 +23,10 @@
     "url": "https://github.com/mpoegel/SemNExT-Visualizations.git"
   },
   "dependencies": {
+    "@types/jquery": "^2.0.39",
+    "@types/node": "^7.0.4",
+    "@types/typeahead": "^0.11.27",
+    "@types/underscore": "^1.7.36",
     "body-parser": "^1.15.0",
     "bootstrap": "^3.3.5",
     "browserify": "^12.0.1",
@@ -34,10 +39,9 @@
     "mustache": "^2.2.1",
     "r-script": "0.0.3",
     "request": "^2.63.0",
-    "tsd": "^0.6.5",
     "typeahead.js": "^0.11.1",
     "typeahead.js-browserify": "^1.0.7",
-    "typescript": "^1.7.5",
+    "types.d3": "^0.1.1",
     "underscore": "^1.8.3",
     "velocity-animate": "^1.2.3",
     "yargs": "^3.30.0"
@@ -50,10 +54,10 @@
     "gulp-exec": "^2.1.1",
     "gulp-nodemon": "^2.0.4",
     "gulp-sourcemaps": "^1.6.0",
-    "gulp-typescript": "^2.9.0",
     "gulp-uglify": "^1.4.2",
     "gulp-util": "^3.0.7",
     "mocha": "^2.4.5",
+    "typescript": "^2.3.2",
     "vinyl-buffer": "^1.0.0",
     "vinyl-source-stream": "^1.1.0"
   }

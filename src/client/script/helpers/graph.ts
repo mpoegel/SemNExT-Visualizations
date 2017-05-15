@@ -1,4 +1,3 @@
-/// <reference path="./../../../../typings/tsd.d.ts"/>
 /**
  * graph.ts
  * 
@@ -6,9 +5,9 @@
  */
 import Munge = require('./../../../helpers/munge');
 
-var d3 = require('d3'),
-  _ = require('underscore'),
-  $ = require('jquery');
+import * as $ from 'jquery';
+import * as _ from 'underscore';
+import * as d3 from 'd3';
 
 /**
  * Module that contains the Graph and Canvas classes along with their helper 

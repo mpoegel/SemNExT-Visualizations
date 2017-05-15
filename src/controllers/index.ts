@@ -1,11 +1,13 @@
-/// <reference path="../../typings/tsd.d.ts" />
-
 import express = require('express');
-var router = express.Router();
+let router = express.Router();
 
-router.use('/api/v1/analysis', require('./analysis'));
-router.use('/api/v1/list', require('./list'));
-router.use('/api/v1/matrix', require('./matrix'));
+import analysis = require('./analysis');
+import list = require('./list');
+import matrix = require('./matrix');
+
+router.use('/api/v1/analysis', analysis);
+router.use('/api/v1/list', list);
+router.use('/api/v1/matrix', matrix);
 
 router.use((err: any, req, res, next) => {
 	console.error(err);

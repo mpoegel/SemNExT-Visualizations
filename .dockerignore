@@ -1,0 +1,11 @@
+node_modules
+
+src/**/*.js
+public/**/*.js
+public/style/*/*
+analysis/*.js
+*.css
+*.map
+
+analysis
+test

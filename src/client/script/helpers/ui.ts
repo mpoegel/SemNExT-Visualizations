@@ -1,4 +1,5 @@
-/// <reference path="./../../../../typings/tsd.d.ts"/>
+/// <reference path="../../../../definitions/index.d.ts" />
+
 /**
  * ui.ts
  * 
@@ -8,14 +9,14 @@ import Munge = require('./../../../helpers/munge');
 import Analysis = require('./../../../helpers/analysis');
 import CHeM = require('./graph');
 
-let $ = require('jquery'),
-    _ = require('underscore'),
-   typeahead = require('typeahead.js-browserify'),
-   Bloodhound = require("typeahead.js-browserify").Bloodhound,
-   Mustache = require('mustache');
+import * as $ from 'jquery';
+import * as _ from 'underscore';
+
+import {loadjQueryPlugin, Bloodhound} from 'typeahead.js-browserify';
+import {Mustache} from 'mustache';
 
 window.jQuery = $;
-require('bootstrap');
+import 'bootstrap';
 
 /**
  * The namespace that contains all functions related to the user interface.
@@ -45,7 +46,7 @@ namespace UI {
   {
     canvas = c;
     root_path = p;
-    typeahead.loadjQueryPlugin();
+    loadjQueryPlugin();
     attachListener();
     initDiseaseList($('#searchBox'), (ev, diseaseObj) => {
       drawCompleteGraph(diseaseObj, 'disease');
@@ -306,9 +307,10 @@ namespace UI {
     $('.cluster-enrichment .p-value td:not(:first)').text('');
     for (var i=1; i<=6; i++) {
       let [n11, n12, n21, n22] = Analysis.contingencyTable(genes, i);
+      let log_odds = Analysis.logOdds(n11, n12, n21, n22);
+      $($('.cluster-enrichment .log-odds td')[i]).text(log_odds.toPrecision(4));      
       if (method == 'fishers-exact') {
         // closure!
-        $('.cluster-enrichment .log-odds').hide();
         ((i) => {
           $.post(root_path + 'api/v1/analysis/fisher_exact',
                 {
@@ -322,7 +324,7 @@ namespace UI {
                     $($('.cluster-enrichment .p-value td')[i]).text(pval);
                     // dominant cluster is the cluster with a positive log odds ratio and the
                     // lowest p-value
-                    if (pval < lowest_pval) {
+                    if (log_odds > 0 && pval < lowest_pval) {
                       lowest_pval = pval;
                       lowest_cluster = i;
                     }
@@ -331,12 +333,10 @@ namespace UI {
                 );
         })(i);
       } else {
-        let [log_odds, pval] = Analysis.enrichment(n11, n12, n21, n22);
-        $('.cluster-enrichment .log-odds').show();
-        $($('.cluster-enrichment .p-value td')[i]).text(pval.toPrecision(4));        
-        $($('.cluster-enrichment .log-odds td')[i]).text(log_odds.toPrecision(4));
-        if (log_odds > 0 && pval < lowest_pval) {
-          lowest_pval = pval;
+        let p_value = Analysis.zTest(n11, n12, n21, n22);
+        $($('.cluster-enrichment .p-value td')[i]).text(p_value.toPrecision(4));        
+        if (log_odds > 0 && p_value < lowest_pval) {
+          lowest_pval = p_value;
           lowest_cluster = i;
         }
         dom_cluster = lowest_cluster;
@@ -731,7 +731,8 @@ namespace UI {
   function showLegends(btn?: JQuery): void 
   {
     graph.drawClusterLegend()
-      .drawHeatmapLegend();
+         .drawHeatmapLegend();
+    updateTheme();
     if (btn) {
       btn.text('Hide Legends')
         .attr('data-action', 'hide-legends');
@@ -940,7 +941,7 @@ namespace UI {
    * @returns {void}
    */
   var updateColorScheme = (() => {
-    let current: string = undefined;
+    let current: string = 'colorblind-safe';
     return function(scheme = current): void 
     {
       switch (scheme) {

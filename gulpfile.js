@@ -4,7 +4,6 @@ var gulp = require('gulp'),
     browserify = require('browserify'),
     del = require('del'),
     exec = require('child_process').exec,
-    ts = require('gulp-typescript'),
     source = require('vinyl-source-stream'),
     uglify = require('gulp-uglify'),
     buffer = require('vinyl-buffer'),
@@ -13,26 +12,24 @@ var gulp = require('gulp'),
     glob = require('glob'),
     es = require('event-stream'),
     fs = require('fs'),
+    path = require('path'),
     nodemon = require('gulp-nodemon');
 
-var ts_project = ts.createProject('./src/tsconfig.json');
 
 gulp.task('default', ['watch', 'nodemon']);
-
-// download the types definitions from definitely typed
-gulp.task('tsd', function(cb) {
-  exec('tsd reinstall --save --overwrite', function(err, stdout, stderr) {
-    console.log(stdout);
-    console.error(stderr);
-    cb(err);
-  });
-  return gulp;
-});
+gulp.task('build', ['bundle-js', 'bundle-css']);
 
 // compile the typescript source
-gulp.task('ts', function() {
-  var ts_result = ts_project.src().pipe( ts(ts_project) );
-  return ts_result.js.pipe(gulp.dest('./src'));
+gulp.task('ts', function(cb) {
+  exec(path.normalize('node_modules/.bin/tsc') + ' -p src', function(err, stdout, stderr) {
+    if (stdout) {
+      console.log(stdout);
+    }
+    if (stderr) {
+      console.error(stderr);
+    }
+    cb(err);
+  });
 });
 
 // clean up the generated javascript files
@@ -78,8 +75,8 @@ gulp.task('bundle-js', ['ts'], function(done) {
         .pipe(uglify())
         .on('error', gutil.log)
       .pipe(sourcemaps.write('./'))
-      .pipe(gulp.dest('./src/public/script/')));
-  }  
+      .pipe(gulp.dest('./public/script/')));
+  }
   return es.merge(tasks);  
 });
 
@@ -88,5 +85,5 @@ gulp.task('bundle-css', function() {
                 .split('\n');
   return gulp
     .src(files, { base: './node_modules/' })
-    .pipe(gulp.dest('./src/public/style/'));
+    .pipe(gulp.dest('./public/style/'));
 });

@@ -3,8 +3,6 @@
  * Definitions by Matt Poegel (https://github.com/mpoegel)
  */
 
-/// <reference path="../typings/d3/d3.d.ts"/>
-
 interface Window {
-  d3select: (selector: string) => d3.Selection<any>
+  d3select: (selector: string) => any
 }

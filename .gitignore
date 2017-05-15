@@ -1,10 +1,10 @@
 # libraries
 node_modules
-typings
 
 # all build files
 src/**/*.js
-src/public/style/*/*
+public/**/*.js
+public/style/*/*
 analysis/*.js
 *.css
 *.map

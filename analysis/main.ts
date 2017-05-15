@@ -5,8 +5,6 @@
  * for usage options.
  */
 
-/// <reference path="../typings/tsd.d.ts" />
-
 import clusterEnrichment = require('./clusterEnrichment');
 import Filter = require('./filter');
 import utils = require('./utils');
@@ -155,9 +153,26 @@ var yargs = require('yargs'),
           });
         }
         else {
+          console.log('=> Log Odds Table')
           utils.tabulate(result,
-                         clusterEnrichment.clusterToStage.map(function(stage) {return 'data[' }),
-                         console.log);
+                         _.union(
+                           ['label'],
+                           clusterEnrichment.clusterToStage.map(function(_, i) { 
+                             return `data[${i}].log_odds` }
+                             )
+                         ),
+                         console.log,
+                         _.union(['Label'], clusterEnrichment.clusterToStage));
+          console.log('=> P-Value Table')
+          utils.tabulate(result,
+                         _.union(
+                           ['label'],
+                           clusterEnrichment.clusterToStage.map(function(_, i) { 
+                             return `data[${i}].pval` }
+                             )
+                         ),
+                         console.log,
+                         _.union(['Label'], clusterEnrichment.clusterToStage));
           console.log('=> Done.');
         }				
       });
