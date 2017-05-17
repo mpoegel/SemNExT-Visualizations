@@ -24,6 +24,7 @@ interface IFormData {
   disease?: string;
   pathway?: string;
   symbols?: string;
+  uri?: string[];
 }
 
 const SemNExT_URLs = {
@@ -31,7 +32,8 @@ const SemNExT_URLs = {
   diseases_list: 'https://semnext.tw.rpi.edu/api/v1/list_known_diseases',
   kegg_matrix: 'https://semnext.tw.rpi.edu/api/v1/matrix_for_kegg_pathway',
   kegg_list: 'https://semnext.tw.rpi.edu/api/v1/list_known_kegg_pathways',
-  custom_matrix: 'https://semnext.tw.rpi.edu/api/v1/matrix_for_genes'
+  custom_matrix: 'https://semnext.tw.rpi.edu/api/v1/matrix_for_genes',
+  intersection_matrix: 'https://semnext.tw.rpi.edu/api/v1/compute_intersection'
 }
 
 /**
@@ -41,8 +43,7 @@ const SemNExT_URLs = {
  *  data on success or an error on failure
  * @returns {void}
  */
-export function fetchDiseaseMatrix(diseaseId: string, callback: IMatrixCallback)
-  :  void 
+export function fetchDiseaseMatrix(diseaseId: string, callback: IMatrixCallback): void 
 {
   fetchMatrix(SemNExT_URLs.disease_matrix, { disease: diseaseId }, callback);
 }
@@ -54,8 +55,7 @@ export function fetchDiseaseMatrix(diseaseId: string, callback: IMatrixCallback)
  *  data on success or an error on failure
  * @returns {void}
  */
-export function fetchKeggPathwaysMatrix(keggId: string, callback: 
-  IMatrixCallback):  void
+export function fetchKeggPathwaysMatrix(keggId: string, callback: IMatrixCallback):  void
 {
   fetchMatrix(SemNExT_URLs.kegg_matrix, { pathway: keggId }, callback);
 }
@@ -68,8 +68,7 @@ export function fetchKeggPathwaysMatrix(keggId: string, callback:
  *  data on success or an error on failure
  * @returns {void}
  */
-export function fetchCustomMatrix(inputs: string, callback: IMatrixCallback): 
-  void 
+export function fetchCustomMatrix(inputs: string, callback: IMatrixCallback): void 
 {
   fetchMatrix(SemNExT_URLs.custom_matrix, { symbols: inputs }, callback);
 }
@@ -83,8 +82,7 @@ export function fetchCustomMatrix(inputs: string, callback: IMatrixCallback):
  *  data on success or an error on failure
  * @returns {void}
  */
-function fetchMatrix(url: string, data: IFormData, callback: IMatrixCallback):
-  void 
+function fetchMatrix(url: string, data: IFormData, callback: IMatrixCallback): void 
 {
   request.post(url, { form: data }, function(error, response, body: string) {
     if (error || response.statusCode >= 400) {
@@ -212,8 +210,7 @@ export function findKeggPathway(pathway: string, callback: IListCallback): void
  *  data on success or an error on failure
  * @returns {void}
  */
-function findObject(url: string, query: string, callback: IListCallback):
-  void
+function findObject(url: string, query: string, callback: IListCallback): void
 {
   let uri = url + '?q=' + query;
   request.get(uri, function(error, response, body) {

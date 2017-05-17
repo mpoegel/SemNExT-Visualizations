@@ -7,8 +7,7 @@ COPY . /srv/swot
 
 # install dependencies
 RUN cd /srv/swot && \
-    npm install && \
-    npm install -g typescript
+    npm install
 
 # install R
 RUN echo "deb http://cran.rstudio.com/bin/linux/debian jessie-cran3/" >> /etc/apt/sources.list && \

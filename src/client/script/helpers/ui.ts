@@ -48,12 +48,7 @@ namespace UI {
     root_path = p;
     loadjQueryPlugin();
     attachListener();
-    initDiseaseList($('#searchBox'), (ev, diseaseObj) => {
-      drawCompleteGraph(diseaseObj, 'disease');
-    }, (diseaseObjs) => {
-      $('.totalDiseases').text(diseaseObjs.length);
-      $('#searchBox').focus();
-    });
+    setDiseaseSearch();
     var ua = window.navigator.userAgent,
         IE = ua.indexOf('MSIE') > 0 || !! ua.match(/Trident.*rv\:11\./),
         Edge = ua.indexOf('Edge') > 0;
@@ -207,9 +202,8 @@ namespace UI {
    * @param data_type {string} one of 'disease', 'kegg_pathways', or 'custom'
    * @param callback {() => any} optional. function to call on completion
    */
-  export function drawCompleteGraph(semnextObj: 
-    DiseaseObject|KeggPathwayObject|CustomObject, data_type: string, 
-    callback?: () => any): void 
+  export function drawCompleteGraph(semnextObj: DiseaseObject|KeggPathwayObject|CustomObject, 
+    data_type: string, callback?: () => any): void 
   {
     canvas.clear();
     $('.content .messages').empty();
@@ -218,70 +212,99 @@ namespace UI {
     $.get(root_path + 'templates/loading.mst', function(template) {
       $('.content .messages').html( template );
     });
-    
-    $.post(root_path + 'api/v1/matrix/' + data_type, {
-       id: semnextObj['@id']
-    })
-      .done((raw_data: string[][]) => {
-        try {
-          let data = Munge.munge(raw_data);
-          if (data.labels.length < MIN_GRAPH_SIZE) {
-            let view = {
-              data: [],
-              total: 0,
-              minimum: MIN_GRAPH_SIZE
-            };
-            for (var i in data.labels) {
-              view.data.push({
-                symbol: data.labels[i],
-                cluster: data.clusters[i]
-              });
-            }
-            view.total = view.data.length;
-            $.get(root_path + 'templates/data_table.mst', function(template) {
-              let rendered = Mustache.render(template, view);
-              $('.content .messages')
-                .empty()
-                .html( rendered );
-            });
-            let error = new Error('Not enough data received to create CHeM.');
-            error.name = 'CHeM Error';
-            throw error;
-          }
-          data.title = semnextObj.label;
-          $('.content .messages').empty();
-          $('.chart').show();
-          try {
-            let g = new CHeM.Graph(data, canvas)
-              .drawChords()
-              .drawClusterBands()
-              .drawTextLabels()
-              .drawCircularHeatmap()
-              .drawClusterLegend()
-              .drawHeatmapLegend()
-              .drawTitle();
-            graph = g;
-          }
-          catch (e) {
-            let error = new Error('Creation of CHeM reached an unknown error.');
-            error.name = 'CHeM Error';
-            throw error;
-          }
-          fade_opacity = graph.getFadeOpacity();
-          updateHighlighting();
-          updateColorScheme();
-          updateTheme();
-          runAnalytics($('.analysis-btn.active').attr('data-target'));
-          if (callback) callback();
-        }
-        catch (error) {
-          errorHandler(error, 'critical', true);
-        }
-      })
-      .fail((error) => {
+    $('#intersection-active').text('');
+
+    fetchGraphData(semnextObj, data_type, (data: Munge.chem_data, error: any) => {
+      if (error) {
         error = JSON.parse(error.responseText);
         errorHandler(error, 'critical', true); 
-      });
+      } else {
+        newGraph(data, semnextObj.label);
+        $('#intersection-base').text(graph.getData().title);
+      }
+    });
+
+  }
+
+  /**
+   * Draw a complete graph on the canvas
+   * @param semnextObj the semnext object obtained from the API the contains the metadata about the
+   * graph to draw
+   * @param data_type one of 'disease', 'kegg_pathways', or 'custom'
+   * @param callback optional. function to call on completion
+   */
+  function fetchGraphData(semnextObj: DiseaseObject|KeggPathwayObject|CustomObject,
+    data_type: string, callback: (data: Munge.chem_data, error: any) => any): void
+  {
+    $.post(root_path + 'api/v1/matrix/' + data_type, {
+       id: semnextObj['@id']
+    }).done((raw_data: string[][]) => {
+      let data = Munge.munge(raw_data);      
+      callback(data, null);
+    }).fail((error) => {
+      callback(null, error);
+    });
+  }
+
+  /**
+   * Create a new graph given munged data and a title
+   * @param data the munged data set with which to create the graph
+   * @param title the title to be placed about the graph
+   */
+  export function newGraph(data: Munge.chem_data, title: string): void 
+  {
+    try {
+      if (data.labels.length < MIN_GRAPH_SIZE) {
+        let view = {
+          data: [],
+          total: 0,
+          minimum: MIN_GRAPH_SIZE
+        };
+        for (var i in data.labels) {
+          view.data.push({
+            symbol: data.labels[i],
+            cluster: data.clusters[i]
+          });
+        }
+        view.total = view.data.length;
+        $.get(root_path + 'templates/data_table.mst', function(template) {
+          let rendered = Mustache.render(template, view);
+          $('.content .messages')
+            .empty()
+            .html( rendered );
+        });
+        let error = new Error('Not enough data received to create SWOT Clock.');
+        error.name = 'SWOT Clock Error';
+        throw error;
+      }
+      data.title = title;
+      $('.content .messages').empty();
+      $('.chart').show();
+      try {
+        let g = new CHeM.Graph(data, canvas)
+          .drawChords()
+          .drawClusterBands()
+          .drawTextLabels()
+          .drawCircularHeatmap()
+          .drawClusterLegend()
+          .drawHeatmapLegend()
+          .drawTitle();
+        graph = g;
+      }
+      catch (e) {
+        let error = new Error('Creation of SWOT Clock reached an unknown error.');
+        error.name = 'SWOT Clock Error';
+        throw error;
+      }
+      fade_opacity = graph.getFadeOpacity();
+      updateHighlighting();
+      updateColorScheme();
+      updateTheme();
+      runAnalytics($('.analysis-btn.active').attr('data-target'));
+    }
+    catch (error) {
+      errorHandler(error, 'critical', true);
+    }
   }
   
   /**
@@ -802,8 +825,24 @@ namespace UI {
    */
   function setDiseaseSearch(): void 
   {
-    initDiseaseList($('#searchBox'), (event, diseaseObj) => {
+    initDiseaseList($('#searchBox'), (ev, diseaseObj) => {
       drawCompleteGraph(diseaseObj, 'disease');
+    }, (diseaseObjs) => {
+      $('.totalDiseases').text(diseaseObjs.length);
+      $('#searchBox').focus();
+    });
+    initDiseaseList($('#intersection-add'), (event, diseaseObj) => {
+      let active_str = $('#intersection-active').text();
+      active_str = active_str.replace(/ /gi, '');
+      let active_list = [];
+      if (active_str !== '') {
+        active_list = active_str.split(',');
+      }
+      if (!_.contains(active_list, diseaseObj.label)) {
+        active_list.push(diseaseObj.label);
+        $('#intersection-active').text(active_list.join(', '));
+        computeIntersection(diseaseObj, 'disease');
+      }
     }, _.noop);
   }
 
@@ -815,7 +854,9 @@ namespace UI {
   {
     initKeggPathwayList($('#searchBox'), (event, keggObj) => {
       drawCompleteGraph(keggObj, 'kegg_pathways');
-    }, _.noop);
+    }, (keggObj) => {
+      $('#searchBox').focus();
+    });
   }
   
   /**
@@ -965,6 +1006,57 @@ namespace UI {
       current = scheme;
     }
   })();
+
+  /**
+   * 
+   */
+  function computeIntersection(semnextObj: DiseaseObject|KeggPathwayObject, data_type: string): void
+  {
+    canvas.clear();
+    $('.content .messages').empty();
+    $('.error-bar-bin').empty();
+    $('.chart').hide();
+    $.get(root_path + 'templates/loading.mst', function(template) {
+      $('.content .messages').html( template );
+    });
+
+    let old_data = graph.getData();
+    fetchGraphData(semnextObj, data_type, (new_data, error) => {
+      if (error) {
+        errorHandler(error, 'critical', false);
+        return;
+      }
+      let inter_labels = _.intersection(old_data.labels, new_data.labels);
+      // go through the old data labels and look for ones that are not in the intersected labels
+      let i = 0;
+      while (i<old_data.labels.length) {
+        if (!_.find(inter_labels, (datum) => { return datum === old_data.labels[i]; })) {
+          // proceed to remove this datum from the data set
+          old_data.labels.splice(i, 1);
+          old_data.clusters.splice(i, 1);
+          old_data.heatmap.splice(i * 9, 9);
+          old_data.chord_matrix.splice(i, 1);
+          for (let k=0; k<old_data.chord_matrix.length; k++) {
+            old_data.chord_matrix[k].splice(i, 1);
+          }
+        } else {
+          i++;
+        }
+      }
+      for (let i=0; i<old_data.heatmap.length; i++) {
+        old_data.heatmap[i].index = Math.floor(i / 9);
+      }
+      old_data.domc = undefined;
+      let new_title;
+      if (_.find(old_data.title.split(' '), (word) => { return word === 'Intersection'; })) {
+        new_title = old_data.title + ', and ' + semnextObj.label;
+        new_title = new_title.replace(/ and/, ',');
+      } else {
+        new_title = 'Intersection of ' + old_data.title + ' and ' + semnextObj.label;
+      }
+      newGraph(old_data, new_title);
+    });
+  }
   
 } /* END UI NAMESPACE */
 

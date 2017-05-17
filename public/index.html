@@ -27,6 +27,8 @@
 							data-target="graph-options">Graph</li>
 						<li class="chart-btn" data-action="change-options-bar" 
 							data-target="analysis-options">Analysis</li>
+						<li class="chart-btn" data-action="change-options-bar"
+							data-target="intersection-options">Intersection</li>
 						<li class="chart-btn" data-action="change-options-bar" 
 							data-target="download-options">Download</li>
 					</ul>
@@ -134,6 +136,16 @@
 								<td></td>
 								<td></td>
 							</tr>
+						</table>
+					</div>
+
+					<div class="intersection-options option">
+						<table class="intersection-table">
+							<tr> <td><b>Base Selection</b></td> <td id="intersection-base"></td> </tr>
+							<tr> <td><b>Active Intersections</b></td> <td id="intersection-active"></td> </tr>
+							<tr> <td><b>Add Intersection</b></td> <td><input type="text" name="diseaseList" 
+								id="intersection-add" class="form-control" placeholder="Search for a disease"></td> 
+								</tr>
 						</table>
 					</div>
 					
@@ -253,7 +265,7 @@
     </div>
     <div>
       <a href="http://tw.rpi.edu/web/project/SemNExT" target="_blank">
-			  A Semantic Numeric Exploration Techonology Project</a>
+			  A Semantic Numeric Exploration Technology Project</a>
     </div>
     <div>
       <a href="https://github.com/mpoegel/SemNExT-Visualizations" 
