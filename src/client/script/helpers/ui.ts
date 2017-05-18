@@ -65,6 +65,11 @@ namespace UI {
           .attr('title', 'Feature not available in IE or Edge.');
       }
     }
+    // get the current version number
+    $.get(root_path + 'version')
+      .done((version: string) => {
+        $('#version').text(version);
+      });
   }
   
   /**
