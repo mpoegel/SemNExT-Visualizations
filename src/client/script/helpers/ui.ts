@@ -857,6 +857,19 @@ namespace UI {
     }, (keggObj) => {
       $('#searchBox').focus();
     });
+    initKeggPathwayList($('#intersection-add'), (event, keggObj) => {
+      let active_str = $('#intersection-active').text();
+      active_str = active_str.replace(/ /gi, '');
+      let active_list = [];
+      if (active_str !== '') {
+        active_list = active_str.split(',');
+      }
+      if (!_.contains(active_list, keggObj.label)) {
+        active_list.push(keggObj.label);
+        $('#intersection-active').text(active_list.join(', '));
+        computeIntersection(keggObj, 'kegg_pathways');
+      }
+    }, _.noop);
   }
   
   /**
