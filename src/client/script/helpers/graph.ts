@@ -490,13 +490,11 @@ module CHeM {
     {
       let legend = this.svg.append("g")
             .attr("class", "clusterLegend")
-            .attr("transform", "translate(" + (this.canvas.getAdjWidth() / 2 +
-              this.canvas.getMargins().top * 0.30) + "," +
-              (- this.canvas.getAdjHeight() / 2 - 
-                this.canvas.getMargins().right * 0.90) + ")")
-            .attr("height", 100)
-            .attr("width", 100),
-          self = this;
+            .attr("transform", "translate(" + (this.canvas.getAdjWidth() / 2 * 0.85) + "," +
+              (- this.canvas.getAdjHeight() / 2 - this.canvas.getMargins().top * 0.75) + ")")
+            .attr("height", 120)
+            .attr("width", 300);
+      let self = this;
       legend.selectAll("g")
           .data(d3.range(1, Graph.clusterToStage.length+1))
         .enter().append("g")
@@ -515,7 +513,7 @@ module CHeM {
               .attr("width", 100)
               .attr("fill", '#000')
               .attr("text-anchor", "end")
-              .style("font-size", "16px")
+              .style("font-size", "14px")
               .text(Graph.clusterToStage[i]);
           });
       return this;
@@ -530,10 +528,8 @@ module CHeM {
       let self = this,
           legend = self.svg.append("g")
             .attr("class", "heatmapLegend")
-            .attr("transform", "translate(" + (- self.canvas.getAdjWidth() / 2 -
-              self.canvas.getMargins().top * 0.30) + "," +
-              (- self.canvas.getAdjHeight() / 2 - self.canvas.getMargins().left *
-              0.90) + ")")
+            .attr("transform", "translate(" + (- self.canvas.getAdjWidth() / 2 * 0.85) + "," +
+              (- self.canvas.getAdjHeight() / 2 - self.canvas.getMargins().top * 0.75) + ")")
             .attr("height", 100)
             .attr("width", 100)
       legend.selectAll("g")
@@ -551,8 +547,66 @@ module CHeM {
             );
             g.append("text")
               .attr("x", -40)
-              .attr("y", d*20+15)
+              .attr("y", d*20 + 15)
+              .style('font-size', '12px')
               .text(Math.round(self.heatmapLegendScale(d) * 10000) / 10000 );
+          });
+      return self;
+    }
+
+    /**
+     * Draws the enrichment table next to the cluster legend given the log odds and p-values
+     * @param {any[]} log_odds an array of log odds values, one for each cluster
+     * @param {any[]} p_values an array of p-values, on for each cluster
+     * @returns {Graph} this
+     */
+    drawEnrichmentTable(log_odds: any[], p_values: any[]): Graph
+    {
+      log_odds = ['Log Odds'].concat(log_odds);
+      p_values = ['p-value'].concat(p_values);
+      let self = this;
+      d3.select('.enrichmentTable').remove();
+      let legend = self.svg.append("g")
+            .attr("class", "enrichmentTable")
+            .attr("transform", "translate(" + (self.canvas.getAdjWidth() / 2 * 0.85) + "," +
+              (- self.canvas.getAdjHeight() / 2 - self.canvas.getMargins().top * 0.75) + ")")
+            .attr("height", 120)
+            .attr("width", 300);
+      legend.selectAll('g.log-odds')
+          .data(log_odds)
+        .enter().append('g')
+          .attr('class', 'log-odds')
+          .each(function(d, i) {
+            let g = d3.select(this);
+            g.append('text')
+              .attr('x', 75)
+              .attr('y', i*20 - 10)
+              .attr('text-anchor', 'start')
+              .style('font-size', '14px')
+              .text(d);
+            if (i === 0) {
+              g.style('font-weight', 'bold');
+            } else {
+              g.style('font-family', 'monospace');              
+            }
+          });
+      legend.selectAll('g.p-value')
+          .data(p_values)
+        .enter().append('g')
+          .attr('class', 'p-value')
+          .each(function(d, i) {
+            let g = d3.select(this);
+            g.append('text')
+              .attr('x', 155)
+              .attr('y', i*20 - 10)
+              .attr('text-anchor', 'start')
+              .style('font-size', '14px')
+              .text(d);
+            if (i === 0) {
+              g.style('font-weight', 'bold');
+            } else {
+              g.style('font-family', 'monospace');              
+            }
           });
       return self;
     }

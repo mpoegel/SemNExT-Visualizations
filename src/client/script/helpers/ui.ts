@@ -288,7 +288,7 @@ namespace UI {
       updateHighlighting();
       updateColorScheme();
       updateTheme();
-      runEnrichment($('.analysis-btn.active').attr('data-target'));
+      runEnrichment($('.menu-btn[data-action="enrichment"].dropdown-active').attr('data-target'));
     }
     catch (error) {
       errorHandler(error, 'critical', true);
@@ -312,47 +312,44 @@ namespace UI {
             cluster: data.clusters[i]
           };
         });
-    let lowest_pval = Infinity,
-        lowest_cluster = -1;
-    $('.cluster-enrichment .log-odds td:not(:first)').text('');
-    $('.cluster-enrichment .p-value td:not(:first)').text('');
+    let lowest_pval = Infinity;
+    let lowest_cluster = -1;
+    let all_log_odds = [];
+    let p_value_promises = [];
     for (var i=1; i<=6; i++) {
       let [n11, n12, n21, n22] = Analysis.contingencyTable(genes, i);
       let log_odds = Analysis.logOdds(n11, n12, n21, n22);
-      $($('.cluster-enrichment .log-odds td')[i]).text(log_odds.toPrecision(4));      
-      if (method == 'fishers-exact') {
-        // closure!
-        ((i) => {
-          $.post(root_path + 'api/v1/analysis/fisher_exact',
-                {
-                  n11: n11,
-                  n12: n12,
-                  n21: n21,
-                  n22: n22
-                },
-                (pval) => {
-                    pval = parseFloat(pval).toPrecision(4);
-                    $($('.cluster-enrichment .p-value td')[i]).text(pval);
-                    // dominant cluster is the cluster with a positive log odds ratio and the
-                    // lowest p-value
-                    if (log_odds > 0 && pval < lowest_pval) {
-                      lowest_pval = pval;
-                      lowest_cluster = i;
-                    }
-                    dom_cluster = lowest_cluster;
-                }
-                );
-        })(i);
-      } else {
-        let p_value = Analysis.zTest(n11, n12, n21, n22);
-        $($('.cluster-enrichment .p-value td')[i]).text(p_value.toPrecision(4));        
-        if (log_odds > 0 && p_value < lowest_pval) {
-          lowest_pval = p_value;
+      all_log_odds.push(log_odds.toPrecision(4));
+      let prom = new Promise((resolve, reject) => {
+        if (method == 'fishers-exact') {
+          // closure!
+          ((i) => {
+            $.post(root_path + 'api/v1/analysis/fisher_exact',
+              { n11: n11, n12: n12, n21: n21, n22: n22 },
+              (p_value) => {
+                p_value = parseFloat(parseFloat(p_value).toPrecision(4));
+                resolve(p_value);
+              });
+          })(i);
+        } else {
+          let p_value = Analysis.zTest(n11, n12, n21, n22);
+          p_value = parseFloat(p_value.toPrecision(4));
+          resolve(p_value);
+        }
+      });
+      p_value_promises.push(prom);
+    }
+    Promise.all(p_value_promises).then((all_p_values) => {
+      for (let i=0; i<6; i++) {
+        // dominant cluster is the cluster with a positive log odds ratio and the lowest p-value        
+        if (all_log_odds[i] > 0 && all_p_values[i] < lowest_pval) {
+          lowest_pval = all_p_values[i];
           lowest_cluster = i;
         }
-        dom_cluster = lowest_cluster;
       }
-    }
+      dom_cluster = lowest_cluster;
+      graph.drawEnrichmentTable(all_log_odds, all_p_values);
+    });
   }
 
   /**
@@ -422,6 +419,9 @@ namespace UI {
           break;
         case 'toggle-legends':
           toggleLegends();
+          break;
+        case 'toggle-enrichment':
+          toggleEnrichmentTable();
           break;
         case 'custom-data':
           openCustomCHeMMenu();
@@ -748,6 +748,23 @@ namespace UI {
       }
     }
   }
+
+  /**
+   * Toggle the enrichment table in the graph
+   */
+  let toggleEnrichmentTable = (function() {
+    let visible = true;
+    return () => {
+      if (visible) {
+        canvas.getSVG().select('.enrichmentTable').remove();
+      } else {
+        runEnrichment($('.menu-btn[data-action="enrichment"].dropdown-active').attr('data-target'));
+      }
+      updateTheme();
+      visible = !visible;
+    }
+  })();
+
 
   /**
    * Toggle the legends in the graph

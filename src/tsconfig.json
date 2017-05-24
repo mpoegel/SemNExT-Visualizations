@@ -8,6 +8,14 @@
         "removeComments": true,
         "noLib": false,
         "preserveConstEnums": true,
-        "suppressImplicitAnyIndexErrors": true
+        "suppressImplicitAnyIndexErrors": true,
+        "alwaysStrict": true,
+        "sourceMap": false,
+        "moduleResolution": "Node",
+        "lib": [
+            "dom",
+            "es5",
+            "es2015"
+        ]
     }
 }
