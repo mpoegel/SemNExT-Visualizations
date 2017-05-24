@@ -13,10 +13,12 @@ import * as $ from 'jquery';
 import * as _ from 'underscore';
 
 import {loadjQueryPlugin, Bloodhound} from 'typeahead.js-browserify';
+import * as Awesomplete from 'awesomplete';
 import {Mustache} from 'mustache';
 
 window.jQuery = $;
 import 'bootstrap';
+
 
 /**
  * The namespace that contains all functions related to the user interface.
@@ -28,6 +30,18 @@ namespace UI {
       root_path: string,
       fade_opacity: number,
       dom_cluster: number;
+  let search_box = new Awesomplete(document.getElementById('search-box'), {
+    list: [],
+    minChars: 1,
+    maxItems: 5,
+    autoFirst: true,
+    replace: function(text) { this.input.value = text.label; }
+  });
+  let search_box_cb = (label: string, value: string) => {};
+  document.getElementById('search-box').addEventListener('awesomplete-selectcomplete', 
+    (e) => {
+      search_box_cb(e['text'].label, e['text'].value);
+  });
 
   const colors = {
       critical: '#F77',
@@ -122,33 +136,17 @@ namespace UI {
    * @param cd {(diseaseObjs) => any} callback function
    * @returns {void}
    */
-  function initDiseaseList($input: JQuery, onSelect: (event, obj) => any,
-    cb: (diseaseObjs) => any): void 
+  function initDiseaseList($input: JQuery, onSelect: (label: string, value: string) => any,
+    cb: (disease_objs) => any): void 
   {
     $.get(root_path + 'api/v1/list/disease')
-      .done((diseaseObjs) => {
-        let bloodhound = new Bloodhound({
-              datumTokenizer: (datum) => { return [datum.label.replace(/\s+/gi, '_')]; },
-              queryTokenizer: (query) => { return [query.trim().replace(/\s+/gi, '_')] },
-              local: () => { return diseaseObjs; },
-              identify: (obj) => { return obj['@id']; },
-            });
-        $input
-          .typeahead('destroy')
-          .typeahead({
-            hint: true,
-            highlight: true,
-            minLength: 1
-          }, {
-              name: 'disease-list',
-              display: 'label',
-              source: bloodhound,
-              limit: 5
-            })
-          .attr('placeholder', 'Search for a disease')
-          .off('typeahead:select')
-          .on('typeahead:select', onSelect);
-        cb(diseaseObjs);
+      .done((disease_objs) => {
+        disease_objs = _.map(disease_objs, (obj: DiseaseObject) => { 
+          return {label: obj.label, value: obj['@id']};
+        });
+        search_box.list = disease_objs;
+        search_box_cb = onSelect;
+        cb(disease_objs);
       })
       .fail((error) => {
         let e = new Error(error.statusText);
@@ -165,32 +163,17 @@ namespace UI {
    * @param cd {(diseaseObjs) => any} callback function
    * @returns {void} 
    */
-  function initKeggPathwayList($input: JQuery, onSelect: (event, obj) => any,
-    cb: (keggObjs) => any): void 
+  function initKeggPathwayList($input: JQuery, onSelect: (label: string, value: string) => any,
+    cb: (kegg_objs) => any): void 
   {
     $.get(root_path + 'api/v1/list/kegg_pathways')
-      .done((keggObjs) => {
-        let bloodhound = new Bloodhound({
-              datumTokenizer: (datum) => { return [datum.label]; },
-              queryTokenizer: Bloodhound.tokenizers.whitespace,
-              local: () => { return keggObjs; },
-              identify: (obj) => { return obj['@id']; },
-            });
-        $input
-          .typeahead('destroy')
-          .typeahead({
-            hint: true,
-            highlight: true,
-            minLength: 1
-          }, {
-              name: 'kegg-pathways-list',
-              display: 'label',
-              source: bloodhound
-            })
-          .attr('placeholder', 'Search for a Kegg Pathway')
-          .off('typeahead:select')
-          .on('typeahead:select', onSelect);
-        cb(keggObjs);
+      .done((kegg_objs) => {
+        kegg_objs = _.map(kegg_objs, (obj: DiseaseObject) => { 
+          return {label: obj.label, value: obj['@id']};
+        });
+        search_box.list = kegg_objs;
+        search_box_cb = onSelect;
+        cb(kegg_objs);
       })
       .fail((error) => {
         let e = new Error(error.statusText);
@@ -305,7 +288,7 @@ namespace UI {
       updateHighlighting();
       updateColorScheme();
       updateTheme();
-      runAnalytics($('.analysis-btn.active').attr('data-target'));
+      runEnrichment($('.analysis-btn.active').attr('data-target'));
     }
     catch (error) {
       errorHandler(error, 'critical', true);
@@ -317,7 +300,7 @@ namespace UI {
    * cluster.
    * @returns {void}
    */
-  function runAnalytics(method: string): void 
+  function runEnrichment(method: string): void 
   {
     if (!graph) {
       return;
@@ -378,26 +361,31 @@ namespace UI {
    */
   function attachListener(): void 
   {
-    $('body').off('click').on('click', '.chart-btn', (e: Event) => {
+    $('body').off('click').on('click', '.menu-btn', (e: Event) => {
       let $btn = $(e.target);
-      while (!$btn.hasClass('chart-btn')) {
+      while (!$btn.hasClass('menu-btn')) {
         $btn = $btn.parent();
       }
       let action = $btn.attr('data-action'),
           target = $btn.attr('data-target');
       switch (action) {
-        // Primary options bar
-        case 'highlight-none':
-          updateHighlighting(() => { 
-            clearHighlighting();
-            $(e.target).addClass('active'); 
-          });
+        case 'dropdown':
+          $('.dropdown-content').hide();
+          $('#' + target).toggle();
           break;
-        case 'highlight-hover':
-          updateHighlighting(() => { setHighlightOnHover($(e.target)); });
+        case 'dropside':
+          $('.dropside-content').removeClass('display-inline-block');          
+          $('#' + target).toggleClass('display-inline-block');
           break;
-        case 'highlight-click':
-          updateHighlighting(() => { setHighlightOnClick($(e.target)); });
+        case 'highlight':
+          selectMenuOption(action, target);
+          if (target === 'hover') {
+            updateHighlighting(() => { setHighlightOnHover($(e.target)); });            
+          } else if (target === 'click') {
+            updateHighlighting(() => { setHighlightOnClick($(e.target)); });            
+          } else if (target === 'none') {
+            updateHighlighting(() => { clearHighlighting(); });
+          }
           break;
         case 'highlight-dom':
           highlightDominantCluster();
@@ -405,19 +393,18 @@ namespace UI {
             $('.highlight-btn[data-action="highlight-click"]')
           );
           break;
-        case 'display-all':
-          displayAll();
-          break;
-        case 'display-none':
-          displayNone();
-          break;
-        case 'display-invert':
-          invertDisplay();
+        case 'display':
+          if (target === 'all') {
+            displayAll();
+          } else if (target === 'none') {
+            displayNone();
+          } else if (target === 'invert') {
+            invertDisplay();
+          }
           break;
         case 'toggle-settings':
           toggleSettings($(e.target));
           break;
-        // Options Bar
         case 'change-options-bar':
           updateOptionsBar(target);
           break;
@@ -433,38 +420,40 @@ namespace UI {
         case 'download-raw-connections':
           downloadRawConnections();
           break;
-        case 'show-legends':
-          showLegends($(e.target));
-          break;
-        case 'hide-legends':
-          hideLegends($(e.target));
+        case 'toggle-legends':
+          toggleLegends();
           break;
         case 'custom-data':
           openCustomCHeMMenu();
           break;
-        case 'set-D310-colors':
-          updateColorScheme('D310');      
+        case 'colors':
+          selectMenuOption(action, target);
+          if (target === 'd310') {
+            updateColorScheme('D310');            
+          } else if (target === 'matlab') {
+            updateColorScheme('matlab');
+          } else if (target === 'colorblind') {
+            updateColorScheme('colorblind-safe');            
+          }
           break;
-        case 'set-matlab-colors':
-          updateColorScheme('matlab');       
+        case 'theme':
+          selectMenuOption(action, target);
+          if (target === 'light') {
+            updateTheme( $(e.target), '#FFF', '#000' );
+          } else if (target === 'dark') {
+            updateTheme( $(e.target), '#000', '#FFF' );
+          }
           break;
-        case 'set-colorblind-colors':
-          updateColorScheme('colorblind-safe');
-          break;
-        case 'set-light-theme':
-          updateTheme( $(e.target), '#FFF', '#000' );
-          break;
-        case 'set-dark-theme':
-          updateTheme( $(e.target), '#000', '#FFF' );
-          break;
-        case 'path-color-gradient':
+        case 'chord-gradient':
           graph.drawGradientPaths();
           break;
-        case 'set-search-disease':
-          setDiseaseSearch();
-          break;
-        case 'set-search-kegg-pathway':
-          setKeggPathwaySearch();
+        case 'set-search':
+          selectMenuOption(action, target);
+          if (target === 'disease') {
+            setDiseaseSearch();
+          } else if (target === 'kegg') {
+            setKeggPathwaySearch();
+          }
           break;
         case 'create-custom':
           createCustomCHeM();
@@ -472,8 +461,9 @@ namespace UI {
         case 'clear-custom-genes':
           $('.custom-dataset-menu textarea').val('');
           break;
-        case 'analysis':
-          runAnalytics($(e.target).attr('data-target'));
+        case 'enrichment':
+          selectMenuOption(action, target);
+          runEnrichment(target);
           break;
         // Error messages
         case 'close-error':
@@ -481,8 +471,7 @@ namespace UI {
           break;
       }
     });
-    $('.custom-dataset-menu input[name="gene-file"]').off()
-        .on('change', (e: Event) => 
+    $('.custom-dataset-menu input[name="gene-file"]').off().on('change', (e: Event) => 
       {
       let file = $(e.target)[0].files[0];
       if (file) {
@@ -497,7 +486,17 @@ namespace UI {
           $gene_list.val(gene_list);
         }
       }
-      });
+    });
+    $('body').on('click', (e: Event) => {
+      let $btn = $(e.target);
+      if (!$btn.hasClass('drop-btn') && !$btn.hasClass('dropdown-submenu')) {
+        $('.dropdown-content').hide();
+        $('.dropside-content').removeClass('display-inline-block');
+      }
+      if ($btn.hasClass('drop-btn')) {
+        $('.dropside-content').removeClass('display-inline-block');        
+      }
+    });
   }
   
   /**
@@ -515,6 +514,22 @@ namespace UI {
       current = highlightFunc;
     }
   })();
+
+  function selectMenuOption(action: string, target: string): void {
+    let check = '<i class="fa fa-check"></i> ';
+    let $btns = $('.menu-btn[data-action="' + action + '"]');
+    for (let i=0; i<$btns.length; i++) {
+      let $btn = $($btns[i]);
+      let t = $btn.html();
+      t = t.replace(check, '');
+      $btn.html(t);
+      $btn.removeClass('dropdown-active');
+    }
+    let $btn = $('.menu-btn[data-action="' + action + '"][data-target="' + target + '"]');
+    let t = $btn.html();
+    $btn.html(check + t);
+    $btn.addClass('dropdown-active');
+  }
 
   /**
    * Clear the current highlighting for the active graph
@@ -733,39 +748,24 @@ namespace UI {
       }
     }
   }
-  
-  /**
-   * Hide the legends for the graph
-   * @param btn {Jquery} optional. The button that triggered the event to hide 
-   *  the legends
-   * @returns {void}
-   */
-  function hideLegends(btn?: JQuery): void 
-  {
-    canvas.getSVG().select('.clusterLegend').remove();
-    canvas.getSVG().select('.heatmapLegend').remove();
-    if (btn) {
-      btn.text('Show Legends')
-        .attr('data-action', 'show-legends');
-    }
-  }
 
   /**
-   * Redraw the legends for the graph
-   * @param btn {Jquery} optional. The button that triggered the event to show 
-   *  the legends
-   * @returns {void}
+   * Toggle the legends in the graph
    */
-  function showLegends(btn?: JQuery): void 
-  {
-    graph.drawClusterLegend()
-         .drawHeatmapLegend();
-    updateTheme();
-    if (btn) {
-      btn.text('Hide Legends')
-        .attr('data-action', 'hide-legends');
+  let toggleLegends = (function() {
+    let visible = true;
+    return () => {
+      if (visible) {
+        canvas.getSVG().select('.clusterLegend').remove();
+        canvas.getSVG().select('.heatmapLegend').remove();
+      } else {
+        graph.drawClusterLegend()
+            .drawHeatmapLegend();
+      }
+      updateTheme();
+      visible = !visible;
     }
-  }
+  })();
 
   /**
    * Display the menu to create a custom graph
@@ -830,25 +830,12 @@ namespace UI {
    */
   function setDiseaseSearch(): void 
   {
-    initDiseaseList($('#searchBox'), (ev, diseaseObj) => {
-      drawCompleteGraph(diseaseObj, 'disease');
-    }, (diseaseObjs) => {
-      $('.totalDiseases').text(diseaseObjs.length);
-      $('#searchBox').focus();
+    initDiseaseList($('#searchBox'), (label: string, value: string) => {
+      drawCompleteGraph({ label: label, '@id': value, '@context': ''}, 'disease');
+    }, (disease_objs) => {
+      $('.totalDiseases').text(disease_objs.length);
+      $('#search-box').focus().attr('placeholder', 'Search for a disease');
     });
-    initDiseaseList($('#intersection-add'), (event, diseaseObj) => {
-      let active_str = $('#intersection-active').text();
-      active_str = active_str.replace(/ /gi, '');
-      let active_list = [];
-      if (active_str !== '') {
-        active_list = active_str.split(',');
-      }
-      if (!_.contains(active_list, diseaseObj.label)) {
-        active_list.push(diseaseObj.label);
-        $('#intersection-active').text(active_list.join(', '));
-        computeIntersection(diseaseObj, 'disease');
-      }
-    }, _.noop);
   }
 
   /**
@@ -857,24 +844,11 @@ namespace UI {
    */
   function setKeggPathwaySearch(): void 
   {
-    initKeggPathwayList($('#searchBox'), (event, keggObj) => {
-      drawCompleteGraph(keggObj, 'kegg_pathways');
-    }, (keggObj) => {
-      $('#searchBox').focus();
+    initKeggPathwayList($('#searchBox'), (label: string, value: string) => {
+      drawCompleteGraph({ label: label, '@id': value, '@context': ''}, 'kegg_pathways');
+    }, (kegg_obj) => {
+      $('#search-box').focus().attr('placeholder', 'Search for a Kegg Pathway');
     });
-    initKeggPathwayList($('#intersection-add'), (event, keggObj) => {
-      let active_str = $('#intersection-active').text();
-      active_str = active_str.replace(/ /gi, '');
-      let active_list = [];
-      if (active_str !== '') {
-        active_list = active_str.split(',');
-      }
-      if (!_.contains(active_list, keggObj.label)) {
-        active_list.push(keggObj.label);
-        $('#intersection-active').text(active_list.join(', '));
-        computeIntersection(keggObj, 'kegg_pathways');
-      }
-    }, _.noop);
   }
   
   /**

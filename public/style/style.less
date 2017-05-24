@@ -1,79 +1,87 @@
 /* HEADER ------------------------------------------------------------- */
-.header {
+.menu {
+  background-color: #4CAF50;
+  padding: 1px;
   margin-bottom: 20px;
-  background-color: #d3d3d3;
-  
-  .error-bar {
-    color: #FFF;
-    overflow: hidden;
-    padding: 10px;
-    
-    .text {
-      width: 50%;
-      margin-left: 25%;
-      padding: 10px;
-    }
-  }
 }
 
-.settings-bar {
-  height: 60px;
-  padding: 15px;
+.drop-btn {
+  background-color: #4CAF50;
+  color: white;
+  padding: 5px 15px;
+  font-size: 15px;
+  cursor: pointer;
+  display: inline-block;
+  margin: 0;  
 }
 
-.horizontal-list {
-  list-style-type: none;
-  
-  li {
-    float: left;
-    padding-right: 20px;
-    padding-bottom: 10px;
-  }
+/* Dropdown button on hover & focus */
+.drop-btn:hover, .drop-btn:focus {
+  background-color: #3e8e41;
 }
 
-.expanded-settings-bar {
+/* The container <div> - needed to position the dropdown content */
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+/* Dropdown Content (Hidden by Default) */
+.dropdown-content, .dropside-content {
   display: none;
-  padding-top: 10px;
+  position: absolute;
+  background-color: #f9f9f9;
+  min-width: 200px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1;
   
-  .options-list li:hover {
+  .dropdown-item, .dropdown-submenu {
+    color: black;
+    padding: 5px 16px;
+    text-decoration: none;
+    display: block;
     cursor: pointer;
   }
-  .selected {
-    font-weight: bold;
-  }
-}
 
-.active-options-bar {
-  padding-left: 40px; 
-  
-  .option {
-    display: none;
-  }
-  
-  .download-btn {
-    margin-top: 5px;
-  }
-  
-  .cluster-enrichment {
-    margin-top: 10px;
-    border-spacing: 20px;
-    column-gap: 20px;
-    
-    td, th {
-      padding: 1px 8px;
-      text-align: center;
+  .dropdown-submenu {
+    display: inline-block;
+    width: 196px;
+
+    i {
+      float: right;
+      margin-top: 1px;
     }
   }
+
+  .dropdown-active {
+    font-weight: bold;
+  }
+
+  .dropdown-item:hover, .dropdown-submenu:hover {
+    background-color: #f1f1f1;
+  }
+
+  .dropdown-sep {
+    margin: 3px 8%;
+    min-width: 84%;
+    height: 1px;
+    background-color: #adadad;
+  }
 }
 
-.intersection-table {
-  border-collapse: separate;
-  border-spacing: 20px 0;
-  column-gap: 20px;
+.display-inline-block {
+  display: inline-block;
+}
 
-  td {
-    padding: 1px 8px;
-  }
+#search-container {
+  display: inline-block;
+  margin-left: 75px;
+}
+
+#search-box {
+  display: inline-block;
+  width: 250px;
+  height: 25px;
 }
 
 /* CONTENT  ----------------------------------------------------------------- */
@@ -82,7 +90,7 @@ html, body {
 }
 
 .content {
-  min-height: calc(~"100vh - 60px - 70px");
+  // min-height: calc(~"100vh - 40px - 60px");
 }
 
 .chart-status  {
@@ -175,81 +183,16 @@ html, body {
   margin: auto;
 }
 
-.semData {
-  display: none;
-}
-
-.semData-error {
-  padding: 10px;
-  margin-bottom: 20px;
-}
-
-.geneInfo {
-  z-index: 9999;
-  display: none;
-  position: absolute;
-  border: 1px solid #CCC;
-  background: #FFF;
-  color: #333;
-  -webkit-border-radius: 5px;
-     -moz-border-radius: 5px;
-          border-radius: 5px;
-  max-width:200px;
-}
-
-/* TYPEAHEAD ---------------------------------------------------------------- */
-.tt-query {
-  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
-     -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
-          box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
-}
-
-.tt-hint {
-  color: #999
-}
-
-.tt-menu {
-  width: 422px;
-  margin-top: 4px;
-  padding: 4px 0;
-  background-color: #fff;
-  border: 1px solid #ccc;
-  border: 1px solid rgba(0, 0, 0, 0.2);
-  -webkit-border-radius: 4px;
-     -moz-border-radius: 4px;
-          border-radius: 4px;
-  -webkit-box-shadow: 0 5px 10px rgba(0,0,0,.2);
-     -moz-box-shadow: 0 5px 10px rgba(0,0,0,.2);
-          box-shadow: 0 5px 10px rgba(0,0,0,.2);
-}
-
-.tt-suggestion {
-  padding: 3px 20px;
-  line-height: 24px;
-}
-
-.tt-suggestion.tt-cursor {
-  color: #fff;
-  background-color: #0097cf;
-
-}
-
-.tt-suggestion p {
-  margin: 0;
-}
-
 /* FOOTER ------------------------------------------------------------------- */
 .footer {
   display: -webkit-flex;
   display:     -ms-flex;
   display:         flex;
   flex-wrap: wrap;
-  height: 40px;
   
   div {
     flex: auto;
     flex-basis: 33%;
-    height: 25px;
     text-align: center;
     a {
       margin-left: 5px;
@@ -258,6 +201,9 @@ html, body {
 }
 
 .version {
-  color: #676767;
+  float: right;
+  color: #FFF;
   font-size: 12px;
+  padding: 7px 0;
+  margin-right: 20px;  
 }

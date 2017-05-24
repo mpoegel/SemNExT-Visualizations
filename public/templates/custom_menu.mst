@@ -20,7 +20,7 @@
       &times;</span>
   </p>
   <p>
-    <div class="btn btn-success chart-btn"
+    <div class="btn btn-success menu-btn"
       data-action="create-custom">
       Create Clock
     </div>
