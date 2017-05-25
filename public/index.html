@@ -92,7 +92,7 @@
 							<i class="fa fa-check"></i> Fisher's Exact</div>
 					</div>
 				</div>
-				<div class="dropdown-item">Intersection</div>
+				<div class="dropdown-item menu-btn" data-action="search-modifier" data-target="intersection">Intersection</div>
 			</div>
 		</div>
 		<div class="dropdown">		
@@ -120,10 +120,13 @@
 		<div id="search-container">
 			<input type="text" name="diseaseList" id="search-box" class="awesomplete form-control"
 				placeholder="Search for a disease">
+			<span id="search-mode"></span>
 		</div>
 
 		<div class="version">v<span id="version"></span></div>
 	</div>
+
+	<div class="error-bar-bin"></div>
 
 	<div class="content">
 		

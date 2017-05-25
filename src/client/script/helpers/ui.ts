@@ -12,7 +12,6 @@ import CHeM = require('./graph');
 import * as $ from 'jquery';
 import * as _ from 'underscore';
 
-import {loadjQueryPlugin, Bloodhound} from 'typeahead.js-browserify';
 import * as Awesomplete from 'awesomplete';
 import {Mustache} from 'mustache';
 
@@ -60,7 +59,6 @@ namespace UI {
   {
     canvas = c;
     root_path = p;
-    loadjQueryPlugin();
     attachListener();
     setDiseaseSearch();
     var ua = window.navigator.userAgent,
@@ -105,7 +103,7 @@ namespace UI {
       }
     });
     let $error_bar = $('<div/>', {
-        class: 'error-bar chart-btn',
+        class: 'error-bar menu-btn',
         'data-action': dismissable ? 'close-error' : ''
       })
       .append($('<span/>', {
@@ -347,7 +345,7 @@ namespace UI {
           lowest_cluster = i;
         }
       }
-      dom_cluster = lowest_cluster;
+      dom_cluster = lowest_cluster + 1;
       graph.drawEnrichmentTable(all_log_odds, all_p_values);
     });
   }
@@ -386,9 +384,8 @@ namespace UI {
           break;
         case 'highlight-dom':
           highlightDominantCluster();
-          setHighlightOnClick(
-            $('.highlight-btn[data-action="highlight-click"]')
-          );
+          setHighlightOnClick($('.highlight-btn[data-action="highlight-click"]'));
+          selectMenuOption('highlight', 'click');
           break;
         case 'display':
           if (target === 'all') {
@@ -465,6 +462,12 @@ namespace UI {
           selectMenuOption(action, target);
           runEnrichment(target);
           break;
+        case 'search-modifier':
+          selectMenuOption(action, target);
+          if (target === 'intersection') {
+            toggleIntersection();
+          }
+          break;
         // Error messages
         case 'close-error':
           $btn.remove();
@@ -515,7 +518,8 @@ namespace UI {
     }
   })();
 
-  function selectMenuOption(action: string, target: string): void {
+  function selectMenuOption(action: string, target: string): void
+  {
     let check = '<i class="fa fa-check"></i> ';
     let $btns = $('.menu-btn[data-action="' + action + '"]');
     for (let i=0; i<$btns.length; i++) {
@@ -781,6 +785,41 @@ namespace UI {
       }
       updateTheme();
       visible = !visible;
+    }
+  })();
+
+  /**
+   * Toggle intersection mode so that search completion triggers an intersected graph instead of a
+   * completely new graph
+   */
+  let toggleIntersection = (function() {
+    let active = false;
+    return () => {
+      if (active) {
+        let target = $('.menu-btn.dropdown-active[data-action="set-search"]').attr('data-target');
+        if (target === 'disease') {
+          search_box_cb = (label: string, value: string) => {
+            drawCompleteGraph({ label: label, '@id': value, '@context': ''}, 'disease'); };
+        } else {
+          search_box_cb = (label: string, value: string) => {
+            drawCompleteGraph({ label: label, '@id': value, '@context': ''}, 'kegg_pathways'); };
+        }
+        $('#search-mode').text('').hide();
+        selectMenuOption('search-modifier', '');
+      } else {
+        if (!graph) {
+          let error = new Error();
+          error.name = 'User Error';
+          error.message = 'You must first create a base clock';
+          errorHandler(error, 'info', true);
+          selectMenuOption('search-modifier', '');
+          return;
+        }
+        search_box_cb = (label: string, value: string) => {
+          computeIntersection({ label: label, '@id': value, '@context': ''}, 'disease'); };
+        $('#search-mode').text('Intersection').show();
+      }
+      active = !active;
     }
   })();
 

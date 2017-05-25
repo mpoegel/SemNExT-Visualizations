@@ -25,7 +25,6 @@
   "dependencies": {
     "@types/jquery": "^2.0.39",
     "@types/node": "^7.0.4",
-    "@types/typeahead": "^0.11.27",
     "@types/underscore": "^1.7.36",
     "awesomplete": "^1.1.1",
     "body-parser": "^1.15.0",
@@ -40,8 +39,6 @@
     "mustache": "^2.2.1",
     "r-script": "0.0.3",
     "request": "^2.63.0",
-    "typeahead.js": "^0.11.1",
-    "typeahead.js-browserify": "^1.0.7",
     "types.d3": "^0.1.1",
     "underscore": "^1.8.3",
     "velocity-animate": "^1.2.3",
