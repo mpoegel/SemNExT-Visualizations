@@ -566,7 +566,7 @@ module CHeM {
       this.svg.append("text")
           .attr("class", "title")
           .attr("transform", "translate(0," + (-this.canvas.getAdjHeight() / 2 -
-             this.canvas.getMargins().top * 0.80) + ")")
+             this.canvas.getMargins().top * 0.85) + ")")
           .attr("text-anchor", "middle")
           .style("font-size", "32px")
           .style("font-family", "Arial, Helvetica, sans-serif")
@@ -899,7 +899,6 @@ module CHeM {
         A = 4*(a.x*a.x + a.y*a.y),
         B = 4*(a.x*b.x + a.y*b.y),
         C = b.x*b.x + b.y*b.y,
-
         Sabc = 2*Math.sqrt(A+B+C),
         A_2 = Math.sqrt(A),
         A_32 = 2*A*A_2,
