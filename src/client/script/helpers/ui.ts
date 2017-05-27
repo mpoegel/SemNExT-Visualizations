@@ -296,6 +296,7 @@ namespace UI {
   /**
    * Run the analysis of semnext data for this input. Calculates the dominant
    * cluster.
+   * @param {string} method the enrichment method to run, either 'fishers-exact' or 'z-test'
    * @returns {void}
    */
   function runEnrichment(method: string): void 
@@ -396,12 +397,6 @@ namespace UI {
             invertDisplay();
           }
           break;
-        case 'toggle-settings':
-          toggleSettings($(e.target));
-          break;
-        case 'change-options-bar':
-          updateOptionsBar(target);
-          break;
         case 'download-svg':
           downloadSVG();
           break;
@@ -467,6 +462,9 @@ namespace UI {
           if (target === 'intersection') {
             toggleIntersection();
           }
+          break;
+        case 'open-about':
+          openAboutPage();
           break;
         // Error messages
         case 'close-error':
@@ -640,47 +638,7 @@ namespace UI {
       .style('opacity', fade_opacity)
       .attr('visible', false);
   }
-  
-  /**
-   * Toggle the visibility of the expanded settings menu
-   * @param btn {JQuery} handle to the button that toggles the menu 
-   * @returns {void}
-   */
-  function toggleSettings(btn: JQuery): void 
-  {
-    let toggle: boolean = btn.attr('expanded') === 'true';
-    if (toggle) {
-      $('.expanded-settings-bar').slideUp();
-      btn.attr('title', 'Show more settings.')
-        .removeClass('fa-minus-square-o')
-        .addClass('fa-plus-square-o');
-    }
-    else {
-      $('.expanded-settings-bar').slideDown();
-      btn.attr('title', 'Show less settings.')
-        .removeClass('fa-plus-square-o')
-        .addClass('fa-minus-square-o');
-    }
-    btn.attr('expanded', (!toggle) + '');
-  }
-  
-  /**
-   * Change with submenu of the expanded settings menu is displayed
-   * @param target {string} name of the submenu to changed to
-   * @returns {void}
-   */
-  function updateOptionsBar(target: string): void 
-  {
-    $('.expanded-settings-bar .options-list .selected')
-      .removeClass('selected');
-    $('.expanded-settings-bar .options-list li[data-target="' + target + '"]')
-      .addClass('selected');
-    $('.active-options-bar .active-option').hide();
-    $('.active-options-bar .' + target)
-      .show()
-      .addClass('active-option');
-  }
-  
+
   /**
    * Generate a blob url for the current clock
    * @param contentType {string} content-type for the blob data
@@ -795,8 +753,8 @@ namespace UI {
   let toggleIntersection = (function() {
     let active = false;
     return () => {
+      let target = $('.menu-btn.dropdown-active[data-action="set-search"]').attr('data-target');
       if (active) {
-        let target = $('.menu-btn.dropdown-active[data-action="set-search"]').attr('data-target');
         if (target === 'disease') {
           search_box_cb = (label: string, value: string) => {
             drawCompleteGraph({ label: label, '@id': value, '@context': ''}, 'disease'); };
@@ -815,8 +773,13 @@ namespace UI {
           selectMenuOption('search-modifier', '');
           return;
         }
-        search_box_cb = (label: string, value: string) => {
-          computeIntersection({ label: label, '@id': value, '@context': ''}, 'disease'); };
+        if (target === 'disease') {
+          search_box_cb = (label: string, value: string) => {
+            computeIntersection({ label: label, '@id': value, '@context': ''}, 'disease'); };
+        } else {
+          search_box_cb = (label: string, value: string) => {
+            computeIntersection({ label: label, '@id': value, '@context': ''}, 'kegg_pathways'); };
+        }
         $('#search-mode').text('Intersection').show();
       }
       active = !active;
@@ -864,6 +827,19 @@ namespace UI {
   }
 
   /**
+   * Displays the about page
+   */
+  function openAboutPage(): void
+  {
+    $('.content .messages').empty();
+    $('.chart').hide();
+    $.get(root_path + 'templates/about.mst', function(template) {
+      $('.content .messages').html( template );
+    });
+  }
+
+
+  /**
    * Helper function to parse an input list of genes
    * @param raw_genes {string} input string containing a comma-separated list 
    *  of genes
@@ -886,9 +862,12 @@ namespace UI {
    */
   function setDiseaseSearch(): void 
   {
-    initDiseaseList($('#searchBox'), (label: string, value: string) => {
-      drawCompleteGraph({ label: label, '@id': value, '@context': ''}, 'disease');
-    }, (disease_objs) => {
+    let on_select = $('#search-mode').text() === 'Intersection' ?
+      (label: string, value: string) => {
+        computeIntersection({ label: label, '@id': value, '@context': ''}, 'disease'); } :
+      (label: string, value: string) => {
+        drawCompleteGraph({ label: label, '@id': value, '@context': ''}, 'disease'); };
+    initDiseaseList($('#searchBox'), on_select, (disease_objs) => {
       $('.totalDiseases').text(disease_objs.length);
       $('#search-box').focus().attr('placeholder', 'Search for a disease');
     });
@@ -900,13 +879,16 @@ namespace UI {
    */
   function setKeggPathwaySearch(): void 
   {
-    initKeggPathwayList($('#searchBox'), (label: string, value: string) => {
-      drawCompleteGraph({ label: label, '@id': value, '@context': ''}, 'kegg_pathways');
-    }, (kegg_obj) => {
+    let on_select = $('#search-mode').text() === 'Intersection' ?
+      (label: string, value: string) => {
+        computeIntersection({ label: label, '@id': value, '@context': ''}, 'kegg_pathways'); } :
+      (label: string, value: string) => {
+        drawCompleteGraph({ label: label, '@id': value, '@context': ''}, 'kegg_pathways'); };
+    initKeggPathwayList($('#searchBox'), on_select, (kegg_obj) => {
       $('#search-box').focus().attr('placeholder', 'Search for a Kegg Pathway');
     });
   }
-  
+
   /**
    * Download the data used to create the heat map as a CSV file
    * @returns {void}
@@ -943,7 +925,7 @@ namespace UI {
     let filename = graph.getData().title + '_heat_map_data.csv';
     downloadTextFile(filestream, filename);
   }
-  
+
   /**
    * Download the gene connection data used to create the chords. The genes are
    *  numbered clockwise around the diagram.
@@ -963,7 +945,7 @@ namespace UI {
     let filename = graph.getData().title + '_connection_data.csv';
     downloadTextFile(filestream, filename);
   }
-  
+
   /**
    * Trigger a dowload of a text file
    * @param text {string} content of the file to download
@@ -1056,7 +1038,13 @@ namespace UI {
   })();
 
   /**
-   * 
+   * Compute and graph the intersection of the genes in the existing graph and the new semnext
+   * object.
+   * @param {DiseaseObject|KeggPathwayObject} semnextObj the new semnext object to intersect with
+   * the current graph
+   * @param {string} data_type the type of the new semnext object, either 'disease' or
+   * 'kegg_pathways'
+   * @return {void}
    */
   function computeIntersection(semnextObj: DiseaseObject|KeggPathwayObject, data_type: string): void
   {
