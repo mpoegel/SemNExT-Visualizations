@@ -9,238 +9,133 @@
 	<link href="style/style.css" rel="stylesheet">
 	<link href="style/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
 	<link href="style/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+	<link href="style/awesomplete/awesomplete.css" rel="stylesheet">
 
 </head>
 
 <body>
 
-	<div class="header">
-		<div class="container">
-
-			<div class="row expanded-settings-bar">
-				
-        <div class="row">
-					<ul class="horizontal-list options-list">
-						<li class="chart-btn" data-action="change-options-bar" 
-							data-target="search-options">Search</li>
-						<li class="chart-btn" data-action="change-options-bar" 
-							data-target="graph-options">Graph</li>
-						<li class="chart-btn" data-action="change-options-bar" 
-							data-target="analysis-options">Analysis</li>
-						<li class="chart-btn" data-action="change-options-bar"
-							data-target="intersection-options">Intersection</li>
-						<li class="chart-btn" data-action="change-options-bar" 
-							data-target="download-options">Download</li>
-					</ul>
+	<div class="menu">
+		<div class="dropdown">
+			<div class="drop-btn menu-btn" data-action="dropdown" data-target="search-dropdown">Search</div>
+			<div id="search-dropdown" class="dropdown-content">
+				<div class="dropdown-item menu-btn dropdown-active" data-action="set-search" data-target="disease">
+					<i class="fa fa-check"></i> Diseases</div>
+				<div class="dropdown-item menu-btn" data-action="set-search" data-target="kegg">Kegg Pathways</div>
+				<div class="dropdown-sep"></div>
+				<div class="dropdown-item menu-btn" data-action="custom-data">Custom...</div>
+			</div>
+		</div>
+		<div class="dropdown">		
+			<div class="drop-btn menu-btn" data-action="dropdown" data-target="view-dropdown">View</div>
+			<div id="view-dropdown" class="dropdown-content">
+				<div class="dropdown-item menu-btn" data-action="highlight-dom">Dominant Cluster</div>
+				<div class="dropdown-sep"></div>
+				<div class="dropside">
+					<div class="dropdown-submenu menu-btn" data-action="dropside" data-target="highlight-dropside">
+						Highlight on <i class="fa fa-angle-right"></i>
+					</div>
+					<div id="highlight-dropside" class="dropside-content">
+						<div class="dropdown-item menu-btn dropdown-active" data-action='highlight' data-target='hover'>
+							<i class="fa fa-check"></i> Hover</div>
+						<div class="dropdown-item menu-btn" data-action='highlight' data-target='click'>Click</div>
+						<div class="dropdown-item menu-btn" data-action='highlight' data-target='none'>None</div>						
+					</div>
 				</div>
-				
-				<div class="row active-options-bar">
-						
-					<div class="search-options option">
-						<div class="btn-group" data-toggle="buttons">
-							<label class="btn btn-sm btn-primary active chart-btn"
-								data-action="set-search-disease"
-								title="Search for diseases">
-								<input type="radio" autocomplete="off" checked>Disease Search
-							</label>
-							<label class="btn btn-sm btn-primary chart-btn"
-								data-action="set-search-kegg-pathway"
-								title="Search for KEGG Pathways">
-								<input type="radio" autocomplete="off">KEGG Pathway Search
-							</label>
-						</div>
-						<div class="btn btn-sm btn-primary chart-btn"
-							title="Define a custom set of transcriptomes."
-							data-action="custom-data">Custom Transcriptome Set</div>
+				<div class="dropside">
+					<div class="dropdown-submenu menu-btn" data-action="dropside" data-target="show-dropside">
+						Show <i class="fa fa-angle-right"></i>
 					</div>
-					
-					<div class="graph-options option">
-						<div class="btn-group" data-toggle="buttons">
-							<label class="btn btn-sm btn-primary chart-btn"
-								data-action="set-D310-colors"
-								title="Color the chords with D3 Category 10 colors.">
-								<input type="radio" autocomplete="off" checked>D3 Category 10
-									Colors
-							</label>
-							<label class="btn btn-sm btn-primary chart-btn"
-								data-action="set-matlab-colors"
-								title="Color the chords with matlab colors.">
-								<input type="radio" autocomplete="off">Matlab Colors
-							</label>
-              <label class="btn btn-sm btn-primary active chart-btn"
-								data-action="set-colorblind-colors"
-								title="Color the chords with colorblind safe colors.">
-								<input type="radio" autocomplete="off">Colorblind Safe Colors
-							</label>
-						</div>
-            <div class="btn-group" data-toggle="buttons">
-							<label class="btn btn-sm btn-primary active chart-btn theme-btn"
-								data-action="set-light-theme"
-								title="Black foreground on white background.">
-								<input type="radio" autocomplete="off" checked>Light Theme
-							</label>
-							<label class="btn btn-sm btn-primary chart-btn theme-btn"
-								data-action="set-dark-theme"
-								title="White foreground on black background.">
-								<input type="radio" autocomplete="off">Dark Theme
-							</label>
-						</div>
-						<div class="btn btn-sm btn-primary chart-btn"
-							title="Hide both legends in the diagram."
-							data-action="hide-legends">
-							Hide Legends</div>
-						<div class="btn btn-sm btn-primary chart-btn"
-							title="Recolor the chords with a gradient. WARNING: this may take a while to complete for large data sets."
-							data-action="path-color-gradient">Path Color Gradient</div>
+					<div id="show-dropside" class="dropside-content">
+						<div class="dropdown-item menu-btn" data-action='display' data-target='all'>All</div>
+						<div class="dropdown-item menu-btn" data-action='display' data-target='none'>None</div>
+						<div class="dropdown-item menu-btn" data-action='display' data-target='invert'>Invert</div>
 					</div>
-					
-					<div class="analysis-options option">
-						<h4>Cluster Enrichment</h4>
-						<div class="btn-group" data-toggle="buttons">
-							<label class="btn btn-sm btn-primary chart-btn analysis-btn"
-								data-action="analysis" data-target="z-test"
-								title="Compute the significance values using the Z-test.">
-								<input type="radio" autocomplete="off" checked>Z-test
-							</label>
-							<label class="btn btn-sm btn-primary active chart-btn analysis-btn"
-								data-action="analysis" data-target="fishers-exact"
-								title="Compute the significance values using Fisher's Exact Test.">
-								<input type="radio" autocomplete="off">Fisher's Exact
-							</label>
-						</div>
-						<table class="cluster-enrichment">
-							<tr>
-								<th></th>
-								<th>Pluripotency</th>
-								<th>Neuroectoderm</th>
-								<th>Neural Differentiation</th>
-								<th>Cortical Specification</th>
-								<th>Deep Layers</th>
-								<th>Upper Layers</th>
-							</tr>
-							<tr class="log-odds">
-								<td>log odds</td>
-								<td></td>
-								<td></td>
-								<td></td>
-								<td></td>
-								<td></td>
-								<td></td>
-							</tr>
-							<tr class="p-value">
-								<td>p-value</td>
-								<td></td>
-								<td></td>
-								<td></td>
-								<td></td>
-								<td></td>
-								<td></td>
-							</tr>
-						</table>
+				</div>
+				<div class="dropside">
+					<div class="dropdown-submenu menu-btn" data-action="dropside" data-target="colors-dropside">
+						Colors <i class="fa fa-angle-right"></i>
 					</div>
+					<div id="colors-dropside" class="dropside-content">
+						<div class="dropdown-item menu-btn" data-action='colors' data-target='d310'>D3</div>
+						<div class="dropdown-item menu-btn" data-action='colors' data-target='matlab'>Matlab</div>
+						<div class="dropdown-item menu-btn dropdown-active" data-action='colors' data-target='colorblind'>
+							<i class="fa fa-check"></i> Colorblind Safe</div>
+					</div>
+				</div>
+				<div class="dropside">
+					<div class="dropdown-submenu menu-btn" data-action="dropside" data-target="theme-dropside">
+						Theme <i class="fa fa-angle-right"></i>
+					</div>
+					<div id="theme-dropside" class="dropside-content">
+						<div class="dropdown-item menu-btn dropdown-active" data-action='theme' data-target='light'>
+							<i class="fa fa-check"></i> Light</div>
+						<div class="dropdown-item menu-btn" data-action='theme' data-target='dark'>Dark</div>
+					</div>
+				</div>
+				<div class="dropdown-sep"></div>				
+				<div class="dropdown-item menu-btn" data-action='toggle-legends'>Toggle Legends</div>
+				<div class="dropdown-item menu-btn" data-action='toggle-enrichment'>Toggle Enrichment</div>
+				<div class="dropdown-item menu-btn" data-action='chord-gradient'>Chord Gradient</div>
+			</div>
+		</div>
+		<div class="dropdown">		
+			<div class="drop-btn menu-btn" data-action="dropdown" data-target="tools-dropdown">Tools</div>
+			<div id="tools-dropdown" class="dropdown-content">
+				<div class="dropside">
+					<div class="dropdown-submenu menu-btn" data-action="dropside" data-target="enrichment-dropside">
+						Enrichment <i class="fa fa-angle-right"></i>
+					</div>
+					<div id="enrichment-dropside" class="dropside-content">
+						<div class="dropdown-item menu-btn" data-action='enrichment' data-target='z-test'>Z-test</div>
+						<div class="dropdown-item menu-btn dropdown-active" data-action='enrichment' data-target='fishers-exact'>
+							<i class="fa fa-check"></i> Fisher's Exact</div>
+					</div>
+				</div>
+				<div class="dropdown-item menu-btn" data-action="search-modifier" data-target="intersection">Intersection</div>
+			</div>
+		</div>
+		<div class="dropdown">		
+			<div class="drop-btn menu-btn" data-action="dropdown" data-target="download-dropdown">Download</div>
+			<div id="download-dropdown" class="dropdown-content">
+				<div class="dropdown-item menu-btn" data-action="download-svg">.svg</div>
+				<div class="dropdown-item menu-btn" data-action="download-png">.png</div>
+				<div class="dropdown-sep"></div>
+				<div class="dropdown-item menu-btn" data-action="download-raw-heatmap">Heat Map Data</div>
+				<div class="dropdown-item menu-btn" data-action="download-raw-connections">Connection Data</div>
+			</div>
+		</div>
+		<div class="dropdown">		
+			<div class="drop-btn menu-btn" data-action="dropdown" data-target="help-dropdown">Help</div>
+			<div id="help-dropdown" class="dropdown-content">
+				<div class="dropdown-item menu-btn" data-action="open-about">About</div>
+				<div class="dropdown-sep"></div>				
+				<a href="https://github.com/mpoegel/SemNExT-Visualizations" target="_blank">
+					<div class="dropdown-item">Open Source</div></a>
+				<a href="https://github.com/mpoegel/SemNExT-Visualizations/issues" target="_blank">
+					<div class="dropdown-item">Report Issue</div></a>
+			</div>
+		</div>
 
-					<div class="intersection-options option">
-						<table class="intersection-table">
-							<tr> <td><b>Base Selection</b></td> <td id="intersection-base"></td> </tr>
-							<tr> <td><b>Active Intersections</b></td> <td id="intersection-active"></td> </tr>
-							<tr> <td><b>Add Intersection</b></td> <td><input type="text" name="diseaseList" 
-								id="intersection-add" class="form-control" placeholder="Search for a disease"></td> 
-								</tr>
-						</table>
-					</div>
-					
-					<div class="download-options option">
-						<div class="btn btn-sm btn-success chart-btn" 
-              data-action="download-svg"
-							title="Download the current diagram as an SVG.">
-							SVG
-						</div>
-						<div class="btn btn-sm btn-success chart-btn" 
-              data-action="download-png"
-							title="Download the current diagram as a PNG.">
-							PNG
-						</div>
-            <div class="btn btn-sm btn-success chart-btn" 
-              data-action="download-raw-heatmap"
-              title="Download the raw data for the heat map.">
-              Raw Heat Map Data
-            </div>
-            <div class="btn btn-sm btn-success chart-btn"
-              data-action="download-raw-connections"
-              title="Download the raw data for the gene connections.">
-              Raw Connection Data
-            </div>
-					</div>
-					
-				</div> <!-- close ACTIVE-OPTIONS-BAR -->
-					
-			</div> <!-- close EXPANDED-SETTINGS-BAR -->
+		<div id="search-container">
+			<input type="text" name="diseaseList" id="search-box" class="awesomplete form-control"
+				placeholder="Search for a disease">
+			<span id="search-mode"></span>
+		</div>
 
-			<div class="row settings-bar">
-				<ul class="horizontal-list">
-					<li>
-						<input type="text" name="diseaseList" id="searchBox"
-							class="form-control"  placeholder="Search for a disease">
-					</li>
-					<li>
-						<div class="btn btn-primary chart-btn"
-							data-action="highlight-dom"
-							title="Highlight the dominant cluster for gene set.">
-							Highlight Dominant Cluster
-						</div>
-					</li>
-					<li>
-						<div class="btn-group" data-toggle="buttons">
-							<label class="btn btn-primary active chart-btn highlight-btn"
-								data-action="highlight-hover"
-								title="Highlight a gene on hover.">
-								<input type="radio" autocomplete="off" checked>Hover
-							</label>
-							<label class="btn btn-primary chart-btn highlight-btn"
-								data-action="highlight-click"
-								title="Hightlight a gene on click.">
-								<input type="radio" autocomplete="off">Click
-							</label>
-							<label class="btn btn-primary chart-btn highlight-btn"
-								data-action="highlight-none"
-								title="Disable gene highlighting.">
-								<input type="radio" autocomplete="off">None
-							</label>
-						</div>
-					</li>
-					<li>
-						<div class="btn btn-primary chart-btn" data-action="display-all"
-							title="Display all gene connections.">
-							Display All</div>
-						<div class="btn btn-primary chart-btn" data-action="display-none"
-							title="Display no gene connections.">
-							Display None</div>
-						<div class="btn btn-primary chart-btn" data-action="display-invert"
-							title="Invert the highlighted gene connections.">
-							Invert Display
-						</div>
-					</li>
-					<li>
-						<i class="btn chart-btn fa fa-plus-square-o fa-2x"
-							data-action="toggle-settings" title="Show more settings."
-							expanded="false"></i>
-					</li>
-				</ul>
-			</div> <!-- close SETTINGS-BAR -->
+		<div class="version">v<span id="version"></span></div>
+	</div>
 
-		</div> <!-- close CONTAINER -->
-		<div class="error-bar-bin"></div>
-	</div> <!-- close HEADER -->
+	<div class="error-bar-bin"></div>
 
-	<div class="container content">
+	<div class="content">
 		
 		<div class="messages">
 			<div class="welcome-message">
 				<h2>
 					Welcome to the SWOT Clock
 				</h2>
-				<p class="subtitle">Suceptibility Windows Ontological Transcriptome 
-					Clock</p>
+				<p class="subtitle">Suceptibility Windows Ontological Transcriptome Clock</p>
 				<p>
 					There are <span class="totalDiseases">#</span> diseases currently
 					in the database.
@@ -248,34 +143,18 @@
 				<p>
 					This is a visualization tool to create a SWOT Clock	that illustrates
 					the relationships between transcriptomes in a reference set. You can 
-					search our database of diseases or KEGG Pathways or upload your own
+					search our database of diseases or KEGG pathways or upload your own
 					reference set.
+				</p>
+				<p>
+					<a href="http://tw.rpi.edu/web/project/SemNExT" target="_blank">
+			  		A Semantic Numeric Exploration Technology Project</a>
 				</p>
 			</div>			
 		</div>
 		
 		<div class="chart"></div>
 		
-	</div>
-  
-  <div class="footer">
-    <div>
-      <a href="http://rpi.edu" target="_blank">
-				Rensselaer Polytechnic Institute, Troy, NY, USA</a>
-    </div>
-    <div>
-      <a href="http://tw.rpi.edu/web/project/SemNExT" target="_blank">
-			  A Semantic Numeric Exploration Technology Project</a>
-    </div>
-    <div>
-      <a href="https://github.com/mpoegel/SemNExT-Visualizations" 
-        target="_blank">Open Source on Github</a>
-    </div>
-  </div>
-	<div class="footer">
-		<div class="version">
-			v<span id="version"></span>
-		</div>
 	</div>
   
 	<script src="./script/main.js" charset="utf-8"></script>

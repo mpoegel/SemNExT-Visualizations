@@ -1,0 +1,26 @@
+<div class="about">
+  <div style="text-align: center;">
+    <h2>SWOT Clock</h2>
+    <p class="subtitle">Suceptibility Windows Ontological Transcriptome Clock</p>
+  </div>
+  <br>
+  <p>
+    This is a visualization tool to create a SWOT Clock	that illustrates
+    the relationships between transcriptomes in a reference set. You can 
+    search our database of diseases or KEGG pathways or upload your own
+    reference set.
+  </p>
+  <p>
+    This is a 
+    <a href="http://tw.rpi.edu/web/project/SemNExT" target="_blank">
+      Semantic Numeric Exploration Technology Project</a> built at 
+    <a href="http://rpi.edu" target="_blank">Rensselaer Polytechnic Institute, Troy, NY, USA</a>
+    and is <a href="https://github.com/mpoegel/SemNExT-Visualizations" target="_blank">open source</a>.
+  </p>
+  <br>
+  <h3>Publications</h3>
+  <pre>Patton, E. W., Brown, E., Poegel, M., De Los Santos, H., Fasano, C., Bennett, K. P., & McGuinness, 
+    D. L. (2015). SemNExT: A Framework for Semantically Integrating and Exploring Numeric Analyses. 
+    In SemStats@ ISWC.</pre>
+  
+</div>
