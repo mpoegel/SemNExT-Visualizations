@@ -326,13 +326,12 @@ namespace UI {
             $.post(root_path + 'api/v1/analysis/fisher_exact',
               { n11: n11, n12: n12, n21: n21, n22: n22 },
               (p_value) => {
-                p_value = parseFloat(parseFloat(p_value).toPrecision(4));
+                p_value = parseFloat(p_value).toPrecision(4);
                 resolve(p_value);
               });
           })(i);
         } else {
-          let p_value = Analysis.zTest(n11, n12, n21, n22);
-          p_value = parseFloat(p_value.toPrecision(4));
+          let p_value = Analysis.zTest(n11, n12, n21, n22).toPrecision(4);
           resolve(p_value);
         }
       });
@@ -454,6 +453,10 @@ namespace UI {
           $('.custom-dataset-menu textarea').val('');
           break;
         case 'enrichment':
+          if (target === 'copy') {
+            copyEnrichmentTable();
+            break;
+          }
           selectMenuOption(action, target);
           runEnrichment(target);
           break;
@@ -1092,6 +1095,56 @@ namespace UI {
       }
       newGraph(old_data, new_title);
     });
+  }
+
+  /**
+   * Copies the current enrichment table to the user's clipboard
+   * @return {void}
+   */
+  function copyEnrichmentTable(): void
+  {
+    let table = $('.enrichmentTable g');
+    let values = [];
+    for (let i=0; i<table.length; i++) {
+      let val = $(table[i]).text();
+      if (val !== 'Log Odds' && val !== 'p-value') {
+        values.push(val);
+      } else {
+        values.push('');
+      }
+    }
+    let str = values.join(', ');
+    copyToClipboard(str);
+  }
+
+  /**
+   * Copies the given string the user's clipboard
+   * Note: this function can only be called upon action by user.
+   * @param {string} text the string to be copied to the clipboard
+   * @return {void}
+   */
+  function copyToClipboard(text: string): void
+  {
+    var t = document.createElement('textarea');
+    t.value = text;
+    document.body.appendChild(t);
+    t.select();
+    let error = new Error();
+    error.name = 'Clipboard';
+    try {
+      let successful = document.execCommand('copy');
+      if (successful) {
+        error.message = 'Copied to clipboard successfully';
+        errorHandler(error, 'info', true);
+      } else {
+        error.message = 'Could not copy to clipboard';
+        errorHandler(error, 'warning', true);
+      }
+    } catch (e) {
+      error.message = 'Error copying to clipboard';
+      errorHandler(error, 'critical', true);
+    }
+    t.remove();
   }
   
 } /* END UI NAMESPACE */
